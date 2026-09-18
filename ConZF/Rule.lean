@@ -31,8 +31,8 @@ structure Rule (D : PSet.{u} → PSet.{u}) (U : PSet.{u})
   /-- children have targets that are elements, and stay in the class -/
   mem : ∀ {η l ξ}, C η → r η l ξ → ξ ∈ η ∧ C ξ
   /-- a target is the union of the successors of the targets of the available children -/
-  sup : ∀ {η G}, C η → (∀ x, x ∈ G ↔ ∃ ζ, r η .a ζ ∧ x ∈ ζ) →
-    ∀ x, x ∈ η ↔ ∃ l ξ, Avail D U G l ∧ r η l ξ ∧ x ∈ succ ξ
+  sup : ∀ {η G}, C η → (∀ x, x ∈ G ↔ ¬¬∃ ζ, r η .a ζ ∧ x ∈ ζ) →
+    ∀ x, x ∈ η ↔ ¬¬∃ l ξ, Avail D U G l ∧ r η l ξ ∧ x ∈ succ ξ
 
 namespace Rule
 variable {r : PSet.{u} → Label.{u} → PSet.{u} → Prop} {C : PSet.{u} → Prop}
@@ -80,21 +80,23 @@ theorem coherent {η} (hη : C η) : Coherent D U (Tr r η) ∧ Tr r η [] η :=
     | cons h0 h1 =>
       exact (mem_congr_right (hr.tr_func h0 h')).1 (hr.mem (hr.tr_C hη h0) h1).1
   · intro p t G h hG x
-    refine (hr.sup (hr.tr_C hη h) (fun y => (hG y).trans <| exists_congr fun ζ =>
+    refine (hr.sup (hr.tr_C hη h) (fun y => (hG y).trans <| nn_congr <| exists_congr fun ζ =>
       and_congr (hr.tr_cons_iff h) Iff.rfl) x).trans ?_
-    exact exists_congr fun l => exists_congr fun ξ => and_congr Iff.rfl <|
+    exact nn_congr <| exists_congr fun l => exists_congr fun ξ => and_congr Iff.rfl <|
       and_congr (hr.tr_cons_iff h).symm Iff.rfl
 
-/-- Replacement for functional relations whose values are in the class of a rule. -/
+/-- Replacement for functional relations whose values are in the class of a rule, provided the
+root of the glued tree is not not accessible. -/
 theorem replacement (s : PSet.{u}) (hU : U = s) (φ : PSet.{u} → PSet.{u} → Prop)
     (φ_resp : ∀ {x x' y y'}, x ≈ x' → y ≈ y' → φ x y → φ x' y')
     (φ_func : ∀ {x y y'}, x ∈ s → φ x y → φ x y' → y ≈ y')
-    (φ_C : ∀ {x y}, x ∈ s → φ x y → C y) :
-    ∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ∃ x, x ∈ s ∧ φ x y := by
+    (φ_C : ∀ {x y}, x ∈ s → φ x y → C y)
+    (hacc : SWF (Rel (Glue (Tr r) s φ)) [] → ¬¬Acc (Rel (Glue (Tr r) s φ)) []) :
+    ¬¬∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ¬¬∃ x, x ∈ s ∧ φ x y := by
   subst hU
-  exact PSet.replacement (D := D) (T := Tr r) (fun η hη => hr.coherent hη)
-    (fun e h => tr_resp_root e h) φ_resp φ_func φ_C
+  have hT := fun η hη => hr.coherent (η := η) hη
+  have hTr : ∀ {η η' p t}, η ≈ η' → Tr r η p t → Tr r η' p t := fun e h => tr_resp_root e h
+  exact PSet.replacement (D := D) hT hTr φ_resp φ_func φ_C
+    (hacc (swf_root (D := D) hT hTr φ_resp φ_func φ_C))
 
 end Rule
-
-#print axioms Rule.replacement
