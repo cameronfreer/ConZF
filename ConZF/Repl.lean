@@ -104,9 +104,8 @@ theorem mem_F_root (acc : Acc (Rel (Glue T s φ)) []) (y : PSet.{u}) :
 /-- **Replacement** for `φ` on `s`, provided the values of `φ` lie in a class `C` every member
 `η` of which is the root target of a coherent assignment `T η` given uniformly in `η`, and
 provided the root of the glued tree is not not accessible. -/
-theorem replacement (hacc : ¬¬Acc (Rel (Glue T s φ)) []) :
-    ¬¬∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ¬¬∃ x, x ∈ s ∧ φ x y := by
-  refine nn_map (fun acc => ?_) hacc
+theorem replacement (acc : Acc (Rel (Glue T s φ)) []) :
+    ∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ¬¬∃ x, x ∈ s ∧ φ x y := by
   have hθ := mem_F_root (D := D) hT hTresp φ_resp φ_func φ_C acc
   refine ⟨sep (fun y => ¬¬∃ x, x ∈ s ∧ φ x y) (F D s (Rel (Glue T s φ)) [] acc), fun y => ?_⟩
   refine (mem_sep fun y y' e => nn_map fun ⟨x, hx, h⟩ =>
