@@ -1,4 +1,4 @@
-import ConZF.Worldly
+import ConZF.VLevel
 /-!
 First-order formulas of set theory with de Bruijn variables, satisfaction in a class model
 `M : PSet → Prop` (quantifiers range over `M`), renaming of variables, bounds on the free
@@ -152,42 +152,44 @@ theorem sat_bound {M : PSet.{u} → Prop} :
         | succ i => exact h i (Nat.lt_of_succ_lt_succ hi)
     ⟨fun s x hx => (H x).1 (s x hx), fun s x hx => (H x).2 (s x hx)⟩
 
-/-! ### Derived connectives -/
+/-! ### Stability and the derived connectives
+
+Satisfaction is stable, because the atoms are and formulas are built from `⊥`, `→`, `∀`. So
+the classical reading of the derived connectives needs no excluded middle. -/
+
+theorem Sat.stable {M : PSet.{u} → Prop} : ∀ (φ : Fml) (e : Nat → PSet.{u}), Stable (Sat M φ e)
+  | .mem _ _, _ => inferInstanceAs (Stable (_ ∈ _))
+  | .eq _ _, _ => inferInstanceAs (Stable (_ ≈ _))
+  | .fls, _ => inferInstanceAs (Stable False)
+  | .imp _ ψ, e => have := Sat.stable (M := M) ψ e; inferInstanceAs (Stable (_ → _))
+  | .all φ, e => have := fun x => Sat.stable (M := M) φ (Env.cons x e)
+    inferInstanceAs (Stable (∀ _, _ → _))
+
+instance {M : PSet.{u} → Prop} {φ e} : Stable (Sat M φ e) := Sat.stable φ e
 
 theorem sat_neg {M : PSet.{u} → Prop} {φ : Fml} {e} : Sat M (neg φ) e ↔ ¬ Sat M φ e := Iff.rfl
 
-section em
-variable (em : ∀ p : Prop, p ∨ ¬p)
-include em
-
-theorem dne {p : Prop} (h : ¬¬p) : p := (em p).resolve_right h
-
 theorem sat_and {M : PSet.{u} → Prop} {φ ψ : Fml} {e} :
     Sat M (and φ ψ) e ↔ Sat M φ e ∧ Sat M ψ e :=
-  ⟨fun h => ⟨dne em fun h1 => h fun a => (h1 a).elim, dne em fun h2 => h fun _ b => h2 b⟩,
+  ⟨fun h => ⟨Stable.dne fun h1 => h fun a => (h1 a).elim, Stable.dne fun h2 => h fun _ b => h2 b⟩,
    fun ⟨a, b⟩ h => h a b⟩
 
 theorem sat_or {M : PSet.{u} → Prop} {φ ψ : Fml} {e} :
-    Sat M (or φ ψ) e ↔ Sat M φ e ∨ Sat M ψ e :=
-  ⟨fun h => (em (Sat M φ e)).imp id h, fun h n => h.resolve_left n⟩
+    Sat M (or φ ψ) e ↔ ¬¬(Sat M φ e ∨ Sat M ψ e) :=
+  ⟨fun h hn => hn (.inr (h fun a => hn (.inl a))),
+   fun h n => Stable.of_nn h fun
+    | .inl a => (n a).elim
+    | .inr b => b⟩
 
 theorem sat_iff {M : PSet.{u} → Prop} {φ ψ : Fml} {e} :
     Sat M (iff φ ψ) e ↔ (Sat M φ e ↔ Sat M ψ e) :=
-  (sat_and em).trans ⟨fun ⟨a, b⟩ => ⟨a, b⟩, fun ⟨a, b⟩ => ⟨a, b⟩⟩
+  sat_and.trans ⟨fun ⟨a, b⟩ => ⟨a, b⟩, fun ⟨a, b⟩ => ⟨a, b⟩⟩
 
 theorem sat_ex {M : PSet.{u} → Prop} {φ : Fml} {e} :
-    Sat M (ex φ) e ↔ ∃ x, M x ∧ Sat M φ (Env.cons x e) :=
-  ⟨fun h => dne em fun h' => h fun x hx s => h' ⟨x, hx, s⟩, fun ⟨x, hx, s⟩ h => h x hx s⟩
-
-end em
+    Sat M (ex φ) e ↔ ¬¬∃ x, M x ∧ Sat M φ (Env.cons x e) :=
+  ⟨fun h hn => h fun x hx s => hn ⟨x, hx, s⟩, fun h k => h fun ⟨x, hx, s⟩ => k x hx s⟩
 
 /-! ### Codes -/
-
-theorem ofNat_inj : ∀ {m n : Nat}, ofNat.{u} m ≈ ofNat n → m = n
-  | 0, 0, _ => rfl
-  | 0, _+1, h => (not_mem_empty _ ((mem_congr_right h).2 (mem_succ.2 (.inr (Equiv.refl _))))).elim
-  | _+1, 0, h => (not_mem_empty _ ((mem_congr_right h).1 (mem_succ.2 (.inr (Equiv.refl _))))).elim
-  | _+1, _+1, h => congrArg (· + 1) (ofNat_inj (succ_inj h))
 
 /-- Codes: a tag followed by the components. -/
 def enc : Fml → PSet.{u}

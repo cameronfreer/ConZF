@@ -5,3 +5,6 @@ import ConZF.Rule
 import ConZF.Pair
 import ConZF.Ord
 import ConZF.VLevel
+import ConZF.Fml
+import ConZF.Proof
+import ConZF.ZF

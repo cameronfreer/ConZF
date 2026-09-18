@@ -8,7 +8,8 @@ formulas; the rules modus ponens and generalization. The nonlogical axioms of a 
 open formulas, their free variables standing for arbitrary parameters.
 
 Soundness is proved for class models: if every axiom holds in `M` under every environment of
-elements of `M`, so does every theorem. A theory with a nonempty model is consistent.
+elements of `M`, so does every theorem. A theory with a nonempty model is consistent. Double
+negation elimination is sound without excluded middle, because satisfaction is stable.
 -/
 universe u
 
@@ -41,13 +42,13 @@ theorem Env.cons_mem {M : PSet.{u} → Prop} {x : PSet.{u}} {e : Nat → PSet.{u
   | 0 => hx
   | n+1 => he n
 
-theorem soundness (em : ∀ p : Prop, p ∨ ¬p) {T : Fml → Prop} {M : PSet.{u} → Prop}
+theorem soundness {T : Fml → Prop} {M : PSet.{u} → Prop}
     (hT : ∀ φ, T φ → Valid M φ) {φ : Fml} (h : Prf T φ) : Valid M φ := by
   induction h with
   | ax h => exact hT _ h
   | k => exact fun _ _ a _ => a
   | s => exact fun _ _ f g a => f a (g a)
-  | dne => exact fun _ _ h => dne em h
+  | dne => exact fun _ _ h => Stable.dne h
   | mp _ _ ih1 ih2 => exact fun e he => ih1 e he (ih2 e he)
   | gen _ ih => exact fun e he x hx => ih _ (Env.cons_mem hx he)
   | @inst φ j =>
@@ -64,6 +65,6 @@ theorem soundness (em : ∀ p : Prop, p ∨ ¬p) {T : Fml → Prop} {M : PSet.{u
   | eq_eq => exact fun _ _ h1 h2 => h1.symm.trans h2
 
 /-- A theory with a nonempty class model is consistent. -/
-theorem Con.of_model (em : ∀ p : Prop, p ∨ ¬p) {T : Fml → Prop} {M : PSet.{u} → Prop}
+theorem Con.of_model {T : Fml → Prop} {M : PSet.{u} → Prop}
     (hT : ∀ φ, T φ → Valid M φ) (x : PSet.{u}) (hx : M x) : Con T :=
-  fun h => soundness em hT h (fun _ => x) (fun _ => hx)
+  fun h => soundness hT h (fun _ => x) (fun _ => hx)
