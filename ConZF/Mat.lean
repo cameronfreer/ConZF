@@ -62,14 +62,14 @@ def Rel (τ : Path.{u} → PSet.{u} → Prop) (c p : Path.{u}) : Prop :=
 
 /-- `G` is the target of the child `a` of `p`, or empty if there is none. -/
 def IsG (τ : Path.{u} → PSet.{u} → Prop) (p : Path.{u}) (G : PSet.{u}) : Prop :=
-  ∀ x, x ∈ G ↔ ∃ ζ, τ (.a :: p) ζ ∧ x ∈ ζ
+  ∀ x, x ∈ G ↔ ¬¬∃ ζ, τ (.a :: p) ζ ∧ x ∈ ζ
 
 /-- The labels the step enumerates when the first call returns `G`. -/
 def Avail (G : PSet.{u}) (l : Label.{u}) : Prop :=
   l = .a ∨ (∃ w, w ∈ D G ∧ l.Equiv (.b w)) ∨ ∃ x, x ∈ U ∧ l.Equiv (.c x)
 
 /-- A coherent target assignment. It is a proposition about a relation; no part of it is
-data. -/
+data. All conditions are stable. -/
 structure Coherent (τ : Path.{u} → PSet.{u} → Prop) : Prop where
   /-- targets are determined up to bisimulation -/
   resp : ∀ {p t t'}, τ p t → t ≈ t' → τ p t'
@@ -80,7 +80,7 @@ structure Coherent (τ : Path.{u} → PSet.{u} → Prop) : Prop where
   desc : ∀ {l p t t'}, τ (l :: p) t → τ p t' → t ∈ t'
   /-- a target is the union of the successors of the targets of the available children -/
   sup : ∀ {p t G}, τ p t → IsG τ p G →
-    ∀ x, x ∈ t ↔ ∃ l t', Avail D U G l ∧ τ (l :: p) t' ∧ x ∈ succ t'
+    ∀ x, x ∈ t ↔ ¬¬∃ l t', Avail D U G l ∧ τ (l :: p) t' ∧ x ∈ succ t'
 
 variable {D U}
 
@@ -89,37 +89,47 @@ theorem mem_step_iff {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D U �
     {rec : (c : Path.{u}) → Rel τ c p → PSet.{u}}
     (hrec : ∀ c h t, τ c t → rec c h ≈ t) (x : PSet.{u}) :
     x ∈ step D U (Rel τ) p rec ↔
-      ∃ l t', Avail D U (stepG (Rel τ) p rec) l ∧ τ (l :: p) t' ∧ x ∈ succ t' := by
-  have hcall : ∀ l, x ∈ call (Rel τ) p rec l ↔ ∃ t', τ (l :: p) t' ∧ x ∈ succ t' := by
+      ¬¬∃ l t', Avail D U (stepG (Rel τ) p rec) l ∧ τ (l :: p) t' ∧ x ∈ succ t' := by
+  have hcall : ∀ l, x ∈ call (Rel τ) p rec l ↔ ¬¬∃ t', τ (l :: p) t' ∧ x ∈ succ t' := by
     intro l
-    refine mem_guard.trans ⟨?_, ?_⟩
+    refine mem_guard.trans ⟨nn_map ?_, nn_map ?_⟩
     · rintro ⟨h, hx⟩
       have ⟨_, _, t', ht'⟩ := h
-      exact ⟨t', ht', (mem_succ_congr (hrec _ h _ ht')).1 hx⟩
+      exact ⟨t', ht', (mem_congr_right (succ_congr (hrec _ h _ ht'))).1 hx⟩
     · rintro ⟨t', ht', hx⟩
       have h : Rel τ (l :: p) p := ⟨l, rfl, t', ht'⟩
-      exact ⟨h, (mem_succ_congr (hrec _ h _ ht')).2 hx⟩
-  refine mem_union.trans <|
-    (or_congr_right <| mem_union.trans <| or_congr mem_iUnion mem_iUnion).trans ⟨?_, ?_⟩
-  · rintro (h | ⟨i, h⟩ | ⟨j, h⟩)
-    · have ⟨t', h1, h2⟩ := (hcall _).1 h
-      exact ⟨_, t', .inl rfl, h1, h2⟩
-    · have ⟨t', h1, h2⟩ := (hcall _).1 h
-      exact ⟨_, t', .inr (.inl ⟨_, func_mem _ i, .b (Equiv.refl _)⟩), h1, h2⟩
-    · have ⟨t', h1, h2⟩ := (hcall _).1 h
-      exact ⟨_, t', .inr (.inr ⟨_, func_mem _ j, .c (Equiv.refl _)⟩), h1, h2⟩
-  · rintro ⟨l, t', hl | ⟨w, ⟨i, e⟩, hl⟩ | ⟨y, ⟨j, e⟩, hl⟩, h1, h2⟩
+      exact ⟨h, (mem_congr_right (succ_congr (hrec _ h _ ht'))).2 hx⟩
+  constructor
+  · intro h
+    refine Stable.of_nn (mem_union.1 h) fun h => ?_
+    rcases h with h | h
+    · exact nn_map (fun ⟨t', h1, h2⟩ => ⟨_, t', .inl rfl, h1, h2⟩) ((hcall _).1 h)
+    refine Stable.of_nn (mem_union.1 h) fun h => ?_
+    rcases h with h | h
+    · refine Stable.of_nn (mem_iUnion.1 h) fun ⟨i, h⟩ => ?_
+      exact nn_map (fun ⟨t', h1, h2⟩ =>
+        ⟨_, t', .inr (.inl ⟨_, func_mem _ i, .b (Equiv.refl _)⟩), h1, h2⟩) ((hcall _).1 h)
+    · refine Stable.of_nn (mem_iUnion.1 h) fun ⟨j, h⟩ => ?_
+      exact nn_map (fun ⟨t', h1, h2⟩ =>
+        ⟨_, t', .inr (.inr ⟨_, func_mem _ j, .c (Equiv.refl _)⟩), h1, h2⟩) ((hcall _).1 h)
+  · intro h
+    refine Stable.of_nn h ?_
+    rintro ⟨l, t', hl | ⟨w, hw, hl⟩ | ⟨y, hy, hl⟩, h1, h2⟩
     · subst hl
-      exact .inl ((hcall _).2 ⟨t', h1, h2⟩)
-    · refine .inr (.inl ⟨i, (hcall _).2 ⟨t', ?_, h2⟩⟩)
+      exact mem_union.2 (nn_intro (.inl ((hcall _).2 (nn_intro ⟨t', h1, h2⟩))))
+    · refine hw.elim fun i e => ?_
+      refine mem_union.2 (nn_intro (.inr (mem_union.2 (nn_intro (.inl
+        (mem_iUnion.2 (nn_intro ⟨i, (hcall _).2 (nn_intro ⟨t', ?_, h2⟩)⟩)))))))
       cases hl with | b hl => exact hτ.lab (.b (hl.trans e)) h1
-    · refine .inr (.inr ⟨j, (hcall _).2 ⟨t', ?_, h2⟩⟩)
+    · refine hy.elim fun j e => ?_
+      refine mem_union.2 (nn_intro (.inr (mem_union.2 (nn_intro (.inr
+        (mem_iUnion.2 (nn_intro ⟨j, (hcall _).2 (nn_intro ⟨t', ?_, h2⟩)⟩)))))))
       cases hl with | c hl => exact hτ.lab (.c (hl.trans e)) h1
 
 theorem isG_stepG {τ : Path.{u} → PSet.{u} → Prop} {p : Path.{u}}
     {rec : (c : Path.{u}) → Rel τ c p → PSet.{u}}
     (hrec : ∀ c h t, τ c t → rec c h ≈ t) : IsG τ p (stepG (Rel τ) p rec) := by
-  refine fun x => mem_guard.trans ⟨?_, ?_⟩
+  refine fun x => mem_guard.trans ⟨nn_map ?_, nn_map ?_⟩
   · rintro ⟨h, hx⟩
     have ⟨_, _, ζ, hζ⟩ := h
     exact ⟨ζ, hζ, (mem_congr_right (hrec _ h _ hζ)).1 hx⟩
@@ -127,21 +137,40 @@ theorem isG_stepG {τ : Path.{u} → PSet.{u} → Prop} {p : Path.{u}}
     have h : Rel τ (.a :: p) p := ⟨_, rfl, ζ, hζ⟩
     exact ⟨h, (mem_congr_right (hrec _ h _ hζ)).2 hx⟩
 
-/-- **Materialization.** If `τ` is coherent and `p` has the target `t`, then `p` is accessible
-and the recursion returns `t`: a set specified by a proposition is the value of a term. -/
+/-- **Materialization, the value.** If `τ` is coherent and `p` has the target `t`, then the
+recursion returns `t` at `p`, whatever the accessibility proof. No excluded middle. -/
 theorem materialize {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D U τ) :
-    ∀ (t : PSet.{u}) (p : Path.{u}), τ p t →
-      Acc (Rel τ) p ∧ ∀ acc', F D U (Rel τ) p acc' ≈ t := by
+    ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → ∀ acc, F D U (Rel τ) p acc ≈ t := by
   intro t
-  induction t using mem_induction with | _ t ih => ?_
-  intro p hp
-  have children : ∀ c, Rel τ c p → ∀ tc, τ c tc →
-      Acc (Rel τ) c ∧ ∀ acc', F D U (Rel τ) c acc' ≈ tc := by
+  refine mem_induction (P := fun t => ∀ p, τ p t → ∀ acc, F D U (Rel τ) p acc ≈ t)
+    (fun t ih => ?_) t
+  intro p hp acc
+  have hrec : ∀ c (h : Rel τ c p) tc, τ c tc → F D U (Rel τ) c (acc.inv h) ≈ tc := by
     rintro c ⟨l, rfl, _⟩ tc htc
-    exact ih tc (hτ.desc htc hp) _ htc
-  have acc : Acc (Rel τ) p := ⟨_, fun c h => have ⟨_, _, tc, htc⟩ := h; (children c h tc htc).1⟩
-  refine ⟨acc, fun acc' => ext fun x => ?_⟩
+    exact ih tc (hτ.desc htc hp) _ htc _
+  refine ext fun x => ?_
   rw [F_eq]
-  have hrec : ∀ c (h : Rel τ c p) tc, τ c tc → F D U (Rel τ) c (acc'.inv h) ≈ tc :=
-    fun c h tc htc => (children c h tc htc).2 _
-  exact mem_step_iff hτ hrec _ |>.trans (hτ.sup hp (isG_stepG hrec) _).symm
+  exact (mem_step_iff hτ hrec _).trans (hτ.sup hp (isG_stepG hrec) _).symm
+
+/-! ### Accessibility
+
+Accessibility is not a stable proposition, and membership induction is only available for
+stable predicates. What can be proved is that the relation of a coherent assignment is
+well-founded *for stable predicates*. -/
+
+/-- `p` is in the well-founded part of `R` as far as stable predicates can tell. -/
+def SWF {α : Sort _} (R : α → α → Prop) (p : α) : Prop :=
+  ∀ P : α → Prop, (∀ x, Stable (P x)) → (∀ x, (∀ y, R y x → P y) → P x) → P p
+
+theorem swf_of_coherent {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D U τ) :
+    ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → SWF (Rel τ) p := by
+  intro t p hp P hs H
+  have := hs
+  have : ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → P p := by
+    intro t
+    refine mem_induction (P := fun t => ∀ p, τ p t → P p) (fun t ih => ?_) t
+    intro p hp
+    refine H p ?_
+    rintro c ⟨l, rfl, tc, htc⟩
+    exact ih tc (hτ.desc htc hp) _ htc
+  exact this t p hp

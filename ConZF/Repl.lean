@@ -71,43 +71,49 @@ theorem glue_coherent : Coherent D s (Glue T s φ) where
       ((glue_iff (T := T) (φ := φ) (r := l :: r) hTresp φ_func hx hη).1 h) h'
   sup := by
     rintro _ t G ⟨r, x, η, rfl, hx, hη, h⟩ hG y
-    have hG' : IsG (T η) r G := fun z => (hG z).trans <| exists_congr fun ζ =>
+    have hG' : IsG (T η) r G := fun z => (hG z).trans <| nn_congr <| exists_congr fun ζ =>
       and_congr (glue_iff (T := T) (φ := φ) (r := .a :: r) hTresp φ_func hx hη) Iff.rfl
     refine (hT η (φ_C hx hη)).1.sup h hG' y |>.trans ?_
-    exact exists_congr fun l => exists_congr fun t' => and_congr Iff.rfl <|
+    exact nn_congr <| exists_congr fun l => exists_congr fun t' => and_congr Iff.rfl <|
       and_congr (glue_iff (T := T) (φ := φ) (r := l :: r) hTresp φ_func hx hη).symm Iff.rfl
 
-/-- The union of the successors of the values of `φ` on `s` exists. The witness is the value
-of the recursion at the root. -/
-theorem exists_sup : ∃ θ : PSet.{u}, ∀ y, y ∈ θ ↔ ∃ x η, x ∈ s ∧ φ x η ∧ y ∈ succ η := by
+/-- The root of the glued tree is well-founded for stable predicates. -/
+theorem swf_root : SWF (Rel (Glue T s φ)) [] := by
+  intro P hs H
+  refine H [] fun c ⟨_, _, tc, htc⟩ => ?_
+  exact swf_of_coherent (glue_coherent hT hTresp φ_resp φ_func φ_C) tc c htc P hs H
+
+/-- If the root is accessible, the value of the recursion there is the union of the successors
+of the values of `φ` on `s`. -/
+theorem mem_F_root (acc : Acc (Rel (Glue T s φ)) []) (y : PSet.{u}) :
+    y ∈ F D s (Rel (Glue T s φ)) [] acc ↔ ¬¬∃ x η, x ∈ s ∧ φ x η ∧ y ∈ succ η := by
   have coh := glue_coherent hT hTresp φ_resp φ_func φ_C
-  have children : ∀ c, Rel (Glue T s φ) c [] → ∀ tc, Glue T s φ c tc →
-      Acc (Rel (Glue T s φ)) c ∧ ∀ acc', F D s (Rel (Glue T s φ)) c acc' ≈ tc :=
-    fun c _ tc htc => materialize coh tc c htc
-  have acc : Acc (Rel (Glue T s φ)) [] :=
-    ⟨_, fun c h => have ⟨_, _, tc, htc⟩ := h; (children c h tc htc).1⟩
-  refine ⟨F D s (Rel (Glue T s φ)) [] acc, fun y => F_eq .. ▸ ?_⟩
-  refine mem_step_iff coh (fun c h tc htc => (children c h tc htc).2 _) _ |>.trans ⟨?_, ?_⟩
+  refine F_eq .. ▸ ?_
+  refine mem_step_iff coh (fun c h tc htc => materialize coh tc c htc _) _ |>.trans
+    ⟨nn_map ?_, nn_map ?_⟩
   · rintro ⟨l, t', -, ⟨r, x, η, eq, hx, hη, h⟩, hy⟩
     cases r with
     | nil =>
       have e := (hT η (φ_C hx hη)).1.func h (hT η (φ_C hx hη)).2
-      exact ⟨x, η, hx, hη, (mem_succ_congr e).1 hy⟩
+      exact ⟨x, η, hx, hη, (mem_congr_right (succ_congr e)).1 hy⟩
     | cons _ r => cases r <;> cases eq
   · rintro ⟨x, η, hx, hη, hy⟩
     exact ⟨.c x, η, .inr (.inr ⟨x, hx, .c (Equiv.refl _)⟩),
       ⟨[], x, η, rfl, hx, hη, (hT η (φ_C hx hη)).2⟩, hy⟩
 
 /-- **Replacement** for `φ` on `s`, provided the values of `φ` lie in a class `C` every member
-`η` of which is the root target of a coherent assignment `T η` given uniformly in `η`. -/
-theorem replacement : ∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ∃ x, x ∈ s ∧ φ x y := by
-  have ⟨θ, hθ⟩ := exists_sup hT hTresp φ_resp φ_func φ_C
-  refine ⟨sep (fun y => ∃ x, x ∈ s ∧ φ x y) θ, fun y => ?_⟩
-  refine (mem_sep fun y y' e ⟨x, hx, h⟩ => ⟨x, hx, φ_resp (Equiv.refl _) e h⟩).trans ?_
-  refine ⟨fun h => h.2, fun ⟨x, hx, h⟩ => ⟨(hθ y).2 ⟨x, y, hx, h, ?_⟩, x, hx, h⟩⟩
-  exact mem_succ.2 (.inr (Equiv.refl _))
+`η` of which is the root target of a coherent assignment `T η` given uniformly in `η`, and
+provided the root of the glued tree is not not accessible. -/
+theorem replacement (hacc : ¬¬Acc (Rel (Glue T s φ)) []) :
+    ¬¬∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ¬¬∃ x, x ∈ s ∧ φ x y := by
+  refine nn_map (fun acc => ?_) hacc
+  have hθ := mem_F_root (D := D) hT hTresp φ_resp φ_func φ_C acc
+  refine ⟨sep (fun y => ¬¬∃ x, x ∈ s ∧ φ x y) (F D s (Rel (Glue T s φ)) [] acc), fun y => ?_⟩
+  refine (mem_sep fun y y' e => nn_map fun ⟨x, hx, h⟩ =>
+    ⟨x, hx, φ_resp (Equiv.refl _) e h⟩).trans ⟨fun h => h.2, fun h => ⟨?_, h⟩⟩
+  exact (hθ y).2 (nn_map (fun ⟨x, hx, h⟩ => ⟨x, y, hx, h, self_mem_succ y⟩) h)
 
 end glue
 
-#print axioms materialize
-#print axioms replacement
+/-- info: 'PSet.replacement' does not depend on any axioms -/
+#guard_msgs in #print axioms replacement
