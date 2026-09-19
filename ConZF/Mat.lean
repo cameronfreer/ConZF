@@ -174,3 +174,34 @@ theorem swf_of_coherent {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D 
     rintro c ⟨l, rfl, tc, htc⟩
     exact ih tc (hτ.desc htc hp) _ htc
   exact this t p hp
+
+/-! ### Accessibility from the well-foundedness of membership
+
+The carrier of the recursion has to be the type of paths, because a step must produce its
+children as terms and the targets are not terms. But the *accessibility* of a path does not
+depend on the paths: it follows from the accessibility of its target under membership, by the
+descent condition alone. -/
+
+/-- The descent condition of a target assignment. -/
+def Desc (τ : Path.{u} → PSet.{u} → Prop) : Prop := ∀ {l p t t'}, τ (l :: p) t → τ p t' → t ∈ t'
+
+theorem acc_of_desc {τ : Path.{u} → PSet.{u} → Prop} (desc : Desc τ) {t : PSet.{u}}
+    (ht : Acc (· ∈ ·) t) : ∀ p, τ p t → Acc (Rel τ) p := by
+  induction ht with
+  | intro t _ ih =>
+    intro p hp
+    exact ⟨_, fun c ⟨_, e, tc, htc⟩ => by subst e; exact ih tc (desc htc hp) _ htc⟩
+
+/-- If membership is well-founded, every root is accessible. -/
+theorem acc_root_of_desc {τ : Path.{u} → PSet.{u} → Prop} (desc : Desc τ)
+    (wf : ∀ x : PSet.{u}, Acc (· ∈ ·) x) : Acc (Rel τ) [] :=
+  ⟨_, fun c ⟨_, _, tc, htc⟩ => acc_of_desc desc (wf tc) c htc⟩
+
+theorem swf_root_of_desc {τ : Path.{u} → PSet.{u} → Prop} (desc : Desc τ) : SWF (Rel τ) [] := by
+  intro P hs H
+  have := hs
+  have key : ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → P p := fun t =>
+    mem_induction (P := fun t => ∀ p, τ p t → P p) (fun t ih p hp => H p (by
+      rintro c ⟨l, rfl, tc, htc⟩
+      exact ih tc (desc htc hp) _ htc)) t
+  exact H [] fun c ⟨_, _, tc, htc⟩ => key tc c htc
