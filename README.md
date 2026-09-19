@@ -16,11 +16,23 @@ theorem PSet.con_ZF_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : Con ZF
 ```
 
 `Desc τ` says that the target of a child is an element of the target of its parent. The paths
-are only needed as the carrier of the recursion; the accessibility of a path follows from the
-accessibility of its target under membership (`acc_of_desc`). So everything that is left of
-excluded middle is the statement that stable membership on the sets-as-trees is accessible,
-that is, `∈`-induction for predicates that are not stable. It follows from `¬¬EM`; we do not
-know whether it is provable outright.
+are needed as the carrier of the recursion; the accessibility of a path follows from the
+accessibility of its target under membership (`acc_of_desc`).
+
+The converse is also proved:
+
+```lean
+theorem PSet.accHyp_iff_not_not_mem_wf :
+  AccHyp ↔ ¬¬∀ x : PSet, Acc (· ∈ ·) x
+```
+
+This is uniform double-negated accessibility; stable membership induction is
+already available. `Acc.lean` proves accessibility of finite ordinals and closure
+under Power Set. `Markov.lean` shows that accessibility of `omega` implies Markov's
+principle, with witnesses in Type when given a decision procedure. `AccHyp` implies
+uniform double-negated `PropMarkov` and `Markov` by this argument. `PropMarkov`
+uses decisions in `Prop` (`P n ∨ ¬P n`); `Markov` uses `Decidable (P n)`.
+The hypothesis remains unproved; see [the accessibility notes](doc/accessibility.md).
 
 Compared to `main`: no case distinction between zero, successor and limit ordinals in the
 definability rule (`Reach.lean`); a single model, the sets of hereditarily good rank
@@ -45,3 +57,5 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Reach.lean` | the uniform definability rule |
 | `ConZF/Fml.lean`, `Proof.lean`, `ZF.lean` | formulas, stable satisfaction, the proof system, soundness without EM, the axioms of ZF |
 | `ConZF/Model.lean` | first-order definability, the model `HG`, `con_ZF` |
+| `ConZF/Acc.lean` | converse to `accHyp_of_mem_wf`; constructive accessibility lemmas |
+| `ConZF/Markov.lean` | Markov witnesses from accessibility of omega; double-negation shift from `AccHyp` |
