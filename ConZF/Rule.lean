@@ -91,12 +91,12 @@ theorem replacement (s : PSet.{u}) (hU : U = s) (φ : PSet.{u} → PSet.{u} → 
     (φ_resp : ∀ {x x' y y'}, x ≈ x' → y ≈ y' → φ x y → φ x' y')
     (φ_func : ∀ {x y y'}, x ∈ s → φ x y → φ x y' → y ≈ y')
     (φ_C : ∀ {x y}, x ∈ s → φ x y → C y)
-    (hacc : SWF (Rel (Glue (Tr r) s φ)) [] → ¬¬Acc (Rel (Glue (Tr r) s φ)) []) :
+    (hacc : Desc (Glue (Tr r) s φ) → ¬¬Acc (Rel (Glue (Tr r) s φ)) []) :
     ¬¬∃ img : PSet.{u}, ∀ y, y ∈ img ↔ ¬¬∃ x, x ∈ s ∧ φ x y := by
   subst hU
   have hT η hη := hr.coherent (η := η) hη
   have hTr : ∀ {η η' p t}, η ≈ η' → Tr r η p t → Tr r η' p t := fun e h => tr_resp_root e h
   exact nn_map (PSet.replacement (D := D) hT hTr φ_resp φ_func φ_C)
-    (hacc (swf_root (D := D) hT hTr φ_resp φ_func φ_C))
+    (hacc (glue_coherent (D := D) hT hTr φ_resp φ_func φ_C).desc)
 
 end Rule

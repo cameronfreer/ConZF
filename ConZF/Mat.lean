@@ -155,25 +155,12 @@ theorem materialize {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D U τ
 /-! ### Accessibility
 
 Accessibility is not a stable proposition, and membership induction is only available for
-stable predicates. What can be proved is that the relation of a coherent assignment is
-well-founded *for stable predicates*. -/
+stable predicates. What can be proved is that the relation of an assignment with the descent
+condition is well-founded *for stable predicates* (`swf_root_of_desc` below). -/
 
 /-- `p` is in the well-founded part of `R` as far as stable predicates can tell. -/
 def SWF {α : Sort _} (R : α → α → Prop) (p : α) : Prop :=
   ∀ P : α → Prop, (∀ x, Stable (P x)) → (∀ x, (∀ y, R y x → P y) → P x) → P p
-
-theorem swf_of_coherent {τ : Path.{u} → PSet.{u} → Prop} (hτ : Coherent D U τ) :
-    ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → SWF (Rel τ) p := by
-  intro t p hp P hs H
-  have := hs
-  have : ∀ (t : PSet.{u}) (p : Path.{u}), τ p t → P p := by
-    intro t
-    refine mem_induction (P := fun t => ∀ p, τ p t → P p) (fun t ih => ?_) t
-    intro p hp
-    refine H p ?_
-    rintro c ⟨l, rfl, tc, htc⟩
-    exact ih tc (hτ.desc htc hp) _ htc
-  exact this t p hp
 
 /-! ### Accessibility from the well-foundedness of membership
 

@@ -77,12 +77,6 @@ theorem glue_coherent : Coherent D s (Glue T s φ) where
     exact nn_congr <| exists_congr fun l => exists_congr fun t' => and_congr Iff.rfl <|
       and_congr (glue_iff (T := T) (φ := φ) (r := l :: r) hTresp φ_func hx hη).symm Iff.rfl
 
-/-- The root of the glued tree is well-founded for stable predicates. -/
-theorem swf_root : SWF (Rel (Glue T s φ)) [] := by
-  intro P hs H
-  refine H [] fun c ⟨_, _, tc, htc⟩ => ?_
-  exact swf_of_coherent (glue_coherent hT hTresp φ_resp φ_func φ_C) tc c htc P hs H
-
 /-- If the root is accessible, the value of the recursion there is the union of the successors
 of the values of `φ` on `s`. -/
 theorem mem_F_root (acc : Acc (Rel (Glue T s φ)) []) (y : PSet.{u}) :

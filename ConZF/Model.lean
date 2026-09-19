@@ -169,10 +169,11 @@ theorem exists_upper {θ : PSet.{u}} (hθ : IsOrd θ) {R : PSet.{u}} (hR : R ∈
     · exact last (fun z hz => (mem_congr_right h).1 hz) (fun _ hz => hz) hk
     · exact last (fun _ hz => hz) (fun z hz => (hθ.mem hR').trans _ h z hz) hR'
 
-/-- The one hypothesis: a root that is well-founded for stable predicates is not not
-accessible. It follows from the irrefutability of excluded middle. -/
+/-- The one hypothesis: the root of a target assignment with the descent condition is not not
+accessible. It follows from the well-foundedness of membership (`accHyp_of_mem_wf`), and from
+the irrefutability of excluded middle. -/
 def AccHyp : Prop :=
-  ∀ R : Path.{u} → Path.{u} → Prop, SWF R [] → ¬¬Acc R []
+  ∀ τ : Path.{u} → PSet.{u} → Prop, Desc τ → ¬¬Acc (Rel τ) []
 
 theorem hg_model (hacc : AccHyp.{u}) : ZFModel HG.{u} := by
   refine ⟨fun hx hz => hx.mem hz, ?_, fun {x y} hx hy => ?_, fun {x} hx => ?_,
@@ -262,10 +263,18 @@ theorem hg_model (hacc : AccHyp.{u}) : ZFModel HG.{u} := by
 /-- **The consistency of `ZF`**, from the accessibility hypothesis alone. -/
 theorem con_ZF (hacc : AccHyp.{0}) : Con ZF := (hg_model hacc).con
 
-/-- The accessibility hypothesis follows from the irrefutability of excluded middle. -/
-theorem accHyp_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : AccHyp.{u} := fun R swf hn =>
-  h fun em => hn <| swf (Acc R)
-    (fun p => ⟨fun hp => (em (Acc R p)).resolve_right hp⟩) fun x ih => ⟨x, ih⟩
+/-- The accessibility hypothesis follows from the well-foundedness of (stable) membership:
+no paths, no rule, no formulas are involved in what is missing. -/
+theorem accHyp_of_mem_wf (h : ¬¬∀ x : PSet.{u}, Acc (· ∈ ·) x) : AccHyp.{u} :=
+  fun _ desc => nn_map (acc_root_of_desc desc) h
+
+/-- **`Con ZF` from the well-foundedness of membership on the sets-as-trees.** -/
+theorem con_ZF_of_mem_wf (h : ¬¬∀ x : PSet.{0}, Acc (· ∈ ·) x) : Con ZF :=
+  con_ZF (accHyp_of_mem_wf h)
+
+theorem accHyp_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : AccHyp.{u} := fun τ desc hn =>
+  h fun em => hn <| swf_root_of_desc desc (Acc (Rel τ))
+    (fun p => ⟨fun hp => (em (Acc (Rel τ) p)).resolve_right hp⟩) fun x ih => ⟨x, ih⟩
 
 theorem con_ZF_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : Con ZF :=
   con_ZF (accHyp_of_not_not_em h)
