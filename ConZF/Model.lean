@@ -1,12 +1,16 @@
 import ConZF.CofinalCut
+import ConZF.Pointwise
 /-!
 The model. The class `HG` of the sets of hereditarily good rank is a model of `ZF` provided the
 output ranks of every admissible Replacement instance are bounded by an ordinal (`BoundHyp`, an
 instancewise `¬¬∃ κ`). The bound is consumed by one Separation (`hg_replacement_of_rank_bound`).
 
-The accessibility hypothesis `AccHyp` of the materializing recursion is one producer of the
-bounds (`boundHyp_of_accHyp`): the recursion returns the exact rank image, and its rank is a
-bound. `hg_model` and `con_ZF` keep their previous statements as corollaries.
+Two producers of the bounds are given here, both through the materializing recursion. The
+accessibility hypothesis `AccHyp` for the glued root gives the exact rank image, whose rank is a
+bound (`boundHyp_of_accHyp`); `hg_model` and `con_ZF` keep their previous statements as
+corollaries. Pointwise double-negated accessibility of the hereditarily good ordinals
+(`PointwiseHGAcc`) gives the bound by separately guarded evaluations
+(`boundHyp_of_pointwise`), with the quantifier outside the double negation.
 -/
 universe u
 
@@ -98,9 +102,41 @@ theorem accHyp_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : AccHyp.{u} := f
 theorem con_ZF_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : Con ZF :=
   con_ZF (accHyp_of_not_not_em h)
 
+/-! ### Bounds from pointwise accessibility -/
+
+/-- Every hereditarily good ordinal is not not accessible under membership. The quantifier is
+outside the double negation. -/
+def PointwiseHGAcc : Prop := ∀ η : PSet.{u}, Cls ISat η → ¬¬Acc (· ∈ ·) η
+
+/-- The image of the output ranks from separately guarded evaluations; its rank is a bound. -/
+theorem boundHyp_of_pointwise (hacc : PointwiseHGAcc.{u}) : BoundHyp.{u} := by
+  intro ψ e he a ha hf
+  let φ : PSet.{u} → PSet.{u} → Prop := fun x η =>
+    ¬¬∃ y, HG y ∧ Sat HG ψ (Env.cons x (Env.cons y e)) ∧ η ≈ rank y
+  have ⟨R, hR⟩ := (reach_rule ISat_resp a).replacement_pointwise a rfl φ
+    (fun ex eη => nn_map fun ⟨y, h1, h2, h3⟩ => ⟨y, h1,
+      Sat.resp ψ (Env.cons_resp ex fun _ => Equiv.refl _) h2, eη.symm.trans h3⟩)
+    (fun hx h h' => Stable.of_nn h fun ⟨y, h1, h2, h3⟩ => Stable.of_nn h' fun ⟨y', h1', h2', h3'⟩ =>
+      h3.trans ((rank_congr (hf _ y y' hx h1 h1' h2 h2')).trans h3'.symm))
+    (fun _ h => Stable.of_nn h fun ⟨y, h1, _, h3⟩ => Cls.resp h3.symm h1) hacc
+  refine nn_intro ⟨rank R, isOrd_rank R, fun x y hx hy h => ?_⟩
+  exact (mem_congr_left (isOrd_rank y).rank_equiv).1
+    (rank_mem ((hR (rank y)).2 (nn_intro ⟨x, hx, nn_intro ⟨y, hy, h, Equiv.refl _⟩⟩)))
+
+theorem hg_model_of_pointwise (hacc : PointwiseHGAcc.{u}) : ZFModel HG.{u} :=
+  hg_model_of_bounds (boundHyp_of_pointwise hacc)
+
+theorem con_ZF_of_pointwise (hacc : PointwiseHGAcc.{0}) : Con ZF :=
+  (hg_model_of_pointwise hacc).con
+
+theorem con_ZF_of_pointwise_mem_acc (h : ∀ x : PSet.{0}, ¬¬Acc (· ∈ ·) x) : Con ZF :=
+  con_ZF_of_pointwise fun η _ => h η
+
 /-- info: 'PSet.con_ZF_of_bounds' does not depend on any axioms -/
 #guard_msgs in #print axioms con_ZF_of_bounds
 /-- info: 'PSet.con_ZF' does not depend on any axioms -/
 #guard_msgs in #print axioms con_ZF
+/-- info: 'PSet.con_ZF_of_pointwise' does not depend on any axioms -/
+#guard_msgs in #print axioms con_ZF_of_pointwise
 
 end PSet

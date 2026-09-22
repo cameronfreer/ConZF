@@ -12,6 +12,7 @@ import ConZF.Proof
 import ConZF.ZF
 import ConZF.ModelBase
 import ConZF.CofinalCut
+import ConZF.Pointwise
 import ConZF.Model
 import ConZF.Acc
 import ConZF.Markov

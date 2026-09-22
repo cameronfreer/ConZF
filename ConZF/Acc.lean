@@ -55,6 +55,10 @@ theorem accHyp_iff_not_not_mem_wf :
 theorem not_not_acc_of_accHyp (h : AccHyp.{u}) (x : PSet.{u}) : ¬¬Acc (· ∈ ·) x :=
   nn_map (fun wf => wf x) (accHyp_iff_not_not_mem_wf.1 h)
 
+/-- The chain of producers: `AccHyp` gives pointwise accessibility, which gives the bounds. -/
+theorem pointwiseHGAcc_of_accHyp (h : AccHyp.{u}) : PointwiseHGAcc.{u} :=
+  fun x _ => not_not_acc_of_accHyp h x
+
 theorem acc_of_subset {a b : PSet.{u}} (hb : Acc (· ∈ ·) b)
     (h : ∀ y, y ∈ a → y ∈ b) : Acc (· ∈ ·) a :=
   Acc.intro a (fun y hy => hb.inv (h y hy))
