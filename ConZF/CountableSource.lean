@@ -84,7 +84,7 @@ theorem prec_of_firstOne {X : PSet.{u}} {k : Nat} (h : FirstOne X (ofNat k)) :
 theorem firstOne_of_prec {X : PSet.{u}} {k : Nat} (h : Prec (true :: zeros k) X) :
     FirstOne X (ofNat k) :=
   ⟨ofNat_mem_omega k, cast (congrArg (fun m => ofNat m ∈ X) (zeros_length k)) (h.2.1 rfl),
-   fun m hm hmX => Stable.of_nn (mem_ofNat.1 hm) fun ⟨j, hj, e⟩ =>
+   fun _ hm hmX => Stable.of_nn (mem_ofNat.1 hm) fun ⟨j, hj, e⟩ =>
       not_mem_of_prec_zeros k h.1 j hj ((mem_congr_left e).1 hmX)⟩
 
 theorem singleton_ofNat_mem_powerset (k : Nat) : singleton (ofNat.{u} k) ∈ powerset omega :=
