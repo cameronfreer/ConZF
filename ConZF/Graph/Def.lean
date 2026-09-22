@@ -5,8 +5,8 @@ formula with a finite list of parameters and a bound on its free variables, and 
 Parameters are vertices that are predecessors of the root, so they represent members of `G`; the
 bound `Fml.Bound (ps.length + 1) φ` makes the environment's default irrelevant. The predecessors
 of a definition vertex are the predecessors of the old root satisfying the formula over `G`. Its
-members are exactly the subsets of `G` defined by a bounded formula with member parameters
-(`mem_Def`), and `Def` respects bisimulation (`Def_congr`): a parameter list transports along a
+members are exactly the subsets of `G` defined by a formula with bounded free-variable indices
+and member parameters (`mem_Def`), and `Def` respects bisimulation (`Def_congr`): a parameter list transports along a
 bisimulation finitely, one parameter at a time. A transitive `G` is included in `Def G`
 (`subset_Def`), and `Def G` is transitive (`trans_Def`).
 -/
@@ -105,7 +105,7 @@ theorem mem_Def_def' {d : Defn G} {K : GSet.{u}} :
       e.trans (Def_old_equiv G a).symm⟩
 
 /-- **The definable powerset law.** The members of `Def G` are exactly the subsets of `G` defined
-by a bounded formula with finitely many member parameters. -/
+by a formula with bounded free-variable indices and finitely many member parameters. -/
 theorem mem_Def {Y : GSet.{u}} :
     Mem Y (Def G) ↔ ¬¬∃ d : Defn G,
       ∀ K, Mem K Y ↔ Mem K G ∧ Sat (Mem · G) d.φ (Env.cons K (envOf G d.ps)) := by
