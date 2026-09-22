@@ -135,6 +135,28 @@ so far (the cut identities, `AllGood`, boundedness of the formula) cannot force
 not a model of Lean's universes or of large elimination of `Acc`, and the
 example is not a counterexample to `BoundHyp` in the intended type theory.
 
+## Ideal sets: the sheaf route, as far as it goes
+
+The alternative suggested in the Zulip discussion is to interpret the
+classical construction in double-negation sheaves rather than to recover
+`Acc` from its double negation. `Ideal.lean` takes the part of that available
+without higher inductive types: an *ideal set* is a stable, extensional, not
+not inhabited predicate on sets whose elements are all bisimilar, compared
+pointwise. Unique choice holds into ideals (`Ideal.ofRel`): the envelope,
+negatively total and functional, is a function into ideals. What is missing
+is a tree. A sheafified tree type whose children are ideals of itself is not
+an admissible inductive (the kernel rejects the occurrence, checked); and for
+ideals of the existing trees the constructor test fails in a precise way: the
+parent of a small family of ideal children is a stable functional
+specification (`IsParent`, `isParent_func`), but it is not not inhabited
+exactly when some set not not contains a representative of every child
+(`isParent_exists_iff`), a double-negation shift over the small index type.
+That is the shape of obligation the development is trying to avoid, so
+ideals of the existing trees give the sheafified universe only at the price
+of the Collection problem itself. This does not rule out a setoid
+presentation of sheafified trees with its own recursion principle; it says
+that such a presentation cannot be obtained from ideals of `PSet`.
+
 ## Native bounds
 
 What distinguishes the type theory from the test model is that a native
