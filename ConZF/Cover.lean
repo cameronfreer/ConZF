@@ -72,6 +72,12 @@ theorem covers_and {F : PSet.{u} → PSet.{u} → Prop} (P : PSet.{u} → PSet.{
     Covers (fun x y => F x y ∧ P x y) x e :=
   fun y h => hF y h.1
 
+/-- Containment in a fixed set gives a cover: the literal elements of the set are the candidates,
+and membership supplies the negative representative. -/
+theorem covers_of_mem {F : PSet.{u} → PSet.{u} → Prop} {x K : PSet.{u}}
+    (h : ∀ y, F x y → y ∈ K) : Covers F x K.Func :=
+  fun y hy => nn_map (fun ⟨i, e⟩ => ⟨i, e.symm⟩) (h y hy)
+
 /-- info: 'PSet.rankBounded_of_covers' does not depend on any axioms -/
 #guard_msgs in #print axioms rankBounded_of_covers
 /-- info: 'PSet.covers_comp' does not depend on any axioms -/

@@ -214,6 +214,35 @@ reconstructed intermediate; no intermediate is chosen. Testing candidates by
 an arbitrary predicate keeps the cover (`covers_and`): generating candidates
 needs native data, testing them may use anything in `Prop`.
 
+## Witness envelopes and caps
+
+`Envelope.lean` gives every first-order existential problem, as a stable
+extensional predicate `P` on sets, a canonical functional output: the set of
+all witnesses of least rank, or the empty set (`Env P W`, a negative
+disjunction). It exists negatively and is functional with no witness selected
+(`env_exists`, `env_func`), it is in `HG` when the witnesses are (`env_hg`),
+and for a functional `P` it is the singleton of the output
+(`env_singleton`), so bounds on envelopes bound the original outputs.
+
+At every ordinal cap `κ` there is an unconditional approximation: `capRank P κ`
+is the initial segment of `κ` below every capped witness rank, one
+Separation, and `capWit P κ` the capped witnesses of that rank. If no witness
+fits the approximation is empty; if some witness fits, negatively, then the cap
+rank is attained (`capRank_attained`: otherwise it belongs to itself) and is
+the global least witness rank (`capRank_subset`), and `capWit` is the entire
+least-rank witness set (`mem_capWit_iff`). The exact criterion
+(`env_capWit_iff`): the approximation is the envelope precisely when the cap
+meets the witness class whenever that class is nonempty. `rankBounded_of_cap`
+turns a source-wide cap meeting each nonempty witness class of a functional
+instance into `RankBounded`.
+
+So for a fixed source the question is a single cap, not evaluation,
+uniqueness or reconstruction. The classical test model shows this criterion
+alone does not supply the cap: its approximations change once per input, at
+cofinal thresholds. `Cover.lean` also records that containment in a fixed set
+is a cover (`covers_of_mem`), so the collapse benchmark composes with
+`covers_comp`.
+
 The remaining task is a producer: for a fixed admissible instance, a small
 family of certificates whose decoded heights dominate all its output ranks,
 with only pointwise double-negated existence of a certificate. Native

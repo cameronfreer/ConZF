@@ -21,3 +21,4 @@ import ConZF.NativeBound
 import ConZF.Sim
 import ConZF.FinPred
 import ConZF.Cover
+import ConZF.Envelope
