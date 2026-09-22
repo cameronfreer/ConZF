@@ -32,3 +32,4 @@ import ConZF.CountableSource
 import ConZF.Graph.Recursion
 import ConZF.Graph.GSet
 import ConZF.Graph.Ops
+import ConZF.Graph.Rank
