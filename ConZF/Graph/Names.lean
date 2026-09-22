@@ -42,6 +42,19 @@ theorem bound_stable : ∀ (k : Nat) (φ : PSet.Fml), Stable (Bound k φ)
 
 instance {k : Nat} {φ : PSet.Fml} : Stable (Bound k φ) := bound_stable k φ
 
+/-- Bounds are decidable, so concrete bounds are proved by `decide`. -/
+def decBound : ∀ (k : Nat) (φ : PSet.Fml), Decidable (Bound k φ)
+  | _, .mem _ _ => inferInstanceAs (Decidable (_ ∧ _))
+  | _, .eq _ _ => inferInstanceAs (Decidable (_ ∧ _))
+  | _, .fls => inferInstanceAs (Decidable True)
+  | k, .imp φ ψ =>
+    have := decBound k φ
+    have := decBound k ψ
+    inferInstanceAs (Decidable (Bound k φ ∧ Bound k ψ))
+  | k, .all φ => decBound (k+1) φ
+
+instance {k : Nat} {φ : PSet.Fml} : Decidable (Bound k φ) := decBound k φ
+
 /-- Two graphs on the same carrier with equivalent edge relations are equivalent at every vertex. -/
 theorem equiv_of_rel_iff {A : Type u} {R R' : A → A → Prop} {h : Graph.SWF R} {h' : Graph.SWF R'}
     (e : ∀ a b, R a b ↔ R' a b) (x : A) :

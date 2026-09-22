@@ -226,8 +226,18 @@ monotone, transitive, and presentation invariant (`L_congr_of_bisim`), all
 from the recurrence and `Def_congr` with induction along the transitive
 closure, without transporting names.
 
-Not yet formalized: `Ord ∩ L_a = a` (needs a graph formula for ordinals and
-names for stages), finite-name transport and shortlex minimization across
+`Ordinals.lean`: the parameter-free formula `ordF` is correct over any
+transitive graph set (`sat_ordF`); the ordinals of `L α a` are exactly the
+rank of the presentation at `a` (`ordinals_of_L`, by stage induction: an
+ordinal in `Def (L b)` is a subset of `L b` whose ordinals lie below the
+ordinal at `b`, and that ordinal is itself named over `L b` by `ordF`), so
+for an ordinal presentation `Ord ∩ L_α = α` by normalization
+(`ordinals_of_L_root`). Two canonical parameter-free names are exported: the
+ordinal at a stage (`ordName`) and the level itself (`levelName`), each born
+at its stage and available at strictly later levels (`ord_mem_L`,
+`L_mem_L`); nothing at stage `a` is claimed as a member of `L a`.
+
+Not yet formalized: finite-name transport and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,
 the whole-class hull with faithful collapse and the local recurrence, and
 from it the support bounds, internal powerset, full first-order Separation,
