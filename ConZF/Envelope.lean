@@ -15,6 +15,10 @@ capped witnesses of that rank. The approximation is empty while no witness fits 
 approximation is the envelope precisely when the cap meets the witness class whenever that class
 is nonempty. Finally `rankBounded_of_cap`: a source-wide cap meeting each nonempty functional
 witness class gives `RankBounded`, the hypothesis consumed by the model.
+
+Limitation: `Env P W` is a predicate in Lean's `Prop`, not a first-order formula. To apply
+`BoundHyp` to envelopes as definitions over `HG`, the least-rank specification must be expressed
+by an `Fml` whose satisfaction in `HG` agrees with native rank; that bridge is not built here.
 -/
 universe u
 
@@ -184,6 +188,12 @@ theorem rankBounded_of_cap {ψ : Fml} {e : Nat → PSet.{u}} {a κ : PSet.{u}} (
     Stable.of_nn (hcap x hx (nn_intro ⟨y, hy, hs⟩)) fun ⟨y', hy', hs', hV⟩ =>
       (mem_congr_left (rank_congr (hf x y' y hx hy' hy hs' hs))).1 ((mem_Vl_ord hκ).1 hV)⟩
 
+/-- info: 'PSet.env_exists' does not depend on any axioms -/
+#guard_msgs in #print axioms env_exists
+/-- info: 'PSet.env_func' does not depend on any axioms -/
+#guard_msgs in #print axioms env_func
+/-- info: 'PSet.env_singleton' does not depend on any axioms -/
+#guard_msgs in #print axioms env_singleton
 /-- info: 'PSet.env_capWit_iff' does not depend on any axioms -/
 #guard_msgs in #print axioms env_capWit_iff
 /-- info: 'PSet.env_hg' does not depend on any axioms -/

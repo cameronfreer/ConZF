@@ -78,6 +78,8 @@ theorem covers_of_mem {F : PSet.{u} → PSet.{u} → Prop} {x K : PSet.{u}}
     (h : ∀ y, F x y → y ∈ K) : Covers F x K.Func :=
   fun y hy => nn_map (fun ⟨i, e⟩ => ⟨i, e.symm⟩) (h y hy)
 
+/-- info: 'PSet.covers_of_mem' does not depend on any axioms -/
+#guard_msgs in #print axioms covers_of_mem
 /-- info: 'PSet.rankBounded_of_covers' does not depend on any axioms -/
 #guard_msgs in #print axioms rankBounded_of_covers
 /-- info: 'PSet.covers_comp' does not depend on any axioms -/

@@ -19,6 +19,10 @@ certificate). Then
   quantifier: the enclosing tree is formed before the pointwise certificates are used;
 * `not_sim_top`: the top of the enclosing tree is not simulated in any code on `X` itself, so
   the enlargement of the carrier is necessary.
+
+`Sim` is defined by `WellFounded.fix` with a `Type`-valued motive. `SimI` is the same relation as
+an impredicative least fixed point in `Prop`, with no elimination of `Acc` into `Type`
+(`sim_iff_simI`); the decoders of `NativeBound.lean` and `Mat.lean` do need that elimination.
 -/
 universe u v
 
@@ -60,6 +64,38 @@ theorem sim_iff {p : α} {z : {x : X // c.S x}} :
 
 instance {p : α} {z : {x : X // c.S x}} : Stable (Sim R c p z) :=
   ⟨fun h => (sim_iff R c).2 fun q hq => Stable.of_nn h fun hs => (sim_iff R c).1 hs q hq⟩
+
+/-- Simulation as an impredicative least fixed point: the same relation, with no recursion on
+the certificate and no elimination of `Acc` into `Type`. -/
+def SimI (p : α) (z : {x : X // c.S x}) : Prop :=
+  ∀ Q : α → {x : X // c.S x} → Prop,
+    (∀ p z, (∀ q, R q p → ¬¬∃ z' : {y // c.R y z}, Q q z'.1) → Q p z) → Q p z
+
+theorem simI_iff {p : α} {z : {x : X // c.S x}} :
+    SimI R c p z ↔ ∀ q, R q p → ¬¬∃ z' : {y // c.R y z}, SimI R c q z'.1 := by
+  constructor
+  · intro h
+    refine h (fun p z => ∀ q, R q p → ¬¬∃ z' : {y // c.R y z}, SimI R c q z'.1) ?_
+    intro p z ih q hq
+    refine nn_map (fun ⟨z', hz'⟩ => ⟨z', ?_⟩) (ih q hq)
+    intro Q hQ
+    exact hQ q z'.1 fun q' hq' => nn_map (fun ⟨z'', h⟩ => ⟨z'', h Q hQ⟩) (hz' q' hq')
+  · intro h Q hQ
+    exact hQ p z fun q hq => nn_map (fun ⟨z', hz'⟩ => ⟨z', hz' Q hQ⟩) (h q hq)
+
+/-- The two definitions agree; only this comparison uses the certificate's well-foundedness. -/
+theorem sim_iff_simI : ∀ (z : {x : X // c.S x}) (p : α), Sim R c p z ↔ SimI R c p z := by
+  intro z
+  induction c.wf.apply z with
+  | intro z _ ih =>
+    intro p
+    constructor
+    · intro h
+      refine (simI_iff R c).2 fun q hq => ?_
+      exact nn_map (fun ⟨z', h'⟩ => ⟨z', (ih z'.1 z'.2 q).1 h'⟩) ((sim_iff R c).1 h q hq)
+    · intro h
+      refine (sim_iff R c).2 fun q hq => ?_
+      exact nn_map (fun ⟨z', h'⟩ => ⟨z', (ih z'.1 z'.2 q).2 h'⟩) ((simI_iff R c).1 h q hq)
 
 variable {τ : α → PSet.{u} → Prop}
 
@@ -236,6 +272,8 @@ theorem not_sim_top {X : Type u} (c : WFCode X) (z : {x : X // c.S x}) :
 #guard_msgs in #print axioms sim_of_subset_ht
 /-- info: 'PSet.Coherent.cover' does not depend on any axioms -/
 #guard_msgs in #print axioms Coherent.cover
+/-- info: 'PSet.sim_iff_simI' does not depend on any axioms -/
+#guard_msgs in #print axioms sim_iff_simI
 /-- info: 'PSet.not_sim_top' does not depend on any axioms -/
 #guard_msgs in #print axioms not_sim_top
 
