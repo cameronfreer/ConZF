@@ -38,3 +38,4 @@ import ConZF.Graph.Sat
 import ConZF.Graph.Def
 import ConZF.Graph.Ord
 import ConZF.Graph.Names
+import ConZF.Graph.Hier
