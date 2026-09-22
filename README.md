@@ -90,4 +90,5 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Markov.lean` | Markov witnesses from accessibility of omega; double-negation shift from `AccHyp` |
 | `ConZF/NativeBound.lean` | unconditional bounds from a small type of certificates; well-founded codes and their heights; `ω` as a test |
 | `ConZF/Sim.lean` | negative upper simulations: certificates that bound a target without presenting it; the enclosing tree of all codes on a carrier; the diagonal fact |
+| `ConZF/Cover.lean` | native covers: small candidate families over literal inputs give `RankBounded`; existential composition by dependent sums |
 | `ConZF/FinPred.lean` | a producer from semantic hypotheses: negatively finite predecessors give finite heights, simulations into `natCode`, and a collapse bounded by `ω` |

@@ -199,6 +199,21 @@ in a fixed set into `RankBounded`.
 The scope is the fragment: the order type is at most `ω`. Countable
 well-orders with infinite predecessor families are not covered.
 
+## Native covers
+
+`Cover.lean` records the interface through which producers reach
+`RankBounded`. `F` is covered at `x` by candidates `e : C → PSet` (`C` small)
+when every output at `x` is not not the value of a candidate; candidates may
+be wrong. Covers at the literal inputs of a domain, with candidate types
+depending on the literal index, bound all output ranks by the rank of the
+combined range over the dependent sum (`rank_mem_of_covers`,
+`rankBounded_of_covers`). Covers compose through an existential intermediate
+by a dependent sum of candidate types (`covers_comp`), provided the second
+relation respects bisimulation in its input, so that it accepts the
+reconstructed intermediate; no intermediate is chosen. Testing candidates by
+an arbitrary predicate keeps the cover (`covers_and`): generating candidates
+needs native data, testing them may use anything in `Prop`.
+
 The remaining task is a producer: for a fixed admissible instance, a small
 family of certificates whose decoded heights dominate all its output ranks,
 with only pointwise double-negated existence of a certificate. Native
