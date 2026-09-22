@@ -170,6 +170,29 @@ certificate, and mentions no target.
   contains every height on `X`). Composing the parent step therefore requires
   enlarging the carrier; repeating it on one carrier cannot work.
 
+## A producer: the finite-predecessor fragment
+
+`FinPred.lean` derives a bound from semantic hypotheses alone. For a relation
+`R` on a small carrier, `FinHt R i n` is the stable predicate of height at
+most `n`. If `R` admits induction for stable predicates (`SInd`) and its
+predecessor families are negatively finite (`NegFin`: at each point, not not
+some finite list covers the predecessors, with no choice of list), then every
+point has not not a finite height (`finHt_of_sInd`): at a point, the finitely
+many heights of a covering list are combined inside the stable goal. Finite
+height `n` is a simulation into `natCode` at `n` (`sim_natCode_of_finHt`), on
+the same carrier for every point, so this fragment needs no enlargement.
+Soundness then bounds every semantic collapse value by a finite ordinal
+(`collapse_value_mem_omega`) and the collapse by `ω` (`collapse_subset_omega`).
+The collapse values are a relation in `Prop` with coverage, descent, totality
+and ordinal values; stable induction on `R` is itself derived from descent into
+them (`sInd_of_desc`). No native function on the carrier, no accessibility of
+`R`, and no accessibility of any collapse value under membership is assumed.
+
+The scope is the fragment: the order type is at most `ω`. Countable
+well-orders with infinite predecessor families are not covered, and the rank
+of an encoded output (the ordinal together with its isomorphism) has not been
+bounded here.
+
 The remaining task is a producer: for a fixed admissible instance, a small
 family of certificates whose decoded heights dominate all its output ranks,
 with only pointwise double-negated existence of a certificate. Native

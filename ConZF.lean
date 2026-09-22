@@ -19,3 +19,4 @@ import ConZF.CanonicalAcc
 import ConZF.Markov
 import ConZF.NativeBound
 import ConZF.Sim
+import ConZF.FinPred
