@@ -141,6 +141,8 @@ def RankBounded (ψ : Fml) (e : Nat → PSet.{u}) (a : PSet.{u}) : Prop :=
   ¬¬∃ κ, IsOrd κ ∧ ∀ x y, x ∈ a → HG y →
     Sat HG ψ (Env.cons x (Env.cons y e)) → rank y ∈ κ
 
+instance : Stable (RankBounded ψ e a) := inferInstanceAs (Stable (¬_))
+
 /-- Outputs contained in a fixed set are rank bounded, by the rank of that set. -/
 theorem rankBounded_of_mem {K : PSet.{u}}
     (h : ∀ x y, x ∈ a → HG y → Sat HG ψ (Env.cons x (Env.cons y e)) → y ∈ K) :

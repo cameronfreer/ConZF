@@ -199,7 +199,7 @@ theorem con_ZF_of_envBoundHyp (h : EnvBoundHyp.{0}) : Con ZF :=
 
 /-- The reduction preserves the strength of the obligation: envelope instances are admissible. -/
 theorem envBoundHyp_of_boundHyp (h : BoundHyp.{u}) : EnvBoundHyp.{u} :=
-  fun ψ e he a ha => h (envFml ψ) e he a ha fun _ W W' _ hW hW' hs hs' => envFml_func hW hW' hs hs'
+  fun ψ e he a ha => h (envFml ψ) e he a ha fun _ _ _ _ hW hW' hs hs' => envFml_func hW hW' hs hs'
 
 theorem envBoundHyp_iff_boundHyp : EnvBoundHyp.{u} ↔ BoundHyp.{u} :=
   ⟨boundHyp_of_envBoundHyp, envBoundHyp_of_boundHyp⟩
