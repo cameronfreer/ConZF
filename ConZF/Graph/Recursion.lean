@@ -1,12 +1,13 @@
 import ConZF.Logic
 /-!
-Predecessor-local recursion into stable predicates on a fixed carrier, from well-founded
-induction for stable predicates (`SWF`). For a table operator `F` whose value at `a` depends only
-on the rows at predecessors of `a` (`hlocal`) and whose values are stable, the unconditional
-table `joinedTable`, the union of all partial solutions, satisfies `T a b ↔ F T a b` at every
-point (`predicate_recursion`). No monotonicity of `F` is assumed, no partial solution is
-selected, and `SWF` is never eliminated into `Type`: the output is a predicate. A graph can use
-that predicate as its edge relation, which is how the graph route produces new values.
+Predecessor-local recursion into stable predicates on a fixed carrier. For a stable transitive
+relation `R` with well-founded induction for stable predicates (`SWF`), and a table operator `F`
+whose value at `a` depends only on the rows at predecessors of `a` (`hlocal`) and whose values
+are stable, the unconditional table `joinedTable`, the union of all partial solutions, satisfies
+`T a b ↔ F T a b` at every point (`predicate_recursion`). No monotonicity of `F` is assumed, no
+partial solution is selected, and `SWF` is never eliminated into `Type`: the output is a
+predicate. A graph can use that predicate as its edge relation, which is how the graph route
+produces new values. The transitive closure of `Rank.lean` supplies stable transitive relations.
 -/
 universe u v
 

@@ -167,8 +167,9 @@ set* is a small type of vertices with an edge relation, a root, and a proof
 of well-founded induction for stable predicates (`SWF`), an ordinary record
 whose proof field is used only in proofs and never eliminated into `Type`.
 `ConZF/Graph/` holds the checked part so far. `Recursion.lean`:
-predecessor-local recursion into stable predicates on a fixed carrier, from
-`SWF` alone and with no monotonicity, by the union of all partial solutions
+predecessor-local recursion into stable predicates on a fixed carrier, for a
+stable transitive relation with `SWF`, with no monotonicity, by the union of
+all partial solutions
 (`predicate_recursion`, `solution_unique`); a graph can use the resulting
 predicate as its edge relation. `GSet.lean`: negative bisimulation and
 membership, both stable, the equivalence laws, extensionality
