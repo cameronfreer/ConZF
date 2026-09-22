@@ -14,8 +14,11 @@ negatively total and functional. Then
 (`countable_reduction`). Every nonzero point has a local cap (`locCap_of_firstOne`), so
 totality, functionality, and local caps at every other point do not discharge the local cap at
 the last point: proving it would already solve the countable-source cap problem. This is a
-reduction, not an impossibility result. It also explains why `Lift Φ` is outside the
-finite-observation fragment: the zero branch is a condition on all bits.
+reduction, not an impossibility result. `Lift Φ` need not satisfy `FinObs`: its zero branch is
+a condition on all bits, and a witness there is not certified by a finite prefix in general
+(though for particular `Φ`, such as one that is always false, the lift is constantly empty and
+does satisfy finite observation). Without functionality, `locCap_of_firstOne` supplies a bounded
+witness throughout the cylinder, which is what `CapAt` asks; it does not bound every output.
 -/
 universe u
 

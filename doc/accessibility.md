@@ -230,18 +230,21 @@ explicit point; it does not discharge it.
 `FinObs.lean` discharges it for *finite-observation* specifications: every
 witness at a point is, negatively, certified by a finite prefix and works
 throughout its cylinder. Negative totality then gives a source-wide cap
-(`cap_of_finObs`) and a witness menu, one set built from singletons by
-binary unions along the bar that meets the witness class of every point
-(`menu_of_finObs`). With functionality the menu contains every output
-(`output_mem_menu`), so `rankBounded_of_finObs` gives `RankBounded` for a
-finite-observation, negatively total, functional formula on the source
-`powerset omega`. Nothing is computed and no generator is assumed; the
+(`cap_of_finObs`) and a finite witness menu, one finite list of sets,
+singleton lists concatenated along the bar, that meets the witness class of
+every point (`menu_of_finObs`); the list is in the conclusion, so finiteness
+is certified. With functionality every output is bisimilar to an entry, so
+the image is finite (`output_mem_menu`) and `rankBounded_of_finObs` gives
+`RankBounded` for a finite-observation, negatively total, functional formula
+on the source `powerset omega`; `rankBounded_envFml_of_finObs` bounds the
+envelope instance of any finite-observation, negatively total formula, with
+no functionality and without assuming that envelope formation preserves
+finite observation. Nothing is computed and no generator is assumed; the
 witness condition may have arbitrary quantifiers. Two restrictions are
 essential: totality must hold at all negative points, including those made
 by Separation, and the witness condition must not depend on the unseen
 bits of the point. Without functionality the menu meets each witness class;
-it does not cover every output in the sense of `Cover.lean`. The menu is
-finite by construction but no finiteness predicate is tracked.
+it does not cover every output in the sense of `Cover.lean`.
 
 ### The scope check: a countable source at the zero real
 
@@ -259,8 +262,13 @@ cap and the finitely many earlier inputs by combining finitely many negative
 witnesses (`head_bound`). So totality, functionality, and local caps at every
 other point do not discharge the local cap at the last point: proving it
 would already solve the countable-source cap problem. This is a reduction,
-not an impossibility result, and it shows why the lift is outside the
-finite-observation fragment: the zero branch is a condition on all bits.
+not an impossibility result. The lift need not satisfy finite observation,
+its zero branch being a condition on all bits, though for particular `Φ` it
+may. Without functionality the local cap at a nonzero point supplies a
+bounded witness throughout the cylinder, as `CapAt` asks; it does not bound
+every output. The checked reduction concentrates an arbitrary
+countable-source instance at zero; it does not reduce every `HG` source to
+that case.
 
 ## A producer: the finite-predecessor fragment
 
