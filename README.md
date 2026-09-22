@@ -100,4 +100,6 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Envelope.lean` | least-rank witness envelopes and their capped approximations; the exact criterion; a cap meeting each nonempty witness class gives `RankBounded` |
 | `ConZF/RankGraph.lean`, `RankFml.lean` | rank is first-order over `HG`: native transitive closure and rank graph, their `HG` bounds, uniqueness of rank assignments, the formula `rankFml` and its readback |
 | `ConZF/EnvFml.lean` | the envelope as a formula; envelope instances are total and functional; `EnvBoundHyp → BoundHyp`, the normal-form reduction |
+| `ConZF/Bar.lean` | stable binary bar induction on the negative Cantor space: the greedy real by Separation; local caps join; the single-critical-real criterion |
+| `ConZF/FinObs.lean` | a producer: total finite-observation specifications on the negative Cantor space have a source-wide cap and a witness menu; `RankBounded` for such formulas |
 | `ConZF/FinPred.lean` | a producer from semantic hypotheses: negatively finite predecessors give finite heights, simulations into `natCode`, and a collapse bounded by `ω` |

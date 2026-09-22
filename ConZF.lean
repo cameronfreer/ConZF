@@ -27,3 +27,4 @@ import ConZF.RankFml
 import ConZF.EnvFml
 import ConZF.Ideal
 import ConZF.Bar
+import ConZF.FinObs

@@ -204,6 +204,45 @@ certificate, and mentions no target.
   contains every height on `X`). Composing the parent step therefore requires
   enlarging the carrier; repeating it on one carrier cannot work.
 
+## Compactness: stable bar induction and a producer on the Cantor space
+
+`Bar.lean` works on the negative Cantor space `powerset omega`: a point is
+an actual subset of `ω`, its bit statements are stable, and Separation makes
+a point out of any stable predicate on `Nat`. For a stable predicate `G` on
+finite words closed under joining the two children, the *greedy* words take
+`0` where `G` is refutable at the left child and `1` where it is
+irrefutable: a predicate, not a choice of bits. The greedy real is the point
+whose bit `n` holds when a greedy word of length `n+1` ends in `1`, by
+Separation, and its prefixes are exactly the greedy words. Every greedy word
+is bad when the root is, so a hit of `G` on the greedy real gives `G []`
+(`root_of_hit`), and a bar over all points gives `G []` (`bar_induction`).
+This is not the fan theorem for `Nat → Bool`: the bar must cover the
+proposition-valued point.
+
+For a relation from points to sets, local caps (an ordinal capping the
+witness ranks throughout a cylinder, negatively) join by ordinal union
+(`locCap_join`), so local caps everywhere give a source-wide cap
+(`cap_of_bar`) with no function selecting them; and a cap exists iff the
+greedy real of the local-cap predicate has a locally capped prefix
+(`hasCap_iff`). The criterion identifies the remaining obligation at one
+explicit point; it does not discharge it.
+
+`FinObs.lean` discharges it for *finite-observation* specifications: every
+witness at a point is, negatively, certified by a finite prefix and works
+throughout its cylinder. Negative totality then gives a source-wide cap
+(`cap_of_finObs`) and a witness menu, one set built from singletons by
+binary unions along the bar that meets the witness class of every point
+(`menu_of_finObs`). With functionality the menu contains every output
+(`output_mem_menu`), so `rankBounded_of_finObs` gives `RankBounded` for a
+finite-observation, negatively total, functional formula on the source
+`powerset omega`. Nothing is computed and no generator is assumed; the
+witness condition may have arbitrary quantifiers. Two restrictions are
+essential: totality must hold at all negative points, including those made
+by Separation, and the witness condition must not depend on the unseen
+bits of the point. Without functionality the menu meets each witness class;
+it does not cover every output in the sense of `Cover.lean`. The menu is
+finite by construction but no finiteness predicate is tracked.
+
 ## A producer: the finite-predecessor fragment
 
 `FinPred.lean` derives a bound from semantic hypotheses alone. For a relation
