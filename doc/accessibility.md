@@ -97,6 +97,15 @@ the recursion at each component `[.c x]` by its own accessibility proof, so
 that `∀ η, Cls ISat η → ¬¬Acc (· ∈ ·) η` suffices, with the quantifier outside
 the double negation. Neither implication is claimed to reverse.
 
+The pointwise hypothesis does not escape the Markov obstruction: `ω` is
+hereditarily good, so `PointwiseHGAcc` gives `¬¬Acc (· ∈ ·) ω` and hence
+`¬¬PropMarkov` (`not_not_prop_markov_of_pointwise`). Moving the quantifier
+outside the double negation helps assemble bounds; it does not weaken what is
+asked at `ω`. This is the reason to seek `BoundHyp` without accessibility of
+membership at all, even at `ω`: the finite-predecessor producer, for
+instance, bounds a collapse by `ω` through a native presentation of `ω` and
+never proves `ω` accessible.
+
 Stopping criteria (`CofinalCut.lean`): `rankCofinalCut ψ e a (succ κ) ≈
 rankCofinalCut ψ e a κ` iff `κ` is a strict common bound
 (`rankCofinalCut_successor_stationary_iff`). Idempotence of the cut holds for

@@ -159,6 +159,11 @@ theorem not_not_prop_markov_of_accHyp (h : AccHyp.{0}) : ¬¬PropMarkov :=
 theorem not_not_markov_of_accHyp (h : AccHyp.{0}) : ¬¬Markov :=
   nn_map PropMarkov.markov (not_not_prop_markov_of_accHyp h)
 
+/-- The pointwise hypothesis does not escape the obstruction: at `ω`, which is hereditarily good,
+it is double-negated accessibility of `ω`. -/
+theorem not_not_prop_markov_of_pointwise (h : PointwiseHGAcc.{0}) : ¬¬PropMarkov :=
+  not_not_prop_markov_of_not_not_acc_omega (h omega cls_omega)
+
 /-- Double-negation shift for families of decidable searches. -/
 theorem search_dns_of_accHyp {α : Sort v} (hacc : AccHyp.{0})
     (P : α → Nat → Prop) (dec : ∀ i n, P i n ∨ ¬P i n)
@@ -177,4 +182,6 @@ theorem search_dns_of_accHyp {α : Sort v} (hacc : AccHyp.{0})
 #guard_msgs in #print axioms search_dns_of_accHyp
 /-- info: 'PSet.not_not_markov_of_accHyp' does not depend on any axioms -/
 #guard_msgs in #print axioms not_not_markov_of_accHyp
+/-- info: 'PSet.not_not_prop_markov_of_pointwise' does not depend on any axioms -/
+#guard_msgs in #print axioms not_not_prop_markov_of_pointwise
 end PSet
