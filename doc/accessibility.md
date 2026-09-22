@@ -142,12 +142,43 @@ on `Nat` decodes to `ω` (`rank_natCode_tree`), so `ω ∈ wfBound (ULift Nat)`.
 This is a native presentation of `ω`, not accessibility of `ω` under
 membership, which `Markov.lean` shows would give Markov's principle.
 
+## Simulations
+
+A certificate need not present the target. `Sim.lean` defines, for a source
+relation `R` on states (which may be large, such as `Path`) and a code `c`,
+`Sim R c p z`: every `R`-child of `p` is not not simulated at some
+`c`-predecessor of `z`. It is stable, defined by native recursion on the
+certificate, and mentions no target.
+
+* `subset_ht_of_sim`: if targets are ordinals and `R, τ` satisfy coverage
+  (every element of a target is not not reached by the successor of a child's
+  target), a simulation at `z` bounds the target by the height of `z`. Neither
+  functionality nor accessibility of `R` is used.
+* `sim_of_subset_ht`: under descent, the converse. For the coherent
+  assignments of `Mat.lean`, `Coherent.cover` supplies coverage at ordinal
+  targets, by forming the first-child set inside the target and forgetting
+  availability. So there a simulation at `z` is exactly inclusion of the
+  target in the height of `z`.
+* `sim_top`: if every child of `p` has a certificate in some code on a fixed
+  carrier `X`, then `p` is simulated at the top of the enclosing tree
+  `encCode X`, the code on `Option (Σ c, nodes of c)` with every node of every
+  code below a new top. This tree is well-founded without any premise and is
+  formed before the pointwise certificates are used, so no double negation
+  crosses the quantifier over children. `mem_succ_encBound_of_children` is
+  the resulting bound.
+* `not_sim_top`: the top of `encCode X` is simulated in no code on `X` (its height
+  contains every height on `X`). Composing the parent step therefore requires
+  enlarging the carrier; repeating it on one carrier cannot work.
+
 The remaining task is a producer: for a fixed admissible instance, a small
 family of certificates whose decoded heights dominate all its output ranks,
 with only pointwise double-negated existence of a certificate. Native
 domination is one proposed route to `BoundHyp`, not a requirement; a producer
 may assume every ordinal hereditarily good and hypothetical cofinality, and
-it suffices to certify one output whose rank reaches the test bound.
+it suffices to certify one output whose rank reaches the test bound. In
+terms of simulations: for each literal input `a_i`, a carrier `X_i` built from
+the source data such that the component at `a_i` is not not simulated in
+some code on `X_i`; then the union of the `encBound X_i` is a common bound.
 
 The principal results have guarded empty `#print axioms` checks. Verification:
 `lake build`, `lake env leanchecker --fresh --verbose ConZF`, and `git diff --check`.
