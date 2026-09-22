@@ -207,13 +207,31 @@ powerset; the corrected `Def` respects bisimulation (`Def_congr`), the
 parameter list transporting along a bisimulation one parameter at a time.
 A transitive graph is included in its `Def`, which is transitive.
 
-Not yet formalized from those notes: the native constructible hierarchy on a
-fixed name carrier with its full correctness interface (table locality,
-well-foundedness of the graphs defining the operator, the exact recurrence,
-invariance under equivalent ordinal presentations, and finite-name transport
-and minimization), coherent origin certificates, both directions of the local
-recurrence, and the constructible-subset bound; then the whole-class hull,
-Separation, and the upward-absolute Replacement fragment of conzf7. The
+The native constructible hierarchy is now checked. `Ord.lean`: graph
+ordinals, negative trichotomy, and normalization (`rank_equiv_of_isOrd`), so
+the transitive closure of a presentation is a stable, transitive presentation
+of the same ordinal; the semantic order on vertices, distinct from the raw
+edges, with `SWF`. `Names.lean`: finite names `def' a φ n args` over a
+presentation, validity, the earlier-stage graph of any proposed table (with
+`SWF` for every table, since name edges decrease the birth), the stable and
+predecessor-local step operator (`step_local`: agreement on rows below `d`
+gives equivalent earlier-stage graphs at every vertex), the solved table by
+predicate recursion (`table_eq`), and the hierarchy graph with `L a`.
+`Hier.lean`: the earlier-stage graph agrees with the hierarchy below its
+level, the members of a level are the values of valid names born below it,
+a valid name denotes the subset of the level at its birth defined by its
+formula with the values of its arguments (`nameVal_spec`), and the exact
+recurrence in membership form (`mem_L_iff_Def`). `Levels.lean`: levels are
+monotone, transitive, and presentation invariant (`L_congr_of_bisim`), all
+from the recurrence and `Def_congr` with induction along the transitive
+closure, without transporting names.
+
+Not yet formalized: `Ord ∩ L_a = a` (needs a graph formula for ordinals and
+names for stages), finite-name transport and shortlex minimization across
+presentations (needed only for name selection), coherent origin certificates,
+the whole-class hull with faithful collapse and the local recurrence, and
+from it the support bounds, internal powerset, full first-order Separation,
+and the upward-absolute Replacement fragment of conzf7. The
 interpretation should be packaged through validity of the syntactic ZF
 axioms, not `ZFModel`, whose powerset and Separation fields are stronger
 than the internal axioms of graph `L`. Even with those, full Separation and
