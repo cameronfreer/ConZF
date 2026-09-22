@@ -92,4 +92,5 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Sim.lean` | negative upper simulations: certificates that bound a target without presenting it; the enclosing tree of all codes on a carrier; the diagonal fact |
 | `ConZF/Cover.lean` | native covers: small candidate families over literal inputs give `RankBounded`; existential composition by dependent sums |
 | `ConZF/Envelope.lean` | least-rank witness envelopes and their capped approximations; the exact criterion; a cap meeting each nonempty witness class gives `RankBounded` |
+| `ConZF/RankGraph.lean`, `RankFml.lean` | rank is first-order over `HG`: native transitive closure and rank graph, their `HG` bounds, uniqueness of rank assignments, the formula `rankFml` and its readback |
 | `ConZF/FinPred.lean` | a producer from semantic hypotheses: negatively finite predecessors give finite heights, simulations into `natCode`, and a collapse bounded by `ω` |

@@ -94,7 +94,7 @@ def rankGraph (x : PSet.{u}) : PSet.{u} :=
 theorem mem_rankGraph {x p : PSet.{u}} :
     p ∈ rankGraph x ↔ ¬¬∃ z, z ∈ tclDom x ∧ p ≈ pair z (rank z) :=
   ⟨nn_map fun ⟨i, e⟩ => ⟨_, func_mem (tclDom x) i, e⟩,
-   fun h => nn_bind h fun ⟨z, hz, e⟩ => nn_map (fun ⟨i, e'⟩ =>
+   fun h => nn_bind h fun ⟨_, hz, e⟩ => nn_map (fun ⟨i, e'⟩ =>
     ⟨i, e.trans (pair_congr e' (rank_congr e'))⟩) hz⟩
 
 theorem pair_rank_mem_rankGraph {x z : PSet.{u}} (hz : z ∈ tclDom x) :

@@ -208,6 +208,23 @@ in a fixed set into `RankBounded`.
 The scope is the fragment: the order type is at most `ω`. Countable
 well-orders with infinite predecessor families are not covered.
 
+## Rank is first-order over `HG`
+
+The envelope of `Envelope.lean` is a predicate in `Prop`; to treat envelopes
+as definable instances the least-rank specification must be a formula. The
+bridge is `RankFml.lean`: `rankFml` says of `x` (variable `0`) and `ρ`
+(variable `1`) that there are a transitive set `T ∋ x` and a graph `g` on `T`,
+total, functional and satisfying the rank recursion, with `(x, ρ) ∈ g`, all
+written by membership with Kuratowski pairs. `sat_rankFml`: for `x, ρ ∈ HG`,
+`Sat HG rankFml ⟨x, ρ⟩ ↔ ρ ≈ rank x`. The witnesses are native
+(`RankGraph.lean`): the transitive closure `tcl x` by iterated union, the
+domain `tclDom x = tcl x ∪ {x}`, and the graph `rankGraph x` of
+`z ↦ (z, rank z)` over the literal indices of the domain, with ranks bounded
+by `rank x + 3`, hence in `HG` (`hg_tclDom`, `hg_rankGraph`). Uniqueness
+(`rank_unique`) is membership induction on a stable predicate. Neither
+Replacement nor `hg_model_of_bounds` is used, so the bridge is available to
+the normal-form reduction without circularity.
+
 ## Native covers
 
 `Cover.lean` records the interface through which producers reach
