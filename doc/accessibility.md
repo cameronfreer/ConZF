@@ -196,9 +196,16 @@ edge uses it. Faithfulness preserves the represented structure only; it does
 not identify collapsed values with ambient ones. `Sat.lean`: satisfaction of
 the existing `Fml` over graph sets, with bisimulation as equality and graph
 membership; stable, invariant under bisimulation, renaming, and bounds.
-`Def.lean`: the definable powerset, one vertex per formula and finite
-parameter list, with `mem_Def`: its members are exactly the definable
-subsets; a transitive graph is included in its `Def`, which is transitive.
+`Def.lean`: the definable powerset, one vertex per formula with a list of
+*member* parameters (vertices below the root) and a bound on its free
+variables so that the environment's default is unread, with `mem_Def`: its
+members are exactly the subsets defined by a bounded formula with member
+parameters. Review caught that a first version let parameters range over
+every vertex of the carrier, so that re-rooting the powerset graph at its
+copy of `G` gave a presentation of `G` whose `Def` was the ambient
+powerset; the corrected `Def` respects bisimulation (`Def_congr`), the
+parameter list transporting along a bisimulation one parameter at a time.
+A transitive graph is included in its `Def`, which is transitive.
 
 Not yet formalized from those notes: the native constructible hierarchy on a
 fixed name carrier with its full correctness interface (table locality,
