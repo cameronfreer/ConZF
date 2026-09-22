@@ -160,6 +160,37 @@ definitions do not supply, which is a reasonable stopping point for the
 investigation; a setoid presentation of sheafified trees with its own
 recursion principle remains an open possibility.
 
+## The graph route (experimental)
+
+The notes of conzf5 propose a different value representation: a *graph
+set* is a small type of vertices with an edge relation, a root, and a proof
+of well-founded induction for stable predicates (`SWF`), an ordinary record
+whose proof field is used only in proofs and never eliminated into `Type`.
+`ConZF/Graph/` holds the checked part so far. `Recursion.lean`:
+predecessor-local recursion into stable predicates on a fixed carrier, from
+`SWF` alone and with no monotonicity, by the union of all partial solutions
+(`predicate_recursion`, `solution_unique`); a graph can use the resulting
+predicate as its edge relation. `GSet.lean`: negative bisimulation and
+membership, both stable, the equivalence laws, extensionality
+(`GSet.ext`), and stable membership induction (`GSet.mem_induction`).
+`Ops.lean`: the range of a small family, Separation, and the powerset, each
+with its negative membership law (`mem_range`, `mem_sep`, `mem_powerset`);
+the powerset carrier has a vertex for every predicate on the supplied
+carrier. `Rank.lean`: rank is the transitive closure of the edges on the same
+carrier, so no recursion produces the value; it is idempotent, respects
+equivalence and membership, is an ordinal, and satisfies the recurrence in
+membership form (`mem_rank_at'`); and for a fixed carrier `T`, every code, a
+subset of `T` with a relation and an `SWF` proof, has height below
+`univBound T` (`code_height_mem`). This is the semantic Hartogs mechanism:
+the proof field is stable well-foundedness, not `WellFounded`.
+
+Not yet formalized from those notes: the definable-powerset operation and
+the native constructible hierarchy on a fixed name carrier, the faithful
+collapse and exact recurrence of the condensation argument, and the
+constructible-powerset bound. Even with those, full Separation and
+Replacement in the graph `L` remain mathematical gaps, and nothing here
+discharges the `PSet` obligation `BoundHyp`.
+
 ## Native bounds
 
 What distinguishes the type theory from the test model is that a native

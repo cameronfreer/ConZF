@@ -93,6 +93,8 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Acc.lean` | converse to `accHyp_of_mem_wf`; constructive accessibility lemmas |
 | `ConZF/CanonicalAcc.lean` | the unpruned rule trees simulate every ordinal-membership descent |
 | `ConZF/Markov.lean` | Markov witnesses from accessibility of omega; double-negation shift from `AccHyp` |
+| `ConZF/Graph/Recursion.lean` | predecessor-local recursion into stable predicates from stable well-founded induction; the joined table of partial solutions |
+| `ConZF/Graph/GSet.lean`, `Ops.lean`, `Rank.lean` | the graph route, experimental: graph sets with an `SWF` proof, bisimulation, membership, extensionality, membership induction; ranges, Separation, powerset; rank as transitive closure; the universal bound on a fixed carrier |
 | `ConZF/Ideal.lean` | ideal sets (¬¬-sheafification of the setoid of sets, without higher inductive types); unique choice into ideals; the parent constructor is a small-indexed Collection |
 | `ConZF/NativeBound.lean` | unconditional bounds from a small type of certificates; well-founded codes and their heights; `ω` as a test |
 | `ConZF/Sim.lean` | negative upper simulations: certificates that bound a target without presenting it; the enclosing tree of all codes on a carrier; the diagonal fact |
