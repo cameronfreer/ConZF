@@ -110,8 +110,6 @@ theorem mem_ofList {z : PSet.{u}} : ∀ {l : List PSet.{u}}, z ∈ ofList l ↔ 
       | head => exact nn_intro (.inl (mem_singleton.2 e))
       | tail _ hy' => exact nn_intro (.inr (mem_ofList.2 (nn_intro ⟨y', hy', e⟩)))⟩
 
-end
-
 /-- **The adapter.** A formula `ψ` that is finite-observation, negatively total and functional
 on the negative Cantor space is rank bounded there. -/
 theorem rankBounded_of_finObs {ψ : Fml} {e : Nat → PSet.{u}}
