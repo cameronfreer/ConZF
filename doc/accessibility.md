@@ -185,10 +185,31 @@ subset of `T` with a relation and an `SWF` proof, has height below
 `univBound T` (`code_height_mem`). This is the semantic Hartogs mechanism:
 the proof field is stable well-foundedness, not `WellFounded`.
 
-Not yet formalized from those notes: the definable-powerset operation and
-the native constructible hierarchy on a fixed name carrier, the faithful
-collapse and exact recurrence of the condensation argument, and the
-constructible-powerset bound. Even with those, full Separation and
+`Faithful.lean` (the audit-critical lemma of conzf6): for a stable relation
+`R` on a small type with `SWF`, a stable equivalence `E` for which `R` is a
+congruence, and relational extensionality (equal predecessor profiles give
+`E`), pointing the graph at two points gives equivalent graphs exactly when
+`E` holds (`faithful_equiv`) and a member exactly when `R` holds
+(`faithful_mem`). Stability of `R` is an explicit hypothesis, as the review
+required: the bisimulation matches negatively and the transport back to an
+edge uses it. Faithfulness preserves the represented structure only; it does
+not identify collapsed values with ambient ones. `Sat.lean`: satisfaction of
+the existing `Fml` over graph sets, with bisimulation as equality and graph
+membership; stable, invariant under bisimulation, renaming, and bounds.
+`Def.lean`: the definable powerset, one vertex per formula and finite
+parameter list, with `mem_Def`: its members are exactly the definable
+subsets; a transitive graph is included in its `Def`, which is transitive.
+
+Not yet formalized from those notes: the native constructible hierarchy on a
+fixed name carrier with its full correctness interface (table locality,
+well-foundedness of the graphs defining the operator, the exact recurrence,
+invariance under equivalent ordinal presentations, and finite-name transport
+and minimization), coherent origin certificates, both directions of the local
+recurrence, and the constructible-subset bound; then the whole-class hull,
+Separation, and the upward-absolute Replacement fragment of conzf7. The
+interpretation should be packaged through validity of the syntactic ZF
+axioms, not `ZFModel`, whose powerset and Separation fields are stronger
+than the internal axioms of graph `L`. Even with those, full Separation and
 Replacement in the graph `L` remain mathematical gaps, and nothing here
 discharges the `PSet` obligation `BoundHyp`.
 
