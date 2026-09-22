@@ -26,3 +26,4 @@ import ConZF.RankGraph
 import ConZF.RankFml
 import ConZF.EnvFml
 import ConZF.Ideal
+import ConZF.Bar
