@@ -35,3 +35,4 @@ import ConZF.Graph.Ops
 import ConZF.Graph.Rank
 import ConZF.Graph.Faithful
 import ConZF.Graph.Sat
+import ConZF.Graph.Def
