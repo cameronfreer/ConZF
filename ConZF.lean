@@ -15,4 +15,6 @@ import ConZF.CofinalCut
 import ConZF.Pointwise
 import ConZF.Model
 import ConZF.Acc
+import ConZF.CanonicalAcc
 import ConZF.Markov
+import ConZF.NativeBound

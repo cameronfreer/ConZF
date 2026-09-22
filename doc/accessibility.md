@@ -68,5 +68,86 @@ omits singleton elimination, while this development eliminates `Acc : Prop`
 into Type. Markov's admissible metatheoretic rule is also distinct from the
 uniform internal principle used here.
 
+## Rank bounds
+
+The model theorem no longer consumes accessibility. `CofinalCut.lean` defines,
+for an admissible Replacement instance `(ψ, e, a)` over `HG` and an ordinal cap
+`κ`, the cut `rankCofinalCut ψ e a κ = {ζ ∈ κ | CoveredRank ψ e a ζ}`, where
+`CoveredRank` says that some actual output rank reaches `ζ`. Two facts:
+
+* `cls_rankCofinalCut`: the cut is hereditarily good for every cap. This is the
+  endpoint argument formerly inside `hg_model`: if the cut were not good, `HG`
+  would be `V` at the cut, and `ψ` itself would reach the cut.
+* `hg_replacement_of_rank_bound`: if `κ` strictly bounds the output ranks,
+  `Vl (rankCofinalCut ψ e a κ)` is the collecting set for Replacement.
+
+`Model.lean` proves `hg_model_of_bounds : BoundHyp → ZFModel HG`, where
+`BoundHyp` asks, for each instance, `RankBounded ψ e a`, a `¬¬∃ κ`. The
+double negation is inside the quantifiers over instances; no bound is chosen.
+
+Producers of the bounds, in decreasing strength:
+
+```text
+AccHyp → PointwiseHGAcc → BoundHyp → Con ZF
+```
+
+`boundHyp_of_accHyp` uses the materializing recursion at the glued root and
+takes the rank of the image. `boundHyp_of_pointwise` (`Pointwise.lean`) guards
+the recursion at each component `[.c x]` by its own accessibility proof, so
+that `∀ η, Cls ISat η → ¬¬Acc (· ∈ ·) η` suffices, with the quantifier outside
+the double negation. Neither implication is claimed to reverse.
+
+Stopping criteria (`CofinalCut.lean`): `rankCofinalCut ψ e a (succ κ) ≈
+rankCofinalCut ψ e a κ` iff `κ` is a strict common bound
+(`rankCofinalCut_successor_stationary_iff`). Idempotence of the cut holds for
+every cap and detects nothing. If one instance has no bound, every ordinal is
+hereditarily good and `HG` is the whole universe
+(`hg_universal_of_not_rankBounded`), so the unresolved case is a definable
+functional relation on a set whose output ranks are cofinal in all ordinals.
+
+## Scope of the obstructions
+
+`CanonicalAcc.lean`: for a hereditarily good `η`, accessibility of the root of
+the *unpruned* rule tree `Tr (rule ISat) η` is equivalent to `Acc (· ∈ ·) η`.
+The identity relation on `η` is unbounded at `η`, and `Rel` does not require
+`Avail`, so every membership descent is an edge of the tree. This says only
+that restricting attention to these trees, as currently defined, does not
+weaken pointwise ordinal accessibility. It does not prove impossibility, and
+it says nothing about trees with fewer edges.
+
+A classical test model, argued externally in ZFC and not formalized: in
+`M = V_{ω₁}`, every ordinal is hereditarily good in the sense of `Reach.lean`
+(each countable limit is reached from `0` by a real coding a well-order of that
+type), so `HG^M = M`; yet on `a = 𝒫(ℕ × ℕ)` the relation "`z = (β, f)` with
+`f : (ℕ, R) ≅ (β, ∈)`" is partial functional, `Δ₀` with parameter `ω`, and its
+output ranks are cofinal in `ω₁`. So the set-theoretic consequences extracted
+so far (the cut identities, `AllGood`, boundedness of the formula) cannot force
+`BoundHyp`. This is a statement about the set-theoretic argument only. `M` is
+not a model of Lean's universes or of large elimination of `Acc`, and the
+example is not a counterexample to `BoundHyp` in the intended type theory.
+
+## Native bounds
+
+What distinguishes the type theory from the test model is that a native
+function `f : I → PSet.{u}` on a small `I : Type u` has its range as a set,
+while a functional relation in `Prop` does not. `NativeBound.lean` makes this
+into a bound: for a small type `C` of certificates and a decoder
+`δ : C → PSet.{u}`, `natBound δ = rank (range δ)` is an ordinal containing
+every ordinal that is not not dominated by some `δ c`
+(`mem_natBound_of_dominated`). The certificates of interest are well-founded
+relations on a small carrier `X` together with their proof of well-foundedness
+(`WFCode X : Type u`); the decoder builds trees by `Acc`-recursion on the
+certificate, and `wfBound X` bounds their heights. As a test, the usual order
+on `Nat` decodes to `ω` (`rank_natCode_tree`), so `ω ∈ wfBound (ULift Nat)`.
+This is a native presentation of `ω`, not accessibility of `ω` under
+membership, which `Markov.lean` shows would give Markov's principle.
+
+The remaining task is a producer: for a fixed admissible instance, a small
+family of certificates whose decoded heights dominate all its output ranks,
+with only pointwise double-negated existence of a certificate. Native
+domination is one proposed route to `BoundHyp`, not a requirement; a producer
+may assume every ordinal hereditarily good and hypothetical cofinality, and
+it suffices to certify one output whose rank reaches the test bound.
+
 The principal results have guarded empty `#print axioms` checks. Verification:
 `lake build`, `lake env leanchecker --fresh --verbose ConZF`, and `git diff --check`.

@@ -1,19 +1,42 @@
-# ConZF (branch `no-em`)
+# ConZF (branch `no-em-bounds`)
 
 This branch removes excluded middle from the proof of `Con ZF` as far as it can be removed. The
 whole development is carried out over *stable* relations (bisimulation and membership with
 `¬¬∃` at every level, the Gödel–Gentzen reading), so that all of the set theory, including the
 theory of ordinals, is proved classically without assuming excluded middle. What is left is one
-hypothesis about accessibility, which is not a stable proposition:
+hypothesis, instancewise: the output ranks of every definable functional relation over the model
+are not not bounded by an ordinal.
+
+```lean
+def RankBounded (ψ : Fml) (e : Nat → PSet) (a : PSet) : Prop :=
+  ¬¬∃ κ, IsOrd κ ∧ ∀ x y, x ∈ a → HG y → Sat HG ψ (Env.cons x (Env.cons y e)) → rank y ∈ κ
+def BoundHyp : Prop := ∀ ψ e, (∀ i, HG (e i)) → ∀ a, HG a → (functional) → RankBounded ψ e a
+
+theorem PSet.con_ZF_of_bounds (hb : BoundHyp) : Con ZF
+-- 'PSet.con_ZF_of_bounds' does not depend on any axioms
+```
+
+The bound is consumed by one Separation (`CofinalCut.lean`): the cut `{ζ ∈ κ | some output rank
+reaches ζ}` is hereditarily good for *every* ordinal cap `κ`, and once `κ` is a bound the level
+`V` of the cut collects the outputs. No materializing recursion appears in the consumer.
+
+Two producers of the bounds are proved, both from accessibility, which is not a stable
+proposition:
 
 ```lean
 def AccHyp : Prop := ∀ τ : Path → PSet → Prop, Desc τ → ¬¬Acc (Rel τ) []
+def PointwiseHGAcc : Prop := ∀ η, Cls ISat η → ¬¬Acc (· ∈ ·) η
 
 theorem PSet.con_ZF (hacc : AccHyp) : Con ZF
 -- 'PSet.con_ZF' does not depend on any axioms
+theorem PSet.con_ZF_of_pointwise (hacc : PointwiseHGAcc) : Con ZF
 theorem PSet.con_ZF_of_mem_wf (h : ¬¬∀ x : PSet, Acc (· ∈ ·) x) : Con ZF
 theorem PSet.con_ZF_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : Con ZF
 ```
+
+`AccHyp` implies `PointwiseHGAcc` (`pointwiseHGAcc_of_accHyp`), whose quantifier is outside the
+double negation; the pointwise producer guards the recursion at each component separately
+(`Pointwise.lean`) instead of assuming the root of the glued tree accessible.
 
 `Desc τ` says that the target of a child is an element of the target of its parent. The paths
 are needed as the carrier of the recursion; the accessibility of a path follows from the
@@ -32,7 +55,9 @@ under Power Set. `Markov.lean` shows that accessibility of `omega` implies Marko
 principle, with witnesses in Type when given a decision procedure. `AccHyp` implies
 uniform double-negated `PropMarkov` and `Markov` by this argument. `PropMarkov`
 uses decisions in `Prop` (`P n ∨ ¬P n`); `Markov` uses `Decidable (P n)`.
-The hypothesis remains unproved; see [the accessibility notes](doc/accessibility.md).
+The hypotheses remain unproved; see [the accessibility notes](doc/accessibility.md), which
+also record what the bounds would need (`NativeBound.lean`) and a classical test model showing
+that the set-theoretic consequences extracted so far cannot force them.
 
 Compared to `main`: no case distinction between zero, successor and limit ordinals in the
 definability rule (`Reach.lean`); a single model, the sets of hereditarily good rank
@@ -56,6 +81,11 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Pair.lean`, `Ord.lean`, `VLevel.lean` | pairs, ordinals (trichotomy without EM), rank, levels, ω, the label set `D` |
 | `ConZF/Reach.lean` | the uniform definability rule |
 | `ConZF/Fml.lean`, `Proof.lean`, `ZF.lean` | formulas, stable satisfaction, the proof system, soundness without EM, the axioms of ZF |
-| `ConZF/Model.lean` | first-order definability, the model `HG`, `con_ZF` |
+| `ConZF/ModelBase.lean` | first-order definability `ISat`, the class `HG`, closure of the hereditarily good ordinals |
+| `ConZF/CofinalCut.lean` | cofinal cuts of a definable rank family; hereditary goodness of every cut; Replacement from a bound; `RankBounded` |
+| `ConZF/Pointwise.lean` | Replacement from pointwise accessibility, by separately guarded evaluations |
+| `ConZF/Model.lean` | `BoundHyp`, `hg_model_of_bounds`, `con_ZF_of_bounds`; the producers `AccHyp` and `PointwiseHGAcc`; `con_ZF` |
 | `ConZF/Acc.lean` | converse to `accHyp_of_mem_wf`; constructive accessibility lemmas |
+| `ConZF/CanonicalAcc.lean` | the unpruned rule trees simulate every ordinal-membership descent |
 | `ConZF/Markov.lean` | Markov witnesses from accessibility of omega; double-negation shift from `AccHyp` |
+| `ConZF/NativeBound.lean` | unconditional bounds from a small type of certificates; well-founded codes and their heights; `ω` as a test |
