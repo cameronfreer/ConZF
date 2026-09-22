@@ -188,10 +188,16 @@ and ordinal values; stable induction on `R` is itself derived from descent into
 them (`sInd_of_desc`). No native function on the carrier, no accessibility of
 `R`, and no accessibility of any collapse value under membership is assumed.
 
+The encoded output, the pair of the collapse ordinal and its graph of pairs
+`(u, α_i)` with `u ∈ ω`, is bounded by containment: the collapse is in `P(ω)`,
+the graph in `P³(ω)`, and the pair in the fixed set
+`collapseBox = P²(P(ω) ∪ P³(ω))`, whose rank is the common strict rank bound
+(`collapse_encoded_rank_mem`). No level bookkeeping in `D` and no native
+function for the isomorphism is used; `rankBounded_of_mem` turns containment
+in a fixed set into `RankBounded`.
+
 The scope is the fragment: the order type is at most `ω`. Countable
-well-orders with infinite predecessor families are not covered, and the rank
-of an encoded output (the ordinal together with its isomorphism) has not been
-bounded here.
+well-orders with infinite predecessor families are not covered.
 
 The remaining task is a producer: for a fixed admissible instance, a small
 family of certificates whose decoded heights dominate all its output ranks,

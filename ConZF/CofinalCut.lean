@@ -141,6 +141,12 @@ def RankBounded (ψ : Fml) (e : Nat → PSet.{u}) (a : PSet.{u}) : Prop :=
   ¬¬∃ κ, IsOrd κ ∧ ∀ x y, x ∈ a → HG y →
     Sat HG ψ (Env.cons x (Env.cons y e)) → rank y ∈ κ
 
+/-- Outputs contained in a fixed set are rank bounded, by the rank of that set. -/
+theorem rankBounded_of_mem {K : PSet.{u}}
+    (h : ∀ x y, x ∈ a → HG y → Sat HG ψ (Env.cons x (Env.cons y e)) → y ∈ K) :
+    RankBounded ψ e a :=
+  nn_intro ⟨rank K, isOrd_rank K, fun x y hx hy hs => rank_mem (h x y hx hy hs)⟩
+
 /-- Noncoverage at one ordinal is exactly a strict common bound. -/
 theorem not_coveredRank_iff {κ : PSet.{u}} (hk : IsOrd κ) :
     (¬ CoveredRank ψ e a κ) ↔

@@ -11,6 +11,11 @@ relation in `Prop` throughout: no native function assigning ordinals to points, 
 accessibility of `R`, is assumed; stable induction on `R` is itself derived from descent into the
 collapse values (`sInd_of_desc`).
 
+The encoded output of the collapse, the pair of the collapse ordinal and its graph, is bounded
+by containment in a fixed native set built from powersets of `ω` (`collapse_output_mem`), whose
+rank is a strict common rank bound (`collapse_output_rank_mem`). No level bookkeeping and no
+native function for the isomorphism is used.
+
 The scope is the fragment: the resulting order type is at most `ω`. Arbitrary countable
 well-orders, whose predecessor families need not be finite, are not covered.
 -/
@@ -120,11 +125,53 @@ theorem collapse_subset_omega (hc : Cover R α) (hord : ∀ i t, α i t → IsOr
     | .inl h => isOrd_omega.trans t ht ξ h
     | .inr e => (mem_congr_left e).2 ht
 
+/-! ### The encoded output -/
+
+/-- Elements of `f` that are pairs of members of `ω` put `f` in `P³(ω)`. -/
+theorem graph_mem_powerset {f : PSet.{u}}
+    (hf : ∀ z, z ∈ f → ¬¬∃ u t, u ∈ omega.{u} ∧ t ∈ omega ∧ z ≈ pair u t) :
+    f ∈ powerset (powerset (powerset omega.{u})) := by
+  refine mem_powerset.2 fun z hz => ?_
+  refine Stable.of_nn (hf z hz) fun ⟨u, t, hu, ht, e⟩ => ?_
+  exact (mem_congr_left e).2 (pair_mem_powerset_powerset hu ht)
+
+/-- The container of the encoded outputs: `P²(P(ω) ∪ P³(ω))`. -/
+def collapseBox : PSet.{u} :=
+  powerset (powerset (union (powerset omega) (powerset (powerset (powerset omega)))))
+
+/-- The encoded output of a collapse on the natural numbers is in the container. -/
+theorem collapse_output_mem {η f : PSet.{u}} (hη : ∀ ξ, ξ ∈ η → ξ ∈ omega.{u})
+    (hf : ∀ z, z ∈ f → ¬¬∃ u t, u ∈ omega.{u} ∧ t ∈ omega ∧ z ≈ pair u t) :
+    pair η f ∈ collapseBox.{u} :=
+  pair_mem_powerset_powerset
+    (mem_union.2 (nn_intro (.inl (mem_powerset.2 hη))))
+    (mem_union.2 (nn_intro (.inr (graph_mem_powerset hf))))
+
+/-- Its rank is below the rank of the container, an ordinal fixed in advance. -/
+theorem collapse_output_rank_mem {η f y : PSet.{u}} (hη : ∀ ξ, ξ ∈ η → ξ ∈ omega.{u})
+    (hf : ∀ z, z ∈ f → ¬¬∃ u t, u ∈ omega.{u} ∧ t ∈ omega ∧ z ≈ pair u t) (e : y ≈ pair η f) :
+    rank y ∈ rank collapseBox.{u} :=
+  rank_mem ((mem_congr_left e).2 (collapse_output_mem hη hf))
+
+/-- **The fragment, end to end.** A collapse presented on the natural numbers, with negatively
+finite predecessors, whose encoded outputs are pairs of the collapse and a graph of pairs
+`(u, α_i)` with `u ∈ ω`: every output has rank in the fixed ordinal `rank collapseBox`. -/
+theorem collapse_encoded_rank_mem (hc : Cover R α) (hord : ∀ i t, α i t → IsOrd t)
+    (htot : ∀ i, ¬¬∃ t, α i t) (desc : ∀ j i t t', R j i → α j t → α i t' → t ∈ t')
+    (hfin : NegFin R) {η f y : PSet.{u}} (hη : ∀ ξ, ξ ∈ η → ¬¬∃ i t, α i t ∧ ξ ∈ succ t)
+    (hf : ∀ z, z ∈ f → ¬¬∃ u i t, u ∈ omega.{u} ∧ α i t ∧ z ≈ pair u t) (e : y ≈ pair η f) :
+    rank y ∈ rank collapseBox.{u} :=
+  collapse_output_rank_mem (collapse_subset_omega R hc hord htot desc hfin hη)
+    (fun z hz => nn_map (fun ⟨u, i, t, hu, hit, e⟩ =>
+      ⟨u, t, hu, collapse_value_mem_omega R hc hord htot desc hfin i t hit, e⟩) (hf z hz)) e
+
 end
 
 /-- info: 'PSet.finHt_of_sInd' does not depend on any axioms -/
 #guard_msgs in #print axioms finHt_of_sInd
 /-- info: 'PSet.collapse_subset_omega' does not depend on any axioms -/
 #guard_msgs in #print axioms collapse_subset_omega
+/-- info: 'PSet.collapse_encoded_rank_mem' does not depend on any axioms -/
+#guard_msgs in #print axioms collapse_encoded_rank_mem
 
 end PSet

@@ -24,6 +24,18 @@ theorem mem_powerset {X y : PSet.{u}} : y ∈ powerset X ↔ ∀ z, z ∈ y → 
     · exact nn_map (fun ⟨i, e'⟩ => ⟨⟨i, (mem_congr_left e').1 hz⟩, e'⟩) (h z hz)
     · exact Stable.of_nn hz fun ⟨⟨i, hi⟩, e'⟩ => (mem_congr_left e').2 hi
 
+/-- A Kuratowski pair of elements of `A` is in `P²(A)`. -/
+theorem pair_mem_powerset_powerset {A a b : PSet.{u}} (ha : a ∈ A) (hb : b ∈ A) :
+    pair a b ∈ powerset (powerset A) := by
+  refine mem_powerset.2 fun z hz => mem_powerset.2 fun w hw => ?_
+  refine Stable.of_nn (mem_upair.1 hz) fun
+    | .inl e => ?_
+    | .inr e => ?_
+  · exact (mem_congr_left (mem_singleton.1 ((mem_congr_right e).1 hw))).2 ha
+  · exact Stable.of_nn (mem_upair.1 ((mem_congr_right e).1 hw)) fun
+      | .inl e' => (mem_congr_left e').2 ha
+      | .inr e' => (mem_congr_left e').2 hb
+
 /-! ### Levels -/
 
 /-- `Vl x` is the set of sets of rank below `rank x`. -/
