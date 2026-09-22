@@ -29,3 +29,5 @@ import ConZF.Ideal
 import ConZF.Bar
 import ConZF.FinObs
 import ConZF.CountableSource
+import ConZF.Graph.Recursion
+import ConZF.Graph.GSet
