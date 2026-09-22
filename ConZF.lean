@@ -10,6 +10,8 @@ import ConZF.Reach
 import ConZF.Fml
 import ConZF.Proof
 import ConZF.ZF
+import ConZF.ModelBase
+import ConZF.CofinalCut
 import ConZF.Model
 import ConZF.Acc
 import ConZF.Markov
