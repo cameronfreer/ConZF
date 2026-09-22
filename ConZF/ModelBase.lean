@@ -148,6 +148,32 @@ theorem HG.of_bound {y R : PSet.{u}} (hR : Cls ISat R) (h : ∀ z, z ∈ y → r
 
 theorem HG.mem {x z : PSet.{u}} (hx : HG x) (hz : z ∈ x) : HG z := Cls.mem hx (rank_mem hz)
 
+theorem HG.resp {x x' : PSet.{u}} (e : x ≈ x') (hx : HG x) : HG x' := Cls.resp (rank_congr e) hx
+
+/-- `HG` is closed under pairs: compare the two ranks. -/
+theorem HG.upair {x y : PSet.{u}} (hx : HG x) (hy : HG y) : HG (PSet.upair x y) := by
+  have key : ∀ {x y : PSet.{u}}, HG x → (∀ z, z ∈ rank y → z ∈ rank x) → HG (PSet.upair x y) :=
+    fun {x y} hx hsub => HG.of_bound (Cls.succ hx) fun z hz => Stable.of_nn (mem_upair.1 hz) fun
+      | .inl e => mem_succ_of_equiv (rank_congr e)
+      | .inr e => (mem_congr_left (rank_congr e)).2
+          ((isOrd_rank y).mem_succ_of_subset hx.1 hsub)
+  refine Stable.of_nn ((isOrd_rank x).trichotomy (isOrd_rank y)) ?_
+  rintro (h | h | h)
+  · exact Cls.resp (rank_congr (ext fun z => mem_upair.trans
+      ((nn_congr Or.comm).trans mem_upair.symm)))
+      (key hy fun z hz => (isOrd_rank y).trans _ h z hz)
+  · exact key hx fun z hz => (mem_congr_right h).2 hz
+  · exact key hx fun z hz => (isOrd_rank x).trans _ h z hz
+
+theorem HG.singleton {x : PSet.{u}} (hx : HG x) : HG (PSet.singleton x) :=
+  HG.of_bound (Cls.succ hx) fun _ hz => mem_succ_of_equiv (rank_congr (mem_singleton.1 hz))
+
+theorem HG.pair {x y : PSet.{u}} (hx : HG x) (hy : HG y) : HG (PSet.pair x y) :=
+  HG.upair hx.singleton (HG.upair hx hy)
+
+theorem HG.rank {x : PSet.{u}} (hx : HG x) : HG (PSet.rank x) :=
+  Cls.resp (isOrd_rank x).rank_equiv.symm hx
+
 /-- Finitely many elements of an ordinal are included in one of its elements. -/
 theorem exists_upper {θ : PSet.{u}} (hθ : IsOrd θ) {R : PSet.{u}} (hR : R ∈ θ) :
     ∀ (k : Nat) (r : Nat → PSet.{u}), (∀ i, i < k → r i ∈ θ) →

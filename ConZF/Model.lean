@@ -31,19 +31,7 @@ theorem hg_model_of_bounds (hb : BoundHyp.{u}) : ZFModel HG.{u} := by
   refine ⟨fun hx hz => hx.mem hz, ?_, fun {x y} hx hy => ?_, fun {x} hx => ?_,
     fun {x} hx => ?_, ?_, fun P x hx => ?_, fun ψ e he a ha hf => ?_⟩
   · exact HG.of_bound cls_empty fun _ h => (not_mem_empty _ h).elim
-  · -- pairs: compare the two ranks
-    have key : ∀ {x y : PSet.{u}}, HG x → (∀ z, z ∈ rank y → z ∈ rank x) → HG (upair x y) :=
-      fun {x y} hx hsub => HG.of_bound (Cls.succ hx) fun z hz => Stable.of_nn (mem_upair.1 hz) fun
-        | .inl e => mem_succ_of_equiv (rank_congr e)
-        | .inr e => (mem_congr_left (rank_congr e)).2
-            ((isOrd_rank y).mem_succ_of_subset hx.1 hsub)
-    refine Stable.of_nn ((isOrd_rank x).trichotomy (isOrd_rank y)) ?_
-    rintro (h | h | h)
-    · exact Cls.resp (rank_congr (ext fun z => mem_upair.trans
-        ((nn_congr Or.comm).trans mem_upair.symm)))
-        (key hy fun z hz => (isOrd_rank y).trans _ h z hz)
-    · exact key hx fun z hz => (mem_congr_right h).2 hz
-    · exact key hx fun z hz => (isOrd_rank x).trans _ h z hz
+  · exact HG.upair hx hy
   · exact HG.of_bound hx fun z hz => Stable.of_nn (mem_sUnion.1 hz) fun ⟨w, hw, hzw⟩ =>
       (isOrd_rank _).trans _ (rank_mem hw) _ (rank_mem hzw)
   · exact HG.of_bound (Cls.succ hx) fun z hz =>
