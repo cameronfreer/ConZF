@@ -225,6 +225,20 @@ by `rank x + 3`, hence in `HG` (`hg_tclDom`, `hg_rankGraph`). Uniqueness
 Replacement nor `hg_model_of_bounds` is used, so the bridge is available to
 the normal-form reduction without circularity.
 
+## The normal-form reduction
+
+`EnvFml.lean` writes the envelope as a formula: `envFml ψ` says of `x`
+(variable `0`) and `W` (variable `1`) that `W` is the set of witnesses of
+`ψ(x, y, params)` of least rank, or empty, with rank by `rankFml`;
+`sat_envFml` identifies its satisfaction in `HG` with `Env` of the witness
+predicate. Envelope instances are total and functional (`envFml_total`,
+`envFml_func`), so they are admissible with nothing to discharge. For a
+functional `ψ` the envelope of an output is its singleton, whose rank exceeds
+the output's, so a rank bound on the envelope instance bounds `ψ`
+(`rankBounded_of_envFml`). Hence `EnvBoundHyp`, rank bounds for the envelope
+instances alone, gives `BoundHyp` (`boundHyp_of_envBoundHyp`). The double
+negations stay in place; no uniform operator over formulas is involved.
+
 ## Native covers
 
 `Cover.lean` records the interface through which producers reach

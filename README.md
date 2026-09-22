@@ -16,6 +16,11 @@ theorem PSet.con_ZF_of_bounds (hb : BoundHyp) : Con ZF
 -- 'PSet.con_ZF_of_bounds' does not depend on any axioms
 ```
 
+Only one canonical form of definition needs bounds (`EnvFml.lean`): the *envelope* of a
+formula, the set of its witnesses of least rank, or empty. Envelope instances are total and
+functional, and `EnvBoundHyp`, rank bounds for envelope instances alone, gives `BoundHyp`
+(`boundHyp_of_envBoundHyp`, `con_ZF_of_envBoundHyp`).
+
 The bound is consumed by one Separation (`CofinalCut.lean`): the cut `{ζ ∈ κ | some output rank
 reaches ζ}` is hereditarily good for *every* ordinal cap `κ`, and once `κ` is a bound the level
 `V` of the cut collects the outputs. No materializing recursion appears in the consumer.
@@ -93,4 +98,5 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Cover.lean` | native covers: small candidate families over literal inputs give `RankBounded`; existential composition by dependent sums |
 | `ConZF/Envelope.lean` | least-rank witness envelopes and their capped approximations; the exact criterion; a cap meeting each nonempty witness class gives `RankBounded` |
 | `ConZF/RankGraph.lean`, `RankFml.lean` | rank is first-order over `HG`: native transitive closure and rank graph, their `HG` bounds, uniqueness of rank assignments, the formula `rankFml` and its readback |
+| `ConZF/EnvFml.lean` | the envelope as a formula; envelope instances are total and functional; `EnvBoundHyp → BoundHyp`, the normal-form reduction |
 | `ConZF/FinPred.lean` | a producer from semantic hypotheses: negatively finite predecessors give finite heights, simulations into `natCode`, and a collapse bounded by `ω` |
