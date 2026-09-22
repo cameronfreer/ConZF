@@ -197,11 +197,37 @@ theorem boundHyp_of_envBoundHyp (h : EnvBoundHyp.{u}) : BoundHyp.{u} :=
 theorem con_ZF_of_envBoundHyp (h : EnvBoundHyp.{0}) : Con ZF :=
   con_ZF_of_bounds (boundHyp_of_envBoundHyp h)
 
+/-- The reduction preserves the strength of the obligation: envelope instances are admissible. -/
+theorem envBoundHyp_of_boundHyp (h : BoundHyp.{u}) : EnvBoundHyp.{u} :=
+  fun ψ e he a ha => h (envFml ψ) e he a ha fun _ W W' _ hW hW' hs hs' => envFml_func hW hW' hs hs'
+
+theorem envBoundHyp_iff_boundHyp : EnvBoundHyp.{u} ↔ BoundHyp.{u} :=
+  ⟨boundHyp_of_envBoundHyp, envBoundHyp_of_boundHyp⟩
+
+/-- **Caps bound envelopes.** An ordinal meeting each nonempty witness class of `ψ` at every
+input, supplied negatively, bounds the envelope instance of `ψ`, with no functionality
+assumption on `ψ`: every envelope output is the capped witness set, a subset of `Vl κ`. -/
+theorem rankBounded_envFml_of_cap {ψ : Fml} {e : Nat → PSet.{u}} {a : PSet.{u}}
+    (hcap : ¬¬∃ κ, IsOrd κ ∧ ∀ x, x ∈ a → (¬¬∃ y, Wit ψ x e y) →
+      ¬¬∃ y, Wit ψ x e y ∧ y ∈ Vl κ) :
+    RankBounded (envFml ψ) e a := by
+  refine Stable.of_nn hcap fun ⟨κ, hκ, hc⟩ => ?_
+  refine rankBounded_of_mem (K := powerset (Vl κ)) fun x W hx hW hs => ?_
+  have hE : Env (Wit ψ x e) (capWit (Wit ψ x e) κ) :=
+    (env_capWit_iff (Wit ψ x e) Wit.resp hκ).2 (hc x hx)
+  have eW := env_func (Wit ψ x e) ((sat_envFml hW).1 hs) hE
+  exact mem_powerset.2 fun z hz => ((mem_capWit (Wit ψ x e) Wit.resp).1
+    ((mem_congr_right eW).1 hz)).1
+
 /-- info: 'PSet.sat_envFml' does not depend on any axioms -/
 #guard_msgs in #print axioms sat_envFml
 /-- info: 'PSet.envFml_total' does not depend on any axioms -/
 #guard_msgs in #print axioms envFml_total
 /-- info: 'PSet.con_ZF_of_envBoundHyp' does not depend on any axioms -/
 #guard_msgs in #print axioms con_ZF_of_envBoundHyp
+/-- info: 'PSet.envBoundHyp_iff_boundHyp' does not depend on any axioms -/
+#guard_msgs in #print axioms envBoundHyp_iff_boundHyp
+/-- info: 'PSet.rankBounded_envFml_of_cap' does not depend on any axioms -/
+#guard_msgs in #print axioms rankBounded_envFml_of_cap
 
 end PSet

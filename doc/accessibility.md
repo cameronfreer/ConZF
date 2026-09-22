@@ -150,12 +150,15 @@ ideals of the existing trees the constructor test fails in a precise way: the
 parent of a small family of ideal children is a stable functional
 specification (`IsParent`, `isParent_func`), but it is not not inhabited
 exactly when some set not not contains a representative of every child
-(`isParent_exists_iff`), a double-negation shift over the small index type.
-That is the shape of obligation the development is trying to avoid, so
-ideals of the existing trees give the sheafified universe only at the price
-of the Collection problem itself. This does not rule out a setoid
-presentation of sheafified trees with its own recursion principle; it says
-that such a presentation cannot be obtained from ideals of `PSet`.
+(`isParent_exists_iff`). This is a bounded Collection statement for
+ideal families indexed by a small type. It has not been identified with
+double-negation shift, nor with the exact strength of `BoundHyp`: arbitrary
+ideal families have a different scope from first-order definitions over
+`HG`. No impossibility is proved. The checked result is that this
+construction of a parent needs a Collection proof which the ideal
+definitions do not supply, which is a reasonable stopping point for the
+investigation; a setoid presentation of sheafified trees with its own
+recursion principle remains an open possibility.
 
 ## Native bounds
 
@@ -258,8 +261,14 @@ predicate. Envelope instances are total and functional (`envFml_total`,
 functional `ψ` the envelope of an output is its singleton, whose rank exceeds
 the output's, so a rank bound on the envelope instance bounds `ψ`
 (`rankBounded_of_envFml`). Hence `EnvBoundHyp`, rank bounds for the envelope
-instances alone, gives `BoundHyp` (`boundHyp_of_envBoundHyp`). The double
-negations stay in place; no uniform operator over formulas is involved.
+instances alone, gives `BoundHyp` (`boundHyp_of_envBoundHyp`), and conversely `BoundHyp` applied to the
+envelope formulas gives `EnvBoundHyp` (`envBoundHyp_iff_boundHyp`): the
+normalization preserves the strength of the obligation. The double
+negations stay in place; no uniform operator over formulas is involved. A
+cap meeting each nonempty witness class of `ψ` at every input, supplied
+negatively, bounds the envelope instance of `ψ` with no functionality
+assumption on `ψ` (`rankBounded_envFml_of_cap`): every envelope output is
+the capped witness set, a subset of `Vl κ`.
 
 ## Native covers
 
