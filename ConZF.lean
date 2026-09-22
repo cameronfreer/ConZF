@@ -37,3 +37,4 @@ import ConZF.Graph.Faithful
 import ConZF.Graph.Sat
 import ConZF.Graph.Def
 import ConZF.Graph.Ord
+import ConZF.Graph.Names
