@@ -102,4 +102,5 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/EnvFml.lean` | the envelope as a formula; envelope instances are total and functional; `EnvBoundHyp → BoundHyp`, the normal-form reduction |
 | `ConZF/Bar.lean` | stable binary bar induction on the negative Cantor space: the greedy real by Separation; local caps join; the single-critical-real criterion |
 | `ConZF/FinObs.lean` | a producer: total finite-observation specifications on the negative Cantor space have a source-wide cap and a witness menu; `RankBounded` for such formulas |
+| `ConZF/CountableSource.lean` | the scope check: a countable source lifts to the Cantor space with a local cap at every nonzero point, and its cap is exactly a local cap at the zero real |
 | `ConZF/FinPred.lean` | a producer from semantic hypotheses: negatively finite predecessors give finite heights, simulations into `natCode`, and a collapse bounded by `ω` |

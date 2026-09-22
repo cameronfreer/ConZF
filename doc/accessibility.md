@@ -243,6 +243,25 @@ bits of the point. Without functionality the menu meets each witness class;
 it does not cover every output in the sense of `Cover.lean`. The menu is
 finite by construction but no finiteness predicate is tracked.
 
+### The scope check: a countable source at the zero real
+
+`CountableSource.lean` records exactly why the compactness argument stops
+there. Start from any functional relation `Φ` on `ω`, possibly partial;
+totalize it (`Tot Φ`: empty if no output, the singleton of the output
+otherwise, a negative disjunction, no least rank and no first-order rank),
+and lift it to the Cantor space (`Lift Φ`: empty at the zero real, `Tot Φ`
+at the first `1` otherwise). The lift is negatively total and functional.
+Every nonzero point has a local cap (`locCap_of_firstOne`): its cylinder
+fixes the first `1`, where the lift is a single-input specification. And
+`Φ` has a cap iff the lift has a local cap at the zero real iff the lift has
+a source-wide cap (`countable_reduction`); the tail is bounded by the local
+cap and the finitely many earlier inputs by combining finitely many negative
+witnesses (`head_bound`). So totality, functionality, and local caps at every
+other point do not discharge the local cap at the last point: proving it
+would already solve the countable-source cap problem. This is a reduction,
+not an impossibility result, and it shows why the lift is outside the
+finite-observation fragment: the zero branch is a condition on all bits.
+
 ## A producer: the finite-predecessor fragment
 
 `FinPred.lean` derives a bound from semantic hypotheses alone. For a relation
