@@ -624,8 +624,24 @@ a numeral (`vbody_decode`, the converse the review asked for), and a row
 (`tbody_enc`: implications use the guard to apply the induction hypothesis
 to both children, universals use uniqueness of the cons and the package of
 the extended environment, which lies in the assignment set). Empty axiom
-reports. Next: the `SetSat` formula quantifying over the history, its bound,
-and uniform correctness.
+reports.
+
+`SetSat.lean` (gate 2, checkpoint 4): `ω` as the least inductive set
+(`omegaF`, bridge `sat_omegaF` using the supplied `ω` of the class), the
+assignment set (`assignSetF`), and the start state (`emptyStateF`) as
+formulas; the set-satisfaction formula `setSatF` (free variables the
+domain, the code, the assignment) says there are `ω`, the assignment set,
+the start state, and a history satisfying the sequence formula for the
+totalized step, renamed into position with every unused parameter slot
+pointing at the bound `ω` so that no bound lemma for the sequence formula
+is needed, with a stage whose truth table contains the row. **Uniform
+correctness** (`setSat_correct`): in a `SynZF` class, for every native
+formula `φ`, length `n`, and environment with entries in a member `A`, the
+class satisfies `setSatF` at `(A, enc φ, pack n e)` exactly when `Bound n φ`
+and `φ` holds in the set structure `A` at `e`; hence any two such classes
+agree (`setSat_absolute`). The empty domain and the empty assignment are
+ordinary cases, and malformed codes never enter the tables. This closes
+gate 2 of conzf15 with empty axiom reports.
 
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded

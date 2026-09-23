@@ -431,13 +431,13 @@ theorem invT_zero : InvT A 0 PSet.empty := fun φ _ _ _ =>
 
 variable (hEam : ∀ e', e' ∈ Ea ↔ (M e' ∧ ¬¬∃ n, IsAssign A e' n))
 
-omit hH hsat in
+omit hEa hH hsat in
 include hEam in
 /-- Packages with entries in `A` lie in the assignment set. -/
 theorem pack_mem_Ea {n : Nat} {e : Nat → PSet.{u}} (he : ∀ i, i < n → e i ∈ A) : pack n e ∈ Ea :=
   (hEam _).2 ⟨hM.pack_mem n fun i hi => hM.trans hA (he i hi), nn_intro ⟨ofNat n, isAssign_pack n he⟩⟩
 
-omit hH hsat in
+omit hEa hH hsat in
 include hEam in
 /-- **The truth body at a native code and a packaged environment.** -/
 theorem tbody_enc {d : Nat} {V' T : PSet.{u}} (hV' : InvV (d+1) V') (hT : InvT A d T)
@@ -528,15 +528,15 @@ theorem tbody_enc {d : Nat} {V' T : PSet.{u}} (hV' : InvV (d+1) V') (hT : InvT A
         cases i with
         | zero => exact hx
         | succ i => exact he i (Nat.lt_of_succ_lt_succ hi)
-      exact nn_intro ⟨pack (n+1) (Env.cons x e), hM.pack_mem_Ea hA hEa hEam he', isCons_pack n,
+      exact nn_intro ⟨pack (n+1) (Env.cons x e), hM.pack_mem_Ea hA hEam he', isCons_pack n,
         (hT φ₁ (n+1) (Env.cons x e) he').2 ⟨Nat.le_of_succ_le_succ hh, hbd, hs x hx⟩⟩
 
-omit hH hsat in
+omit hEa hH hsat in
 include hEam in
 /-- The truth invariant advances along the step. -/
 theorem invT_step {d : Nat} {V T V' T' : PSet.{u}} (hV' : InvV (d+1) V') (hT : InvT A d T)
     (st : IsStep A Ea V T V' T') : InvT A (d+1) T' := fun φ n e he =>
-  (st.2.2.2 _ _ (hM.pack_mem_Ea hA hEa hEam he)).trans (hM.tbody_enc hA hEa hEam hV' hT φ n e he)
+  (st.2.2.2 _ _ (hM.pack_mem_Ea hA hEam he)).trans (hM.tbody_enc hA hEam hV' hT φ n e he)
 
 include hEam in
 /-- **The invariants of the history**, at every stage. -/
@@ -547,7 +547,7 @@ theorem invariants : ∀ d : Nat, ¬¬∃ V T, M V ∧ M T ∧ Row H d V T ∧ I
     refine nn_map (fun ⟨V', T', hV', hT', hr'⟩ => ?_) (hM.row_exists hA hEa hH hsat (d+1))
     have st := hM.row_step hA hEa hH hsat hV hT hV' hT' hr hr'
     have iV' := invV_step iV st
-    exact ⟨V', T', hV', hT', hr', iV', hM.invT_step hA hEa hEam iV' iT st⟩
+    exact ⟨V', T', hV', hT', hr', iV', hM.invT_step hA hEam iV' iT st⟩
 
 end SynZF
 
