@@ -9,6 +9,7 @@ of `ZF` is proved in `Model.lean`, from the rank bounds of `CofinalCut.lean`.
 universe u
 
 namespace PSet
+variable [B : Budget.{u}]
 open Fml
 
 /-- `k`-tuples, as nested pairs. -/
@@ -16,6 +17,7 @@ def tup : Nat → (Nat → PSet.{u}) → PSet.{u}
   | 0, _ => empty
   | k+1, e => pair (e 0) (tup k fun i => e (i+1))
 
+omit [Budget.{u}] in
 theorem tup_inj : ∀ {k : Nat} {e e' : Nat → PSet.{u}}, tup k e ≈ tup k e' → ∀ i, i < k → e i ≈ e' i
   | 0, _, _, _, _, h => (Nat.not_lt_zero _ h).elim
   | _+1, _, _, h, 0, _ => (pair_inj h).1
@@ -45,6 +47,7 @@ def ISat (η q x y : PSet.{u}) : Prop :=
   ¬¬∃ φ k e, q ≈ code φ k e ∧ Bound (k+2) φ ∧
     x ∈ Vl η ∧ y ∈ Vl η ∧ Sat (· ∈ Vl η) φ (Env.cons x (Env.cons y e))
 
+omit [Budget.{u}] in
 theorem ISat_resp {η η' q q' x x' y y' : PSet.{u}} (eη : η ≈ η') (eq : q ≈ q') (ex : x ≈ x')
     (ey : y ≈ y') (h : ISat η q x y) : ISat η' q' x' y' :=
   nn_map (fun ⟨φ, k, e, hq, hb, hx, hy, hs⟩ =>
@@ -54,6 +57,7 @@ theorem ISat_resp {η η' q q' x x' y y' : PSet.{u}} (eη : η ≈ η') (eq : q 
       (Sat.resp_iff (fun _ => mem_congr_right eV) φ
         (Env.cons_resp ex (Env.cons_resp ey fun _ => Equiv.refl _))).1 hs⟩) h
 
+omit [Budget.{u}] in
 /-- What `ISat` says at a code. -/
 theorem isat_code {η x y : PSet.{u}} {ψ : Fml} {m : Nat} {e : Nat → PSet.{u}}
     (hb : Bound (m+2) ψ) : ISat η (code ψ m e) x y ↔
@@ -174,6 +178,7 @@ theorem HG.pair {x y : PSet.{u}} (hx : HG x) (hy : HG y) : HG (PSet.pair x y) :=
 theorem HG.rank {x : PSet.{u}} (hx : HG x) : HG (PSet.rank x) :=
   Cls.resp (isOrd_rank x).rank_equiv.symm hx
 
+omit [Budget.{u}] in
 /-- Finitely many elements of an ordinal are included in one of its elements. -/
 theorem exists_upper {θ : PSet.{u}} (hθ : IsOrd θ) {R : PSet.{u}} (hR : R ∈ θ) :
     ∀ (k : Nat) (r : Nat → PSet.{u}), (∀ i, i < k → r i ∈ θ) →

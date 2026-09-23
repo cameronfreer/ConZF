@@ -14,6 +14,7 @@ import ConZF.ModelBase
 import ConZF.CofinalCut
 import ConZF.Pointwise
 import ConZF.Model
+import ConZF.Seeded
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

@@ -335,9 +335,13 @@ equivalent points have equal ranks, and the rank graph over the endpoint
 extends the certificate inside `envelope X × P(X × κ)` (`rankedCert_mem`).
 The rank counts the first stage containing the point, so seeds have rank
 zero and the law is `ρ(x) ≤ β`, rather than con19's successor-indexed
-`ρ(x) < β`. Not done: the recurrence `ρ(x) = sup (ρ(z)+1)` for the
-predecessor rule, which needs successor ordinals; the certificate
-conditions as bounded formulas; con20's normalization theorem.
+`ρ(x) < β`. The rank can equal the stopping cut (a single predecessor-free
+node first enters at stage 1, which is also the stopping stage), so the
+codomain of the rank is the bound `κ` (`entry_mem_bound`), not the stopping
+cut. Not done: the recurrence for the predecessor rule, which with this
+indexing reads `ρ(u) = (sup_{vRu} ρ(v)) + 1` (a leaf has rank 1; a node
+above predecessors of unbounded finite rank enters at ω+1) and needs
+successor ordinals; the certificate conditions as bounded formulas.
 
 `Normalize.lean` (con20): judgements `J` and set-coded rules
 `Rs ⊆ P J × J`; the rule operator admits a judgement once some rule for it
@@ -371,6 +375,28 @@ axioms, not `ZFModel`, whose powerset and Separation fields are stronger
 than the internal axioms of graph `L`. Even with those, full Separation and
 Replacement in the graph `L` remain mathematical gaps, and nothing here
 discharges the `PSet` obligation `BoundHyp`.
+
+## The seeded model (con22 §2)
+
+The label set `D` is used by the definability rule and the model only
+through a few properties: extensionality, monotonicity in the source,
+transitivity, containment of the source and of `ω`, closure under unordered
+pairs, and containment of every set whose rank is included in an ordinal
+source. These are the fields of the class `Budget` (`VLevel.lean`), the
+standard label set is its instance, and `Reach.lean`, `ModelBase.lean`,
+`CofinalCut.lean`, and `Model.lean` are generic in the budget; downstream
+modules use the standard instance unchanged. `Seeded.lean` builds the
+budget `seeded b` from a supplied set `b` (the standard label set around the
+pair of the source and `b`), proves it contains the standard budget and
+`succ (rank b)` at source `∅`, and proves identity-source reachability: every
+nonzero ordinal `μ ≤ rank b` is reached from any of its elements by the
+identity formula on the fixed domain `succ (rank b)`. Hence every ordinal up
+to `rank b` is hereditarily good and `b` lies in the class of the seeded
+budget. The generic model theorem gives, under `AccHyp` and so under
+irrefutable excluded middle, an explicitly defined transitive class model of
+`ZF` containing `b` (`hg_model_seeded`), with empty axiom reports. This is
+the first step of the con22 route; the adjacent-universe interface, the
+cofinality interpreter, and the internal `L` are not formalized.
 
 ## Native bounds
 

@@ -2,8 +2,10 @@ import ConZF.Ord
 import ConZF.Pair
 /-!
 Power set, the levels `V_x`, finite ordinals and `ω`, and the label set `D G`: the sets of rank
-below `max (rank G, ω) + ω`. `D G` contains `G` and `ω`, is transitive, and is closed under
-pairing, which is all that the definability rule needs of it.
+below `max (rank G, ω) + ω`. `D G` contains `G` and `ω`, is transitive, is monotone in `G`, and
+is closed under pairing, which is all that the definability rule and the model need of it.
+Those properties are the fields of the class `Budget`; the standard budget `stdD` is its
+default instance, and `Seeded.lean` builds another one around a supplied seed.
 -/
 universe u
 
@@ -130,42 +132,126 @@ theorem isOrd_base (G : PSet.{u}) : IsOrd (base G) := isOrd_rank _
 theorem base_congr {G G' : PSet.{u}} (e : G ≈ G') : base G ≈ base G' :=
   rank_congr (upair_congr e (Equiv.refl _))
 
-/-- `D G = V_{max (rank G, ω) + 1 + ω}`. -/
-def D (G : PSet.{u}) : PSet.{u} := iUnion (ι := ULift.{u} Nat) fun n => Vl (succN n.down (base G))
+theorem succN_mono {B B' : PSet.{u}} (hB : IsOrd B) (hB' : IsOrd B')
+    (h : ∀ z, z ∈ B → z ∈ B') : ∀ n z, z ∈ succN n B → z ∈ succN n B'
+  | 0, z, hz => h z hz
+  | n+1, z, hz => Stable.of_nn (mem_succ.1 hz) fun
+    | .inl hz => mem_succ_of_mem (succN_mono hB hB' h n z hz)
+    | .inr e => (mem_congr_left e).2
+        ((hB.succN n).mem_succ_of_subset (hB'.succN n) (succN_mono hB hB' h n))
 
-theorem mem_D {G y : PSet.{u}} : y ∈ D G ↔ ¬¬∃ n, rank y ∈ succN n (base G) :=
+/-- Ranks are monotone under inclusion of ranks, for the base. -/
+theorem base_mono {ν ν' : PSet.{u}} (h : ∀ z, z ∈ rank ν → z ∈ rank ν') :
+    ∀ z, z ∈ base ν → z ∈ base ν' := by
+  intro z hz
+  refine Stable.of_nn (mem_rank'.1 hz) fun ⟨y, hy, hz⟩ => ?_
+  refine Stable.of_nn (mem_upair.1 hy) fun
+    | .inl e => ?_
+    | .inr e => mem_rank'.2 (nn_intro ⟨omega, mem_upair_right _ _,
+        (mem_congr_right (succ_congr (rank_congr e))).1 hz⟩)
+  refine mem_rank'.2 (nn_intro ⟨ν', mem_upair_left _ _, ?_⟩)
+  refine Stable.of_nn (mem_succ.1 ((mem_congr_right (succ_congr (rank_congr e))).1 hz)) fun
+    | .inl hz => mem_succ_of_mem (h z hz)
+    | .inr e' => (mem_congr_left e').2 ((isOrd_rank ν).mem_succ_of_subset (isOrd_rank ν') h)
+
+theorem rank_mono_of_mem {ν ν' : PSet.{u}} (h : ν ∈ ν') : ∀ z, z ∈ rank ν → z ∈ rank ν' :=
+  fun z hz => (isOrd_rank ν').trans _ (rank_mem h) z hz
+
+/-- The standard label set `stdD G = V_{max (rank G, ω) + 1 + ω}`. -/
+def stdD (G : PSet.{u}) : PSet.{u} := iUnion (ι := ULift.{u} Nat) fun n => Vl (succN n.down (base G))
+
+theorem mem_stdD {G y : PSet.{u}} : y ∈ stdD G ↔ ¬¬∃ n, rank y ∈ succN n (base G) :=
   mem_iUnion.trans ⟨nn_map fun ⟨n, h⟩ => ⟨n.down, (mem_Vl_ord ((isOrd_base G).succN _)).1 h⟩,
     nn_map fun ⟨n, h⟩ => ⟨⟨n⟩, (mem_Vl_ord ((isOrd_base G).succN _)).2 h⟩⟩
 
-theorem D_congr {G G' : PSet.{u}} (e : G ≈ G') : D G ≈ D G' :=
-  ext fun _ => mem_D.trans <| .trans (nn_congr <| exists_congr fun n =>
-    mem_congr_right (succN_congr (base_congr e) n)) mem_D.symm
+theorem stdD_congr {G G' : PSet.{u}} (e : G ≈ G') : stdD G ≈ stdD G' :=
+  ext fun _ => mem_stdD.trans <| .trans (nn_congr <| exists_congr fun n =>
+    mem_congr_right (succN_congr (base_congr e) n)) mem_stdD.symm
 
-theorem mem_D_of_rank {G y : PSet.{u}} (h : rank y ∈ base G) : y ∈ D G :=
-  mem_D.2 (nn_intro ⟨0, h⟩)
+theorem mem_stdD_of_rank {G y : PSet.{u}} (h : rank y ∈ base G) : y ∈ stdD G :=
+  mem_stdD.2 (nn_intro ⟨0, h⟩)
 
-theorem self_mem_D (G : PSet.{u}) : G ∈ D G := mem_D_of_rank (rank_mem (mem_upair_left _ _))
+theorem self_mem_stdD (G : PSet.{u}) : G ∈ stdD G := mem_stdD_of_rank (rank_mem (mem_upair_left _ _))
 
-theorem omega_mem_D (G : PSet.{u}) : omega ∈ D G := mem_D_of_rank (rank_mem (mem_upair_right _ _))
+theorem omega_mem_stdD (G : PSet.{u}) : omega ∈ stdD G :=
+  mem_stdD_of_rank (rank_mem (mem_upair_right _ _))
 
-theorem D_trans {G s x : PSet.{u}} (hs : s ∈ D G) (hx : x ∈ s) : x ∈ D G :=
-  Stable.of_nn (mem_D.1 hs) fun ⟨n, h⟩ =>
-    mem_D.2 (nn_intro ⟨n, ((isOrd_base G).succN n).trans _ h _ (rank_mem hx)⟩)
+theorem stdD_trans {G s x : PSet.{u}} (hs : s ∈ stdD G) (hx : x ∈ s) : x ∈ stdD G :=
+  Stable.of_nn (mem_stdD.1 hs) fun ⟨n, h⟩ =>
+    mem_stdD.2 (nn_intro ⟨n, ((isOrd_base G).succN n).trans _ h _ (rank_mem hx)⟩)
+
+theorem stdD_mono {ν ν' y : PSet.{u}} (h : ∀ z, z ∈ rank ν → z ∈ rank ν') (hy : y ∈ stdD ν) :
+    y ∈ stdD ν' :=
+  Stable.of_nn (mem_stdD.1 hy) fun ⟨n, hn⟩ => mem_stdD.2 (nn_intro ⟨n,
+    succN_mono (isOrd_base ν) (isOrd_base ν') (base_mono h) n _ hn⟩)
+
+/-- A set whose elements are in `stdD G`, finitely many up to bisimulation, is in `stdD G`. -/
+theorem upair_mem_stdD {G a b : PSet.{u}} (ha : a ∈ stdD G) (hb : b ∈ stdD G) :
+    upair a b ∈ stdD G := by
+  refine Stable.of_nn (mem_stdD.1 ha) fun ⟨m, hm⟩ => Stable.of_nn (mem_stdD.1 hb) fun ⟨n, hn⟩ => ?_
+  have hR := (isOrd_base G).succN (m + n)
+  refine mem_stdD.2 (nn_intro ⟨m + n + 1, rank_mem_succ hR fun z hz => ?_⟩)
+  refine Stable.of_nn (mem_upair.1 hz) ?_
+  rintro (e | e)
+  · exact (mem_congr_left (rank_congr e)).2 (mem_succN_add hm n)
+  · exact (mem_congr_left (rank_congr e)).2 (mem_succN_of_le (Nat.le_add_left n m) hn)
+
+/-- If `rank a ⊆ R` for an ordinal `R`, then `a ∈ stdD R`. -/
+theorem mem_stdD_of_subset {R a : PSet.{u}} (hR : IsOrd R) (h : ∀ z, z ∈ rank a → z ∈ R) :
+    a ∈ stdD R := by
+  have hRb : R ∈ base R := (mem_congr_left hR.rank_equiv).1 (rank_mem (mem_upair_left R omega))
+  refine mem_stdD_of_rank (Stable.of_nn ((isOrd_rank a).subset hR h) ?_)
+  rintro (h | e)
+  · exact (isOrd_base R).trans _ hRb _ h
+  · exact (mem_congr_left e).2 hRb
+
+/-! ### Budgets -/
+
+/-- **Budgets.** The properties of the label set used by the definability rule and the model:
+extensionality, monotonicity in the source, transitivity, containment of the source and of
+`ω`, and closure under unordered pairs. -/
+class Budget : Type (u+1) where
+  D : PSet.{u} → PSet.{u}
+  congr : ∀ {G G' : PSet.{u}}, G ≈ G' → D G ≈ D G'
+  mono : ∀ {ν ν' y : PSet.{u}}, ν ∈ ν' → y ∈ D ν → y ∈ D ν'
+  trans : ∀ {G s x : PSet.{u}}, s ∈ D G → x ∈ s → x ∈ D G
+  self_mem : ∀ G : PSet.{u}, G ∈ D G
+  omega_mem : ∀ G : PSet.{u}, omega ∈ D G
+  upair_mem : ∀ {G a b : PSet.{u}}, a ∈ D G → b ∈ D G → upair a b ∈ D G
+  /-- sets of rank at most an ordinal `R` are in `D R` (the parameter codes of the good-supremum
+  argument) -/
+  mem_of_subset : ∀ {R a : PSet.{u}}, IsOrd R → (∀ z, z ∈ rank a → z ∈ R) → a ∈ D R
+
+export Budget (D)
+
+/-- The standard budget. -/
+instance stdBudget : Budget.{u} where
+  D := stdD
+  congr := stdD_congr
+  mono h := stdD_mono (rank_mono_of_mem h)
+  trans := stdD_trans
+  self_mem := self_mem_stdD
+  omega_mem := omega_mem_stdD
+  upair_mem := upair_mem_stdD
+  mem_of_subset := mem_stdD_of_subset
+
+section
+variable [Budget.{u}]
+
+theorem D_congr {G G' : PSet.{u}} (e : G ≈ G') : D G ≈ D G' := Budget.congr e
+theorem D_mono {ν ν' y : PSet.{u}} (h : ν ∈ ν') (hy : y ∈ D ν) : y ∈ D ν' := Budget.mono h hy
+theorem D_trans {G s x : PSet.{u}} (hs : s ∈ D G) (hx : x ∈ s) : x ∈ D G := Budget.trans hs hx
+theorem self_mem_D (G : PSet.{u}) : G ∈ D G := Budget.self_mem G
+theorem omega_mem_D (G : PSet.{u}) : omega ∈ D G := Budget.omega_mem G
+theorem upair_mem_D {G a b : PSet.{u}} (ha : a ∈ D G) (hb : b ∈ D G) : upair a b ∈ D G :=
+  Budget.upair_mem ha hb
+theorem mem_D_of_subset {R a : PSet.{u}} (hR : IsOrd R) (h : ∀ z, z ∈ rank a → z ∈ R) : a ∈ D R :=
+  Budget.mem_of_subset hR h
 
 theorem ofNat_mem_D (G : PSet.{u}) (n : Nat) : ofNat n ∈ D G :=
   D_trans (omega_mem_D G) (ofNat_mem_omega n)
 
 theorem empty_mem_D (G : PSet.{u}) : empty ∈ D G := ofNat_mem_D G 0
-
-/-- A set whose elements are in `D G`, finitely many up to bisimulation, is in `D G`. -/
-theorem upair_mem_D {G a b : PSet.{u}} (ha : a ∈ D G) (hb : b ∈ D G) : upair a b ∈ D G := by
-  refine Stable.of_nn (mem_D.1 ha) fun ⟨m, hm⟩ => Stable.of_nn (mem_D.1 hb) fun ⟨n, hn⟩ => ?_
-  have hR := (isOrd_base G).succN (m + n)
-  refine mem_D.2 (nn_intro ⟨m + n + 1, rank_mem_succ hR fun z hz => ?_⟩)
-  refine Stable.of_nn (mem_upair.1 hz) ?_
-  rintro (e | e)
-  · exact (mem_congr_left (rank_congr e)).2 (mem_succN_add hm n)
-  · exact (mem_congr_left (rank_congr e)).2 (mem_succN_of_le (Nat.le_add_left n m) hn)
 
 theorem singleton_mem_D {G a : PSet.{u}} (ha : a ∈ D G) : singleton a ∈ D G :=
   (mem_congr_left (ext fun _ => mem_upair.trans <| .trans
@@ -179,11 +265,4 @@ theorem triple_mem_D {G a b c : PSet.{u}} (ha : a ∈ D G) (hb : b ∈ D G) (hc 
     triple a b c ∈ D G :=
   pair_mem_D ha (pair_mem_D hb hc)
 
-/-- If `rank a ⊆ R` for an ordinal `R`, then `a ∈ D R`. -/
-theorem mem_D_of_subset {R a : PSet.{u}} (hR : IsOrd R) (h : ∀ z, z ∈ rank a → z ∈ R) :
-    a ∈ D R := by
-  have hRb : R ∈ base R := (mem_congr_left hR.rank_equiv).1 (rank_mem (mem_upair_left R omega))
-  refine mem_D_of_rank (Stable.of_nn ((isOrd_rank a).subset hR h) ?_)
-  rintro (h | e)
-  · exact (isOrd_base R).trans _ hRb _ h
-  · exact (mem_congr_left e).2 hRb
+end

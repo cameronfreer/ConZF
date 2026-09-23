@@ -15,39 +15,13 @@ limit ordinals in the definitions:
 
 A successor `ζ + 1` is reached from `ζ` by a constant function and `ω` from `0` by the identity
 on `ω ∈ D 0`; these are facts about a particular `I`, proved in `Model.lean`, not cases of the
-rule. `I` is an arbitrary relation respecting bisimulation.
+rule. `I` is an arbitrary relation respecting bisimulation, and `D` is any budget (`Budget`).
 -/
 universe u
 
 namespace PSet
 
-/-! ### Monotonicity of `D` -/
-
-theorem succN_mono {B B' : PSet.{u}} (hB : IsOrd B) (hB' : IsOrd B')
-    (h : ∀ z, z ∈ B → z ∈ B') : ∀ n z, z ∈ succN n B → z ∈ succN n B'
-  | 0, z, hz => h z hz
-  | n+1, z, hz => Stable.of_nn (mem_succ.1 hz) fun
-    | .inl hz => mem_succ_of_mem (succN_mono hB hB' h n z hz)
-    | .inr e => (mem_congr_left e).2
-        ((hB.succN n).mem_succ_of_subset (hB'.succN n) (succN_mono hB hB' h n))
-
-theorem base_mono {ν ν' : PSet.{u}} (h : ν ∈ ν') : ∀ z, z ∈ base ν → z ∈ base ν' := by
-  intro z hz
-  refine Stable.of_nn (mem_rank'.1 hz) fun ⟨y, hy, hz⟩ => ?_
-  refine Stable.of_nn (mem_upair.1 hy) ?_
-  rintro (e | e)
-  · have h1 : rank y ∈ rank ν' := (mem_congr_left (rank_congr e)).2 (rank_mem h)
-    have h2 : rank ν' ∈ base ν' := rank_mem (mem_upair_left _ _)
-    refine Stable.of_nn (mem_succ.1 hz) ?_
-    rintro (hz | e')
-    · exact (isOrd_base ν').trans _ h2 _ ((isOrd_rank ν').trans _ h1 _ hz)
-    · exact (mem_congr_left e').2 ((isOrd_base ν').trans _ h2 _ h1)
-  · exact mem_rank'.2 (nn_intro ⟨omega, mem_upair_right _ _,
-      (mem_congr_right (succ_congr (rank_congr e))).1 hz⟩)
-
-theorem D_mono {ν ν' y : PSet.{u}} (h : ν ∈ ν') (hy : y ∈ D ν) : y ∈ D ν' :=
-  Stable.of_nn (mem_D.1 hy) fun ⟨n, hn⟩ => mem_D.2 (nn_intro ⟨n,
-    succN_mono (isOrd_base ν) (isOrd_base ν') (base_mono h) n _ hn⟩)
+variable [B : Budget.{u}]
 
 /-! ### The rule -/
 
@@ -88,6 +62,7 @@ variable (I_resp : ∀ {η η' q q' x x' y y' : PSet.{u}},
   η ≈ η' → q ≈ q' → x ≈ x' → y ≈ y' → I η q x y → I η' q' x' y')
 include I_resp
 
+omit [Budget.{u}] in
 theorem Unb.resp {η η' q q' s s' : PSet.{u}} (eη : η ≈ η') (eq : q ≈ q') (es : s ≈ s')
     (h : Unb I η q s) : Unb I η' q' s' := by
   have back : ∀ {x y}, I η' q' x y → I η q x y :=

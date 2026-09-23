@@ -19,6 +19,7 @@ some actual output rank reaches `ζ`, and `rankCofinalCut ψ e a κ` is its cut 
 -/
 universe u
 namespace PSet
+variable [B : Budget.{u}]
 open Fml
 
 /-- The downward closure of the successor ranks of actual outputs. -/

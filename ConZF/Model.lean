@@ -15,6 +15,7 @@ corollaries. Pointwise double-negated accessibility of the hereditarily good ord
 universe u
 
 namespace PSet
+variable [B : Budget.{u}]
 open Fml
 
 /-- The bound hypothesis: for every admissible Replacement instance over `HG`, the output ranks
@@ -43,6 +44,7 @@ theorem hg_model_of_bounds (hb : BoundHyp.{u}) : ZFModel HG.{u} := by
   exact nn_bind (hb ψ e he a ha hf) fun ⟨κ, hk, hbound⟩ =>
     hg_replacement_of_rank_bound hk ha he hf hbound
 
+omit [Budget.{u}] in
 theorem con_ZF_of_bounds (hb : BoundHyp.{0}) : Con ZF := (hg_model_of_bounds hb).con
 
 /-! ### Bounds from the materializing recursion -/
@@ -71,22 +73,27 @@ theorem boundHyp_of_accHyp (hacc : AccHyp.{u}) : BoundHyp.{u} := by
 
 theorem hg_model (hacc : AccHyp.{u}) : ZFModel HG.{u} := hg_model_of_bounds (boundHyp_of_accHyp hacc)
 
+omit [Budget.{u}] in
 /-- **The consistency of `ZF`**, from the accessibility hypothesis alone. -/
 theorem con_ZF (hacc : AccHyp.{0}) : Con ZF := (hg_model hacc).con
 
+omit [Budget.{u}] in
 /-- The accessibility hypothesis follows from the well-foundedness of (stable) membership:
 no paths, no rule, no formulas are involved in what is missing. -/
 theorem accHyp_of_mem_wf (h : ¬¬∀ x : PSet.{u}, Acc (· ∈ ·) x) : AccHyp.{u} :=
   fun _ desc => nn_map (acc_root_of_desc desc) h
 
+omit [Budget.{u}] in
 /-- **`Con ZF` from the well-foundedness of membership on the sets-as-trees.** -/
 theorem con_ZF_of_mem_wf (h : ¬¬∀ x : PSet.{0}, Acc (· ∈ ·) x) : Con ZF :=
   con_ZF (accHyp_of_mem_wf h)
 
+omit [Budget.{u}] in
 theorem accHyp_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : AccHyp.{u} := fun τ desc hn =>
   h fun em => hn <| swf_root_of_desc desc (Acc (Rel τ))
     (fun p => ⟨fun hp => (em (Acc (Rel τ) p)).resolve_right hp⟩) fun x ih => ⟨x, ih⟩
 
+omit [Budget.{u}] in
 theorem con_ZF_of_not_not_em (h : ¬¬∀ p : Prop, p ∨ ¬p) : Con ZF :=
   con_ZF (accHyp_of_not_not_em h)
 
@@ -114,9 +121,11 @@ theorem boundHyp_of_pointwise (hacc : PointwiseHGAcc.{u}) : BoundHyp.{u} := by
 theorem hg_model_of_pointwise (hacc : PointwiseHGAcc.{u}) : ZFModel HG.{u} :=
   hg_model_of_bounds (boundHyp_of_pointwise hacc)
 
+omit [Budget.{u}] in
 theorem con_ZF_of_pointwise (hacc : PointwiseHGAcc.{0}) : Con ZF :=
   (hg_model_of_pointwise hacc).con
 
+omit [Budget.{u}] in
 theorem con_ZF_of_pointwise_mem_acc (h : ∀ x : PSet.{0}, ¬¬Acc (· ∈ ·) x) : Con ZF :=
   con_ZF_of_pointwise fun η _ => h η
 
