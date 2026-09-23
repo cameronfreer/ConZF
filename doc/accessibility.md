@@ -439,16 +439,49 @@ with empty axiom reports. Universes: everything is polymorphic in `u`; at
 `u := 0` the lower sets are in `Type 1`, the upper sets and the interface in
 `Type 2`, and nothing higher is used.
 
-Not formalized: the regularity of `K` against upper set-coded functions
-(pulling an upper function `δ → K` back to a lower ordinal relation), the
-strong-limit argument inside `N`, the internal constructible interpretation
-`N = L^M` and its well-order (a named outstanding dependency: an ordinary ZF
-theorem about a proved class model, not the graph `L`), the syntactic
-statements of cardinal, regular, and strong limit, and the final class-model
-soundness theorem for `ZFC + one inaccessible`. The interface fields
-`cof_small`, `cof_lt_or_reg`, and `cof_powerset` are exactly the ZFC facts
-about `N` the argument consumes; discharging them for `L^M` is that
-dependency.
+Two interface corrections after review: `Cof` is a partial cofinal relation
+(a functional set of pairs, not necessarily total; `Cof empty Q empty`
+holds), which is what `Unb` needs, and the least-candidate relation of the
+interface is understood as minimizing partial cofinal graphs, with the
+adapter `Cof.of_isFun` for total cofinal functions; the injection condition
+of the mixed Hartogs bound is relational (`IsInjRel`: total with inverse
+uniqueness, no functionality), with the adapter `IsInjFun.toRel` for
+ordinary set-coded injections. Inaccessibility, regularity, strong limit,
+and initiality in `N` are now explicit notions quantifying over the
+functions and injections of `N` (`InaccIn` and friends), and the
+classification fields of the interface are stated with them.
+
+`Interval.lean` (con23): with the seeded budget around a lower set `b` and
+the same interpreter, every nonzero ordinal at most `rank b` is reached by
+the identity graph on its lift, a partial cofinal relation from
+`lift (succ (rank b))` (`reachable_below`), and above `rank b` the three
+cofinality cases apply; so under the interval hypothesis `NoGap` (no lifted
+lower ordinal above `rank b` is inaccessible in `N`) every lower ordinal is
+hereditarily good for the seeded budget (`cls_interval`) and every
+functional ordinal relation has a native bound (`ordBound_interval`). The
+explicit consequences: `K` is initial and a strong limit against relational
+injections into subsets of powersets of its members, unconditionally under
+excluded middle (`K_strongLimit`), with `ω ∈ K`; and regular against all
+upper set-coded functions under the interval hypothesis
+(`K_regular_of_interval`), by pulling a function `δ → K` back to a lower
+ordinal relation on the lower representative of `δ` and bounding it
+natively. The interval theorem (`inacc_interval`): under excluded middle,
+for every lower set `b`, `N` has an inaccessible `ρ` with
+`lift (rank b) ∈ ρ` and `ρ ≤ K`, since either some lifted lower ordinal
+above `rank b` is inaccessible in `N`, or the interval hypothesis holds and
+`K` is inaccessible in `N` (ambient inaccessibility against all upper
+functions implies the `N`-relative notion). Its only premise beyond excluded
+middle is the interface `M`. Successive seeds give distinct inaccessibles
+in one class, finitely many at a time.
+
+Not formalized: the instantiation of `UpperModel` by the constructible
+interpretation of the seeded ZF model (the main outstanding dependency: its
+transitivity, the least-cofinal-relation laws from its well-order, the
+identity graphs, `K ∈ N`, and the three classification fields, which are
+ordinary ZFC facts inside it), the syntactic formula for inaccessibility and
+the axiom of choice in `Fml`, and the final class-model soundness theorem
+for `ZFC + one inaccessible`. The interval theorem is semantic, about the
+explicit notions above; no record assumes the conclusion.
 
 ## Native bounds
 

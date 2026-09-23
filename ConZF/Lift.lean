@@ -65,6 +65,22 @@ theorem mem_lift_succ {x : PSet.{u}} {w : PSet.{u+1}} :
 theorem lift_succ (x : PSet.{u}) : lift (succ x) ≈ succ (lift x) :=
   ext fun _ => mem_lift_succ.trans mem_succ.symm
 
+theorem lift_empty : lift empty.{u} ≈ empty :=
+  ext fun w => ⟨fun h => Stable.of_nn (mem_lift.1 h) fun ⟨z, hz, _⟩ => (not_mem_empty z hz).elim,
+    fun h => (not_mem_empty w h).elim⟩
+
+theorem lift_ofNat : ∀ n, lift (ofNat.{u} n) ≈ ofNat n
+  | 0 => lift_empty
+  | n+1 => (lift_succ _).trans (succ_congr (lift_ofNat n))
+
+theorem lift_omega : lift omega.{u} ≈ omega := by
+  refine ext fun w => ⟨fun h => ?_, fun h => ?_⟩
+  · refine Stable.of_nn (mem_lift.1 h) fun ⟨z, hz, e⟩ => ?_
+    exact Stable.of_nn (mem_omega.1 hz) fun ⟨n, e'⟩ =>
+      mem_omega.2 (nn_intro ⟨n, e.trans ((lift_congr e').trans (lift_ofNat n))⟩)
+  · exact Stable.of_nn (mem_omega.1 h) fun ⟨n, e⟩ =>
+      mem_lift.2 (nn_intro ⟨ofNat n, ofNat_mem_omega n, e.trans (lift_ofNat n).symm⟩)
+
 /-- The lower representative of an upper subset of a lifted lower set. -/
 def shrink (a : PSet.{u}) (Y : PSet.{u+1}) : PSet.{u} := sep (fun z => lift z ∈ Y) a
 

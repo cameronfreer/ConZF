@@ -12,20 +12,38 @@ mapped from (`lift_tree`), not merely with the order type of a range. Nothing ch
 values: the injection is opened only inside propositional proofs.
 
 Consequence: `K` is an initial ordinal of the upper universe, in that it has no set-coded
-injection into any of its members (`K_initial`).
+injection (even in the relational sense) into any of its members (`K_initial`).
 -/
 universe u
 
 namespace PSet
 
-/-- A set-coded injection from `α` into `X`: a set of pairs, total on `α`, with injective
-values. -/
-structure IsInj (α X f : PSet.{u}) : Prop where
+/-- **The relational injection condition** from `α` into `X`: a set of pairs, total on `α`,
+with inverse uniqueness. Functionality is not required, so this is weaker than an ordinary
+injection and the bound below is correspondingly stronger; the adapter `IsInjFun.toRel` covers
+ordinary set-coded injections. -/
+structure IsInjRel (α X f : PSet.{u}) : Prop where
   total : ∀ ξ, ξ ∈ α → ¬¬∃ w, w ∈ X ∧ pair ξ w ∈ f
   inj : ∀ ξ ξ' w w', pair ξ w ∈ f → pair ξ' w' ∈ f → w ≈ w' → ξ ≈ ξ'
 
-theorem IsInj.congr_right {α X X' f : PSet.{u}} (e : X ≈ X') (h : IsInj α X f) : IsInj α X' f :=
+theorem IsInjRel.congr_right {α X X' f : PSet.{u}} (e : X ≈ X') (h : IsInjRel α X f) :
+    IsInjRel α X' f :=
   ⟨fun ξ hξ => nn_map (fun ⟨w, hw, hp⟩ => ⟨w, (mem_congr_right e).1 hw, hp⟩) (h.total ξ hξ), h.inj⟩
+
+theorem IsInjRel.mono {α X X' f : PSet.{u}} (h' : ∀ w, w ∈ X → w ∈ X') (h : IsInjRel α X f) :
+    IsInjRel α X' f :=
+  ⟨fun ξ hξ => nn_map (fun ⟨w, hw, hp⟩ => ⟨w, h' w hw, hp⟩) (h.total ξ hξ), h.inj⟩
+
+/-- An ordinary set-coded injection: a total function on `α` into `X` with injective values. -/
+structure IsInjFun (α X f : PSet.{u}) : Prop where
+  dom : ∀ ξ w, pair ξ w ∈ f → ξ ∈ α ∧ w ∈ X
+  func : ∀ ξ w w', pair ξ w ∈ f → pair ξ w' ∈ f → w ≈ w'
+  total : ∀ ξ, ξ ∈ α → ¬¬∃ w, pair ξ w ∈ f
+  inj : ∀ ξ ξ' w w', pair ξ w ∈ f → pair ξ' w' ∈ f → w ≈ w' → ξ ≈ ξ'
+
+/-- An ordinary injection satisfies the relational condition. -/
+theorem IsInjFun.toRel {α X f : PSet.{u}} (h : IsInjFun α X f) : IsInjRel α X f :=
+  ⟨fun ξ hξ => nn_map (fun ⟨w, hp⟩ => ⟨w, (h.dom ξ w hp).2, hp⟩) (h.total ξ hξ), h.inj⟩
 
 theorem WFCode.mem_tree {X : Type u} (c : WFCode X) {x : {x : X // c.S x}} {z : PSet.{u}} :
     z ∈ c.tree x ↔ ¬¬∃ y : {y : {x : X // c.S x} // c.R y x}, z ≈ c.tree y.1 := by
@@ -41,7 +59,7 @@ def pullS (x : a.Idx) : Prop := ∃ ξ, ξ ∈ α ∧ pair ξ (lift (a.Func x)) 
 def pullR (x y : {x : a.Idx // pullS a α f x}) : Prop :=
   ∀ ξ ξ', pair ξ (lift (a.Func x.1)) ∈ f → pair ξ' (lift (a.Func y.1)) ∈ f → ξ ∈ ξ'
 
-variable {a α f} (em : ∀ p : Prop, p ∨ ¬p) (hα : IsOrd α) (hf : IsInj α (lift a) f)
+variable {a α f} (em : ∀ p : Prop, p ∨ ¬p) (hα : IsOrd α) (hf : IsInjRel α (lift a) f)
 include em
 
 /-- Under excluded middle, membership induction in the upper universe gives accessibility. -/
@@ -112,7 +130,7 @@ end
 
 /-- **`K` is an initial ordinal**: it has no set-coded injection into any of its members. -/
 theorem K_initial (em : ∀ p : Prop, p ∨ ¬p) {δ f : PSet.{u+1}} (hδ : δ ∈ K.{u})
-    (hf : IsInj K.{u} δ f) : False := by
+    (hf : IsInjRel K.{u} δ f) : False := by
   refine Stable.of_nn (mem_K.1 hδ) fun ⟨η, hη, e⟩ => ?_
   have h := mem_lift_wfBound em isOrd_K (hf.congr_right e)
   exact not_mem_self K.{u} (isOrd_K.trans _ (lift_mem_K (isOrd_wfBound _)) _ h)

@@ -1,16 +1,19 @@
 import ConZF.AllGood
-import ConZF.Lift
+import ConZF.MixedHartogs
 /-!
 The domain-coded cofinality interpreter (con22 §3–5), against an explicit interface for an
 upper class `N` (`UpperModel`). The interface states exactly what is assumed of `N`: it is
 extensional and contains the lifts of lower ordinals; it has a relation `LeastCof f Q ζ`
-("`f` is the least cofinal map `Q → ζ` of `N`") that is extensional, unique, and cofinal
-(`Cof`: a function on `Q` into `ζ` whose values reach every `ξ ∈ ζ` inclusively), and that
-exists as soon as some cofinal map of `N` exists; and it classifies the lifts of nonzero lower
+("`f` is the least partial cofinal relation from `Q` to `ζ` of `N`") that is extensional,
+unique, and cofinal (`Cof`: a functional set of pairs from `Q` into `ζ`, not necessarily total,
+whose values reach every `ξ ∈ ζ` inclusively), and that exists as soon as some cofinal relation
+of `N` exists; it contains the identity graphs on lifted lower ordinals; and it classifies the lifts of nonzero lower
 ordinals that are not inaccessible in `N` into three cases: at most `ω`, with a cofinal map
 from `ω`; of smaller cofinality, with a cofinal map from a smaller lower ordinal; or regular
 and not a strong limit, with a cofinal map from an internal powerset `P ⊆ P(lift l)` of a
-smaller `l` with `succ l` still below. The predicates `Inacc` and `Reg` are abstract.
+smaller `l` with `succ l` still below. Regularity, strong limit, initiality, and inaccessibility in `N` are
+explicit set-theoretic notions quantifying over the functions and injections of `N`
+(`RegularIn`, `StrongLimitIn`, `InitialIn`, `InaccIn`).
 
 The interpreter `cofI M η q x y` reads the least cofinal map `lift q → lift η` of `N` at
 `lift x`: the target `η` is an argument, and the code `q` is only the domain. It respects
@@ -29,8 +32,11 @@ universe u
 
 namespace PSet
 
-/-- A cofinal map `Q → ζ`, set-coded: a function on `Q` with values in `ζ` reaching every
-member of `ζ` inclusively. -/
+/-- A cofinal relation from `Q` to `ζ`, set-coded: a functional set of pairs with inputs in `Q`
+and values in `ζ`, reaching every member of `ζ` inclusively. It is **partial**: nothing requires
+every member of `Q` to have a value (`Cof empty Q empty` holds for every `Q`). Partiality is
+enough for `Unb`, and the least-candidate relation of `UpperModel` is understood as minimizing
+partial cofinal graphs. A total cofinal function is a cofinal relation (`Cof.of_isFun`). -/
 def Cof (g Q ζ : PSet.{u+1}) : Prop :=
   (∀ x y, pair x y ∈ g → x ∈ Q ∧ y ∈ ζ) ∧ (∀ x y y', pair x y ∈ g → pair x y' ∈ g → y ≈ y') ∧
   (∀ ξ, ξ ∈ ζ → ¬¬∃ x y, pair x y ∈ g ∧ ξ ∈ succ y)
@@ -38,30 +44,72 @@ def Cof (g Q ζ : PSet.{u+1}) : Prop :=
 theorem Cof.congr_dom {g Q Q' ζ : PSet.{u+1}} (e : Q ≈ Q') (h : Cof g Q ζ) : Cof g Q' ζ :=
   ⟨fun x y hp => ⟨(mem_congr_right e).1 (h.1 x y hp).1, (h.1 x y hp).2⟩, h.2.1, h.2.2⟩
 
+/-- An ordinary set-coded function from `Q` to `ζ`: a functional set of pairs with inputs in
+`Q` and values in `ζ`, total on `Q`. -/
+def IsFun (f Q ζ : PSet.{u}) : Prop :=
+  (∀ x y, pair x y ∈ f → x ∈ Q ∧ y ∈ ζ) ∧ (∀ x y y', pair x y ∈ f → pair x y' ∈ f → y ≈ y') ∧
+  (∀ x, x ∈ Q → ¬¬∃ y, pair x y ∈ f)
+
+/-- A total cofinal function is a cofinal relation. -/
+theorem Cof.of_isFun {g Q ζ : PSet.{u+1}} (h : IsFun g Q ζ)
+    (hc : ∀ ξ, ξ ∈ ζ → ¬¬∃ x y, pair x y ∈ g ∧ ξ ∈ succ y) : Cof g Q ζ :=
+  ⟨h.1, h.2.1, hc⟩
+
+/-- The identity graph on a set. -/
+def idGraph (X : PSet.{u}) : PSet.{u} := range fun i : X.Idx => pair (X.Func i) (X.Func i)
+
+theorem mem_idGraph {X p : PSet.{u}} : p ∈ idGraph X ↔ ¬¬∃ x, x ∈ X ∧ p ≈ pair x x :=
+  ⟨nn_map fun ⟨i, e⟩ => ⟨X.Func i, func_mem X i, e⟩,
+   fun h => nn_bind h fun ⟨_, hx, e⟩ => nn_map (fun ⟨i, e'⟩ =>
+     ⟨i, e.trans (pair_congr e' e')⟩) hx⟩
+
+/-! ### Explicit cardinal notions relative to a class -/
+
+/-- `κ` is regular in `N`: every function of `N` from a member of `κ` into `κ` has its values
+inside a member of `κ`. -/
+def RegularIn (N : PSet.{u} → Prop) (κ : PSet.{u}) : Prop :=
+  ∀ δ f, δ ∈ κ → N f → IsFun f δ κ → ¬¬∃ β, β ∈ κ ∧ ∀ x y, pair x y ∈ f → y ∈ β
+
+/-- `κ` is a strong limit in `N`: every ordinal injecting relationally, by an injection of `N`,
+into a set of `N` of subsets of a member of `κ` is a member of `κ`. -/
+def StrongLimitIn (N : PSet.{u} → Prop) (κ : PSet.{u}) : Prop :=
+  ∀ lam θ P f, lam ∈ κ → IsOrd θ → N P → N f → (∀ w, w ∈ P → w ∈ powerset lam) →
+    IsInjRel θ P f → θ ∈ κ
+
+/-- `κ` is initial in `N`: no relational injection of `N` into a member. -/
+def InitialIn (N : PSet.{u} → Prop) (κ : PSet.{u}) : Prop := ∀ δ f, δ ∈ κ → N f → ¬ IsInjRel κ δ f
+
+/-- `κ` is inaccessible in `N`: an ordinal above `ω`, initial, regular, and a strong limit, all
+against the functions and injections of `N`. -/
+def InaccIn (N : PSet.{u} → Prop) (κ : PSet.{u}) : Prop :=
+  IsOrd κ ∧ omega ∈ κ ∧ InitialIn N κ ∧ RegularIn N κ ∧ StrongLimitIn N κ
+
 /-- **The upper-model interface.** -/
 structure UpperModel : Type (u+2) where
   N : PSet.{u+1} → Prop
   N_resp : ∀ {x y}, x ≈ y → N x → N y
   N_lift_ord : ∀ η : PSet.{u}, IsOrd η → N (lift η)
-  /-- `f` is the least cofinal map `Q → ζ` of `N` -/
+  /-- `f` is the least (partial) cofinal relation from `Q` to `ζ` of `N` -/
   LeastCof : PSet.{u+1} → PSet.{u+1} → PSet.{u+1} → Prop
   leastCof_resp : ∀ {f Q Q' ζ ζ'}, Q ≈ Q' → ζ ≈ ζ' → LeastCof f Q ζ → LeastCof f Q' ζ'
   leastCof_unique : ∀ {f f' Q ζ}, LeastCof f Q ζ → LeastCof f' Q ζ → f ≈ f'
   leastCof_cof : ∀ {f Q ζ}, LeastCof f Q ζ → Cof f Q ζ
   leastCof_exists : ∀ {Q ζ}, N Q → N ζ → IsOrd ζ → (¬¬∃ g, N g ∧ Cof g Q ζ) →
     ¬¬∃ f, N f ∧ LeastCof f Q ζ
-  /-- inaccessible in `N`, and regular in `N` -/
-  Inacc : PSet.{u+1} → Prop
-  Reg : PSet.{u+1} → Prop
+  /-- the identity graph on a lifted lower ordinal is in `N` -/
+  N_idGraph : ∀ η : PSet.{u}, IsOrd η → N (idGraph (lift η))
+  /-- the height of the lower universe is in `N` -/
+  N_K : N K.{u}
   /-- nonzero ordinals at most `ω` have a cofinal map from `ω` -/
   cof_small : ∀ η : PSet.{u}, IsOrd η → η ∈ succ omega → (∃ ζ, ζ ∈ η) →
     ¬¬∃ g, N g ∧ Cof g (lift omega) (lift η)
   /-- above `ω`: smaller cofinality, with a cofinal map from a smaller lower ordinal, or regular -/
   cof_lt_or_reg : ∀ η : PSet.{u}, IsOrd η → omega ∈ η →
-    ¬¬((¬¬∃ d : PSet.{u}, d ∈ η ∧ ¬¬∃ g, N g ∧ Cof g (lift d) (lift η)) ∨ Reg (lift η))
+    ¬¬((¬¬∃ d : PSet.{u}, d ∈ η ∧ ¬¬∃ g, N g ∧ Cof g (lift d) (lift η)) ∨ RegularIn N (lift η))
   /-- regular but not inaccessible: not a strong limit, so an internal powerset of a smaller
   `l` maps cofinally; `succ l` is still below -/
-  cof_powerset : ∀ η : PSet.{u}, IsOrd η → omega ∈ η → Reg (lift η) → ¬ Inacc (lift η) →
+  cof_powerset : ∀ η : PSet.{u}, IsOrd η → omega ∈ η → RegularIn N (lift η) →
+    ¬ InaccIn N (lift η) →
     ¬¬∃ (l : PSet.{u}) (P : PSet.{u+1}), succ l ∈ η ∧ N P ∧ (∀ w, w ∈ P → w ∈ powerset (lift l)) ∧
       ¬¬∃ g, N g ∧ Cof g P (lift η)
 
@@ -104,7 +152,7 @@ theorem unb_cofI {η q : PSet.{u}} (hη : IsOrd η) (hq : M.N (lift q))
 /-- **Reachability.** Every nonzero lower ordinal whose lift is not inaccessible in `N` is
 reachable by the cofinality interpreter. -/
 theorem reachable_cofI [B : Budget.{u}] {η : PSet.{u}} (hη : IsOrd η) (hne : ∃ ζ, ζ ∈ η)
-    (hni : ¬ M.Inacc (lift η)) : Reachable (cofI M) η := by
+    (hni : ¬ InaccIn M.N (lift η)) : Reachable (cofI M) η := by
   obtain ⟨ζ₀, hζ₀⟩ := hne
   have small : η ∈ succ omega → Reachable (cofI M) η := fun hle =>
     nn_intro ⟨ζ₀, hζ₀, nn_intro ⟨omega, omega, omega_mem_D ζ₀, omega_mem_D ζ₀,
@@ -147,13 +195,13 @@ theorem reachable_cofI [B : Budget.{u}] {η : PSet.{u}} (hη : IsOrd η) (hne : 
       (nn_map (fun ⟨g, hN, hc⟩ => ⟨g, hN, hc.congr_dom eq.symm⟩) hg)
 
 /-- **No smaller inaccessible makes every lower ordinal hereditarily good.** -/
-theorem cls_cofI [B : Budget.{u}] (hni : ∀ η : PSet.{u}, IsOrd η → ¬ M.Inacc (lift η)) :
+theorem cls_cofI [B : Budget.{u}] (hni : ∀ η : PSet.{u}, IsOrd η → ¬ InaccIn M.N (lift η)) :
     ∀ η : PSet.{u}, IsOrd η → Cls (cofI M) η := fun _ hη =>
   ⟨hη, fun μ hμ ζ hζ => reachable_cofI M (hη.succ.mem hμ) ⟨ζ, hζ⟩ (hni μ (hη.succ.mem hμ))⟩
 
 /-- **The conditional bound.** Under excluded middle and no smaller inaccessible, every
 functional ordinal-valued relation on a supplied lower source has an actual ordinal bound. -/
-theorem ordBound_of_noInacc [B : Budget.{u}] (hni : ∀ η : PSet.{u}, IsOrd η → ¬ M.Inacc (lift η))
+theorem ordBound_of_noInacc [B : Budget.{u}] (hni : ∀ η : PSet.{u}, IsOrd η → ¬ InaccIn M.N (lift η))
     (em : ∀ p : Prop, p ∨ ¬p) (s : PSet.{u}) (φ : PSet.{u} → PSet.{u} → Prop)
     (φ_resp : ∀ {x x' y y' : PSet.{u}}, x ≈ x' → y ≈ y' → φ x y → φ x' y')
     (φ_func : ∀ {x y y' : PSet.{u}}, x ∈ s → φ x y → φ x y' → y ≈ y')
