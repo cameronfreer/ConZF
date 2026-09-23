@@ -28,6 +28,7 @@ import ConZF.Reflection
 import ConZF.Assign
 import ConZF.Codes
 import ConZF.Step
+import ConZF.History
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

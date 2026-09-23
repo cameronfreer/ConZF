@@ -606,10 +606,26 @@ functional up to bisimulation (`IsStep.unique`), and it is total in the
 class (`step_exists`: the new scope table is separated from the product of
 a code carrier built from the domain of the old table with `ω`, and the new
 truth table from the product of that carrier with the assignment set). Empty
-axiom reports. Next: the joint history through `seqF stepF`, the validity
-and truth invariants at each stage against native height and `Bound`, the
-converse decoding of admitted codes, and `SetSat` with its uniform
-correctness.
+axiom reports.
+
+`History.lean` (gate 2, checkpoint 3): the step is totalized outside the
+pairs (`totStepF`: on a pair state the step, elsewhere the output `∅`), so
+it is functional and total on the class and the ω-recursion of
+`OmegaRec.lean` from `⟨∅, ∅⟩` gives the history `H` in the class
+(`history_exists`), with the row at each stage a pair of tables in the class
+(`row_exists`), rows unique (`row_unique`), and consecutive rows related by
+the step (`row_step`). The invariants, by induction on the stage
+(`invariants`): a row `⟨enc φ, ofNat n⟩` is in the scope table exactly when
+`ht φ ≤ d` and `Bound n φ` (`vbody_enc`, by cases on the constructor with tag
+distinctness), every scoped row negatively decodes to a native formula and
+a numeral (`vbody_decode`, the converse the review asked for), and a row
+`⟨enc φ, pack n e⟩` with entries in `A` is in the truth table exactly when
+`ht φ ≤ d`, `Bound n φ`, and `φ` holds in the set structure `A` at `e`
+(`tbody_enc`: implications use the guard to apply the induction hypothesis
+to both children, universals use uniqueness of the cons and the package of
+the extended environment, which lies in the assignment set). Empty axiom
+reports. Next: the `SetSat` formula quantifying over the history, its bound,
+and uniform correctness.
 
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
