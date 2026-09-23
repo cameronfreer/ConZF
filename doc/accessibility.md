@@ -281,25 +281,41 @@ argument beneath the matched parent and combining finitely many negative
 choices (`transport`), and corresponding valid names denote equivalent sets
 (`nameVal_equiv_of_nameEquiv`).
 
-`Monotone.lean` (conzf10, items 1 and 2 of the review): for a monotone,
-inflationary, extensional operator on subsets of a graph set `X`, given as
-predicates on vertices, and a seed, the history along an ordinal presentation
-is the table solving the uniform recurrence `A_β = S ∪ ⋃_{ξ<β} Φ(A_ξ)`
-(`hist_eq`) by `predicate_recursion` on the transitive closure, as review
-suggested; the stages increase, are extensional, respect equivalent stage
-vertices, stay below every closed superset of the seed, and after a
-stationary stage every later stage equals it (`persist`). Convergence uses
-`relHartogs (powerset X)` directly: were no stage below it stationary, the
-map from stages to their subset states would be an injection relation into
-the powerset (`exists_stationary`). The stopping cut is the Separation cut
-of the nonstationary members of the bound: an ordinal, a member of the bound,
-stationary, with every earlier member nonstationary (`stopCut_mem`,
-`statSet_stopCut`), and the endpoint is closed under the operator and
-contained in every closed superset of the seed (`endpoint_closed`,
-`endpoint_least`). No stationary witness is extracted. Stable edges of `X`
-are an explicit hypothesis. Not done: the history packaged as a set of pairs
-with the uniform envelope (needs graph pairing and products), and the
-transfinite benchmark on a supplied ordinal.
+`Monotone.lean` (conzf10, items 1, 2, and the benchmark of item 4): a subset
+of a graph set `X` is a stable, extensional predicate on the points of `X`,
+the vertices below the root (`Pt X`), and the operator laws are stated only
+on such predicates. (The first version stated the laws on all vertex
+predicates together with a containment law, which was contradictory: a
+reviewer showed inflation on the constant true predicate placed the root
+below itself. The repair moved the state domain to the point subtype and
+removed both the containment law and the stable-edge hypothesis.) For a
+monotone, inflationary, extensional operator and a seed, the history along
+an ordinal presentation is the table solving the uniform recurrence
+`A_β = S ∪ ⋃_{ξ<β} Φ(A_ξ)` (`hist_eq`) by `predicate_recursion` on the
+transitive closure, as review suggested; the stages increase, are
+extensional, respect equivalent stage vertices, stay below every closed
+superset of the seed, and after a stationary stage every later stage equals
+it (`persist`). Convergence uses `relHartogs (powerset X)` directly: were no
+stage below it stationary, the map from stages to their subset states would
+be an injection relation into the powerset (`exists_stationary`). The
+stopping cut is the Separation cut of the nonstationary members of the
+bound: an ordinal, a member of the bound, stationary, with every earlier
+member nonstationary (`stopCut_mem`, `statSet_stopCut`), and the endpoint is
+closed under the operator and contained in every closed superset of the seed
+(`endpoint_closed`, `endpoint_least`). No stationary witness is extracted.
+Two instances check applicability. Adjoining a fixed subset `C` has endpoint
+`S ∪ C` (`endpoint_addOp`). The transfinite benchmark is the predecessor
+rule on an ordinal `η` from the empty seed, a point admitted once all its
+predecessors are: stage `β` is `{x ∈ η : x < β}` (`hist_predOp`), a stage is
+stationary exactly when it is not below `η` (`stat_predOp`), so the
+stopping cut is `η` itself (`stopCut_predOp`) and the endpoint is all of
+`η`; as a byproduct every ordinal is a member of the relational Hartogs
+bound of its powerset (`mem_relHartogs_powerset`). The operator is the
+semantic update, not a set-coded rule table. Inflation is assumed
+throughout; the convergence half does not use monotonicity and the
+leastness half does, but the interface has not been split. Not done: the
+history packaged as a set of pairs with the uniform envelope (needs graph
+pairing and products), and first-entry ranks.
 
 Not yet formalized: shortlex and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,
