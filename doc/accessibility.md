@@ -545,6 +545,25 @@ a transitive pair-closed class with the step renamed into position
 (`sat_stepRen`, `sat_partSeqF`, `sat_seqF`). Empty axiom reports; one core
 congruence lemma (`iff_congr`) had to be avoided because it uses `propext`.
 
+`Reflection.lean` (item 1 of the conzf16 review, ported from the supplied
+syntax draft with the relativizer reused): the computed free-variable bound
+`fv` with `Bound (fv p) p`; the counterexample requests of the raw universal
+nodes, every request having its witness at variable `0` and parameters at
+`1, …, arity` (`requests_valid`); the capture formula of a request, with
+free variables the source level `A` and the target level `B`; the closure
+conjunction over the requests of a native finite list; the good-stage and
+least-next-stage formulas over supplied unary and binary templates; set
+relativization and the reflection sentence. Scope: renaming with a bounded
+renaming, relativization preserves every bound including `0`, and
+`Bound 2 (capture ell m)`, `Bound 2 (nextF ell level Δ)`,
+`Bound 1 (reflectionAt ell Δ)`. Semantics: conjunctions, iterated universals
+as a recursive predicate, guards, the two-slot instantiation, and the exact
+capture law (`sat_capture_body`): inside the parameter binders, with the
+parameters in `A`, if some member of the defined class satisfies the
+request's matrix in the defined class, some such member lies in `B`. The
+internal existence of the next stage and the reflection theorem itself are
+not proved.
+
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
 internal `Def` with its membership law, the relational level histories and

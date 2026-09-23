@@ -24,6 +24,7 @@ import ConZF.Cardinal
 import ConZF.Relativize
 import ConZF.InternalZF
 import ConZF.OmegaRec
+import ConZF.Reflection
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
