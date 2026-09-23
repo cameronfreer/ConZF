@@ -252,13 +252,25 @@ that distinguishes it from an elementary hull: full predecessor coverage
 makes the collapse exact. So the code's height is `T` for an ordinal `T`,
 every ordinal with an injection relation into `X` lies below the universal
 bound of the carrier of `X` (`mem_univBound_of_injRel`), built before the
-injection is opened, and the Separation cut `hartogs X` is an ordinal with
-the exact membership law (`mem_hartogs`) and no injection relation into `X`
-(`not_injRel_hartogs`). Applied to `ω` this is an ambiently correct witness
-to the uncountability request of the notes, not a hull's internally
-uncountable collapsed ordinal. Not done here: extensionality of `hartogs`
-in `X`, the source-wide menu over a supplied domain, and the constructibility
-of the witness, which waits on successor presentations.
+injection is opened, and the Separation cut `relHartogs X` is an ordinal
+with the exact membership law (`mem_relHartogs`), no injection relation
+into `X` (`not_injRel_relHartogs`), and extensional in `X`
+(`relHartogs_congr`, by transporting a relation along a bisimulation of the
+codomain, with no choice). The source-wide menu `menu a` is the range of
+these bounds over the literal members of `a`: every member has, negatively,
+an ordinal in the menu with no injection relation into it (`mem_menu`).
+
+What the cutoff is, as review pointed out: an injection relation lets one
+source member relate to several inequivalent targets, so classically it is a
+surjection from a subset of `X` onto the source, and `relHartogs X` is a
+Lindenbaum-type number rather than the ordinary Hartogs number; without
+choice the two can differ. An ordinary injection gives an injection relation,
+so the bound excludes ordinary injections once set-coded injections are
+bridged, which is what the uncountability request needs; the exact ordinary
+Hartogs cut would add functionality to the predicate and reuse the same
+bound theorem. Applied to `ω`, `relHartogs ω` is an ambiently correct
+witness, not a hull's internally uncountable collapsed ordinal. Its
+constructibility waits on successor presentations.
 
 Not yet formalized: finite-name transport and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,

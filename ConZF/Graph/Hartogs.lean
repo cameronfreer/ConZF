@@ -1,4 +1,4 @@
-import ConZF.Graph.Ordinals
+import ConZF.Graph.Ord
 /-!
 Relational pullback and the native graph Hartogs operator, from the graph layer alone: no `Def`,
 no hierarchy, no hull.
@@ -18,11 +18,22 @@ the member: full predecessor coverage is what makes this collapse exact, in cont
 elementary hull. Hence the rooted graph is equivalent to `T` when `T` is transitive
 (`graph_equiv`), and its height is `T` when `T` is an ordinal (`height_equiv`).
 
-**Hartogs**. The code lives on the carrier of `X`, so the universal bound of that carrier
-contains every ordinal with an injection relation into `X` (`mem_univBound_of_injRel`), and the
-Separation cut `hartogs X` is an ordinal with the exact membership specification (`mem_hartogs`),
-transitive, and with no injection relation into `X` (`not_injRel_hartogs`). The bound is built
-before any injection witness is opened.
+**The relational Hartogs bound**. The code lives on the carrier of `X`, so the universal bound of
+that carrier contains every ordinal with an injection relation into `X`
+(`mem_univBound_of_injRel`), and the Separation cut `relHartogs X` is an ordinal with the exact
+membership specification (`mem_relHartogs`), transitive, extensional in `X`
+(`relHartogs_congr`), and with no injection relation into `X` (`not_injRel_relHartogs`). The
+bound is built before any injection witness is opened.
+
+What this cutoff is: an injection relation lets one member of `T` relate to several inequivalent
+targets, so classically it is a surjection from a subset of `X` onto `T`, and `relHartogs X` is
+the least ordinal that is not such a surjective image, a Lindenbaum-type number rather than the
+ordinary Hartogs number; without choice the two can differ. An ordinary injection gives an
+injection relation, so `not_injRel_relHartogs` excludes ordinary injections once set-coded
+injections are bridged; the exact ordinary Hartogs cut would add a functionality condition to the
+predicate and reuse the same bound theorem. The source-wide menu `menu a` collects these bounds
+over the literal members of a supplied domain (`mem_menu`): every member of `a` has, negatively,
+an ordinal in the menu with no injection relation into it.
 -/
 universe u
 
@@ -45,6 +56,23 @@ theorem InjRel.congr_left {T T' X : GSet.{u}} (e : Equiv T T') (h : InjRel T X) 
   nn_map (fun ⟨F, hF⟩ => ⟨F, ⟨hF.stable, hF.resp_left, hF.resp_right,
     fun ξ hξ => hF.total ξ (Mem.congr_right e.symm hξ),
     fun hξ hξ' => hF.inv_unique (Mem.congr_right e.symm hξ) (Mem.congr_right e.symm hξ')⟩⟩) h
+
+/-- Injection relations transport along equivalence of the codomain: relate to the
+representatives of the same target value, with no choice. -/
+theorem InjRel.congr_right {T X X' : GSet.{u}} (e : Equiv X X') (h : InjRel T X) : InjRel T X' := by
+  refine Stable.of_nn e fun ⟨Z, hZ, hr⟩ => Stable.of_nn h fun ⟨F, hF⟩ => ?_
+  let F' : GSet.{u} → X'.A → Prop := fun ξ b =>
+    ¬¬∃ a, X.R a X.r ∧ F ξ a ∧ Equiv (X.at' a) (X'.at' b)
+  refine nn_intro ⟨F', ⟨fun _ _ => inferInstance, ?_, ?_, ?_, ?_⟩⟩
+  · exact fun e' h => nn_map (fun ⟨a, ha, hFa, e''⟩ => ⟨a, ha, hF.resp_left e' hFa, e''⟩) h
+  · exact fun e' h => nn_map (fun ⟨a, ha, hFa, e''⟩ => ⟨a, ha, hFa, e''.trans e'⟩) h
+  · intro ξ hξ
+    refine Stable.of_nn (hF.total ξ hξ) fun ⟨a, ha, hFa⟩ => ?_
+    refine nn_map (fun ⟨b, hb, hab⟩ => ⟨b, hb, nn_intro ⟨a, ha, hFa, hZ.at' hab⟩⟩)
+      (hZ.forth X.r X'.r hr a ha)
+  · intro ξ ξ' b hξ hξ' h1 h2
+    refine Stable.of_nn h1 fun ⟨a, _, hFa, ea⟩ => Stable.of_nn h2 fun ⟨a', _, hFa', ea'⟩ => ?_
+    exact hF.inv_unique hξ hξ' hFa (hF.resp_right (ea'.trans ea.symm) hFa')
 
 /-- An injection relation restricts to a member of a transitive domain. -/
 theorem IsInjRel.restrict {T X : GSet.{u}} {F} (h : IsInjRel T X F) (hT : Trans T) {S : GSet.{u}}
@@ -140,28 +168,50 @@ theorem mem_univBound_of_injRel {α X : GSet.{u}} (hα : IsOrd α) (h : InjRel �
   Stable.of_nn h fun ⟨_, hF⟩ =>
     Mem.congr_left (Pullback.height_equiv hF hα) (code_height_mem (Pullback.code hF))
 
-/-- The Hartogs ordinal of `X`: the ordinals with an injection relation into `X`, cut inside the
-universal bound. -/
-def hartogs (X : GSet.{u}) : GSet.{u} :=
+/-- The relational Hartogs bound of `X`: the ordinals with an injection relation into `X`, cut
+inside the universal bound. -/
+def relHartogs (X : GSet.{u}) : GSet.{u} :=
   sep (fun β => IsOrd β ∧ InjRel β X) (univBound X.A)
 
-theorem mem_hartogs {X β : GSet.{u}} : Mem β (hartogs X) ↔ IsOrd β ∧ InjRel β X :=
+theorem mem_relHartogs {X β : GSet.{u}} : Mem β (relHartogs X) ↔ IsOrd β ∧ InjRel β X :=
   (mem_sep (fun β => IsOrd β ∧ InjRel β X) (univBound X.A)
     fun _ _ e h => ⟨h.1.congr e, h.2.congr_left e⟩).trans
     ⟨And.right, fun h => ⟨mem_univBound_of_injRel h.1 h.2, h⟩⟩
 
-theorem isOrd_hartogs (X : GSet.{u}) : IsOrd (hartogs X) := by
-  refine ⟨fun β hβ γ hγ => ?_, fun β hβ => (mem_hartogs.1 hβ).1.1⟩
-  have ⟨hβo, hβi⟩ := mem_hartogs.1 hβ
-  refine mem_hartogs.2 ⟨hβo.mem hγ, nn_map (fun ⟨F, hF⟩ => ⟨F, hF.restrict hβo.1 hγ⟩) hβi⟩
+theorem isOrd_relHartogs (X : GSet.{u}) : IsOrd (relHartogs X) := by
+  refine ⟨fun β hβ γ hγ => ?_, fun β hβ => (mem_relHartogs.1 hβ).1.1⟩
+  have ⟨hβo, hβi⟩ := mem_relHartogs.1 hβ
+  refine mem_relHartogs.2 ⟨hβo.mem hγ, nn_map (fun ⟨F, hF⟩ => ⟨F, hF.restrict hβo.1 hγ⟩) hβi⟩
 
-/-- **Hartogs.** The Hartogs ordinal has no injection relation into `X`. -/
-theorem not_injRel_hartogs (X : GSet.{u}) : ¬ InjRel (hartogs X) X := fun h =>
-  not_mem_self (hartogs X) (mem_hartogs.2 ⟨isOrd_hartogs X, h⟩)
+/-- **The bound has no injection relation into `X`.** -/
+theorem not_injRel_relHartogs (X : GSet.{u}) : ¬ InjRel (relHartogs X) X := fun h =>
+  not_mem_self (relHartogs X) (mem_relHartogs.2 ⟨isOrd_relHartogs X, h⟩)
+
+/-- The bound is extensional in `X`: its membership law does not mention the presentation. -/
+theorem relHartogs_congr {X X' : GSet.{u}} (e : Equiv X X') : Equiv (relHartogs X) (relHartogs X') :=
+  ext fun _ => mem_relHartogs.trans (Iff.trans (and_congr Iff.rfl
+    ⟨InjRel.congr_right e, InjRel.congr_right e.symm⟩) mem_relHartogs.symm)
+
+/-! ### The source-wide menu -/
+
+/-- The bounds over the literal members of a domain. -/
+def menu (a : GSet.{u}) : GSet.{u} := range fun i : {x : a.A // a.R x a.r} => relHartogs (a.at' i.1)
+
+/-- **The menu.** Every member of `a` has, negatively, an ordinal in the menu with no injection
+relation into it. -/
+theorem mem_menu {a x : GSet.{u}} (hx : Mem x a) :
+    ¬¬∃ y, Mem y (menu a) ∧ IsOrd y ∧ ¬ InjRel y x := by
+  refine Stable.of_nn hx fun ⟨i, hi, e⟩ => ?_
+  refine nn_intro ⟨relHartogs (a.at' i), (mem_range _).2 (nn_intro ⟨⟨i, hi⟩, Equiv.refl _⟩),
+    isOrd_relHartogs _, fun h => not_injRel_relHartogs (a.at' i) (h.congr_right e)⟩
 
 /-- info: 'GSet.Pullback.height_equiv' does not depend on any axioms -/
 #guard_msgs in #print axioms Pullback.height_equiv
-/-- info: 'GSet.not_injRel_hartogs' does not depend on any axioms -/
-#guard_msgs in #print axioms not_injRel_hartogs
+/-- info: 'GSet.not_injRel_relHartogs' does not depend on any axioms -/
+#guard_msgs in #print axioms not_injRel_relHartogs
+/-- info: 'GSet.relHartogs_congr' does not depend on any axioms -/
+#guard_msgs in #print axioms relHartogs_congr
+/-- info: 'GSet.mem_menu' does not depend on any axioms -/
+#guard_msgs in #print axioms mem_menu
 
 end GSet
