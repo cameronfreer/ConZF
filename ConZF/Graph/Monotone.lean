@@ -463,6 +463,14 @@ def endpointSet : GSet.{u} := (powerset X).at' (.sub (toPred X (endpoint (Φ := 
 
 theorem endpointSet_mem : Mem (endpointSet (Φ := Φ) (S := S)) (powerset X) := at'_mem (PowRel.top _)
 
+theorem mem_endpointSet {K : GSet.{u}} : Mem K (endpointSet (Φ := Φ) (S := S)) ↔
+    ¬¬∃ a : Pt X, endpoint (Φ := Φ) (S := S) a ∧ Equiv K (X.at' a.1) :=
+  (mem_powerset_sub X).trans (nn_congr ⟨fun ⟨a, _, ⟨h, hB⟩, e⟩ => ⟨⟨a, h⟩, hB, e⟩,
+    fun ⟨a, hB, e⟩ => ⟨a.1, a.2, ⟨a.2, hB⟩, e⟩⟩)
+
+theorem endpointSet_sub : Subset (endpointSet (Φ := Φ) (S := S)) X :=
+  fun _ hK => Stable.of_nn (mem_endpointSet.1 hK) fun ⟨a, _, e⟩ => Mem.congr_left e.symm (at'_mem a.2)
+
 include hΦ hS in
 theorem endpoint_ext : Ext X (endpoint (Φ := Φ) (S := S)) := fun a b e h =>
   nn_map (fun ⟨β, hβ, e', ha⟩ => ⟨β, hβ, e', hist_ext hΦ hS _ β a b e ha⟩) h

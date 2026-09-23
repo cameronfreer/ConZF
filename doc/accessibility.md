@@ -339,6 +339,28 @@ zero and the law is `ρ(x) ≤ β`, rather than con19's successor-indexed
 predecessor rule, which needs successor ordinals; the certificate
 conditions as bounded formulas; con20's normalization theorem.
 
+`Normalize.lean` (con20): judgements `J` and set-coded rules
+`Rs ⊆ P J × J`; the rule operator admits a judgement once some rule for it
+has all premises admitted, and the bounded induction from the empty seed
+gives the least closed set `W` with first-entry ranks. A certificate for
+`q` (`IsCert`) is an arbitrary graph set of nodes with an edge set, a
+functional labelling into `J`, a root labelled `q`, local justification of
+every node by a rule whose premises label predecessors, and the minimal-
+member form of well-foundedness for every ambient subset; nothing bounds
+its carrier or rank. Completeness (`endpoint_of_cert`) is the bad-node
+argument, used only inside a stable goal. Decoding (`cert_norm`): a
+judgement of `W` enters at its rank by an actual rule with premises of
+smaller rank (`enter_rule`), so `(W, D, id, q)` with `D(u, j) :⟺ ρ(u) < ρ(j)`
+is a certificate, well-founded by `∈`-induction on ranks (`normD_wf`);
+`normalization` is the equivalence, `norm_mem_envelope` places every
+normalized certificate in `P J × (P(J×J) × (P(J×J) × J))`, and the menu over
+`W` is complete (`normMenu_complete`). This normalizes the unbounded
+existential of the certificate fragment; it is not a faithful collapse of
+the original certificate, and nothing here applies to arbitrary Π1 truth.
+Not done: the certificate conditions as bounded formulas (`Sat`), the
+syntax-directed compilation of positive specifications into rule sets, and
+the constructible version.
+
 Not yet formalized: shortlex and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,
 the whole-class hull with faithful collapse and the local recurrence, and

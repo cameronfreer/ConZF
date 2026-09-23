@@ -45,3 +45,4 @@ import ConZF.Graph.Ordinals
 import ConZF.Graph.Hartogs
 import ConZF.Graph.Transport
 import ConZF.Graph.Monotone
+import ConZF.Graph.Normalize
