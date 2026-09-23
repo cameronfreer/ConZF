@@ -717,13 +717,36 @@ lies in some ordinal level; the class `Constr M` has exact membership
 lies inside `M`, and contains every ordinal of `M` (`constr_of_ord`, via
 `ξ ∈ L_{succ ξ}`) and every level. Empty axiom reports throughout.
 
-Not formalized (the rest of conzf15 and the assembly): the coherent
-well-order and least partial cofinal graphs, finite-fragment reflection for
-Separation in the defined class, and the instantiation of `UpperModel`
-(transitivity, the classification fields, `K` in the class, and the
-adapters connecting the internal cardinal notions to `RegularIn` and
-`InaccIn`); also the converse bridge from the syntactic sentence to
-`InaccIn`, and the finite scheme of distinct inaccessibles.
+The constructible class as a model of the axioms other than Separation.
+`ConstrAx.lean`: `Constr M` is the class defined over `M` by `constrF`
+(`constr_iff_definedClass`), so the uniform relativization applies
+(`sat_constr_iff`). The least-stage formula `leastF` (`x` lies in the
+level at `γ` and in no level below) is functional by trichotomy of ordinals
+and total for constructible `x` by `∈`-minimality below a supplied stage.
+The level bound (`level_bound`): a member `B` of `M` whose elements are
+constructible is included in one level; the proof collects the least stages
+by Collection in `M`, keeps the ordinals among the collected values by
+Separation in `M`, and takes the successor of their union. The bound says
+nothing about constructibility of `B` itself. Pairing and union in `N` are
+definable subsets of a bounding level (`constr_of_definable`); Power Set
+forms `{y ∈ P_M(a) : N(y)}` in `M`, bounds it in a level `L_γ` (which
+contains `a`), and takes `{y ∈ L_γ : y ⊆ a}` (`powN`, the exact internal
+powerset law). Collection in `N` (`replN`) relativizes the native formula
+to `N`, collects in `M` the relation "`y` constructible and `ψ^N(x, y)`",
+separates the constructible outputs, and uses the bounding level as the
+witness. `valid_nonsep`: every axiom of `ZF` other than the Separation
+schema is valid in `N`. All constructions use Separation and Collection in
+`M`; the axioms of `N` are conclusions. Empty axiom reports throughout.
+
+Not formalized (the rest of conzf15 and the assembly): Separation in `N`
+(the semantic half of the reflection compiler: existence and uniqueness of
+`Next`, its internal `ω`-history, reflection at the supremum), hence
+`SynZF (Constr M)`; the coherent well-order and least partial cofinal
+graphs; the instantiation of `UpperModel` (transitivity, the
+classification fields, `K` in the class, and the adapters connecting the
+internal cardinal notions to `RegularIn` and `InaccIn`); also the converse
+bridge from the syntactic sentence to `InaccIn`, and the finite scheme of
+distinct inaccessibles.
 
 ## Native bounds
 
