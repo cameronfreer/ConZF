@@ -91,6 +91,10 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Pointwise.lean` | Replacement from pointwise accessibility, by separately guarded evaluations |
 | `ConZF/Model.lean` | `BoundHyp`, `hg_model_of_bounds`, `con_ZF_of_bounds`; the producers `AccHyp` and `PointwiseHGAcc`; `con_ZF`; all over any budget |
 | `ConZF/Seeded.lean` | the seeded budget around a supplied set `b`, identity-source reachability of every ordinal up to `rank b`, and the seeded model: under `AccHyp` (hence under irrefutable EM) an explicit transitive class model of `ZF` containing `b` |
+| `ConZF/AllGood.lean` | under EM, an interpreter for which every ordinal is hereditarily good gives an actual ordinal term bounding any functional ordinal-valued relation on a supplied source (the value of `F` at the glued root) |
+| `ConZF/Lift.lean` | the adjacent-universe lift: preserves and reflects bisimulation, membership, ordinals; commutes with successor, powerset, rank, levels; `shrink` (lower representatives of upper subsets of lifts); `U` = all lifts, `K = rank U`, `U = V_K`, members of `K` are the lifted lower ordinals |
+| `ConZF/MixedHartogs.lean` | under EM, an upper ordinal with a set-coded injection into `lift a` is below `lift (wfBound a.Idx)`; `K` is an initial ordinal |
+| `ConZF/Cofinality.lean` | the upper-model interface `UpperModel` and the domain-coded cofinality interpreter: extensional, unbounded on any domain with a cofinal map in `N`, reaching every nonzero lower ordinal not inaccessible in `N` (three cases, the third by shrinking an internal powerset); with no smaller inaccessible, every lower ordinal is hereditarily good and every functional ordinal relation has a native bound |
 | `ConZF/Acc.lean` | converse to `accHyp_of_mem_wf`; constructive accessibility lemmas |
 | `ConZF/CanonicalAcc.lean` | the unpruned rule trees simulate every ordinal-membership descent |
 | `ConZF/Markov.lean` | Markov witnesses from accessibility of omega; double-negation shift from `AccHyp` |

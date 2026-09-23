@@ -394,9 +394,61 @@ identity formula on the fixed domain `succ (rank b)`. Hence every ordinal up
 to `rank b` is hereditarily good and `b` lies in the class of the seeded
 budget. The generic model theorem gives, under `AccHyp` and so under
 irrefutable excluded middle, an explicitly defined transitive class model of
-`ZF` containing `b` (`hg_model_seeded`), with empty axiom reports. This is
-the first step of the con22 route; the adjacent-universe interface, the
-cofinality interpreter, and the internal `L` are not formalized.
+`ZF` containing `b` (`hg_model_seeded`), with empty axiom reports.
+
+The rest of the con22 route, as far as it goes. `AllGood.lean`: for an
+interpreter for which every ordinal is hereditarily good, excluded middle
+makes the glued root accessible, and the value of the materializing
+recursion there is an actual ordinal term above every value of a supplied
+functional ordinal-valued relation (`ordBound`, `mem_ordBound_of`); nothing
+is extracted from a propositional existential. `Lift.lean`: the structural
+lift to the next universe preserves and reflects bisimulation, membership,
+and ordinals, commutes with successor, powerset, rank, and levels; an upper
+subset of a lifted lower set has the lower representative `shrink`, its
+lift being the subset (`lift_shrink`), the upper parameter occurring only in
+the separating proposition; `U` is the set of lifts, `K` its rank, the
+members of `K` are exactly the lifted lower ordinals (`mem_K`), `U` is the
+level `V_K` (`mem_U_iff_rank`), and `K` has no lower representative.
+`MixedHartogs.lean`: under excluded middle, an upper ordinal with a
+set-coded injection into `lift a` lies below `lift (wfBound a.Idx)`, the
+lower bound decoded from all well-founded certificates on the carrier of `a`
+(`mem_lift_wfBound`); the injection is pulled back to a relation on the
+lower carrier whose fields mention upper objects only in `Prop`, excluded
+middle turns upper membership induction into accessibility, and full
+predecessor coverage identifies the lift of the lower collapse of a point
+with the original upper ordinal (`lift_tree`); hence `K` has no set-coded
+injection into any of its members (`K_initial`). `Cofinality.lean`: the
+interface `UpperModel` states exactly what is assumed of the upper class
+`N`: extensional, containing lifted lower ordinals; a least-cofinal-map
+relation that is extensional, unique, cofinal (inclusively), and exists
+whenever some cofinal map of `N` does; abstract predicates `Inacc` and
+`Reg`; and the classification of nonzero lifted lower ordinals not
+inaccessible in `N` into the three cases (at most `ω`; smaller cofinality
+with a map from a smaller lower ordinal; regular but not a strong limit,
+with a map from an internal powerset `P ⊆ P(lift l)` of a smaller `l` with
+`succ l` still below). The interpreter `cofI` reads the least cofinal map
+`lift q → lift η` of `N` at `lift x`, with the target an argument and the
+code only the domain; it respects bisimulation and is unbounded on `q`
+whenever `N` has a cofinal map from `lift q` (`unb_cofI`); every nonzero
+lower ordinal not inaccessible in `N` is reachable (`reachable_cofI`), the
+third case with source `shrink (powerset l) P` in the budget at `succ l`;
+so with no smaller inaccessible every lower ordinal is hereditarily good
+(`cls_cofI`) and under excluded middle every functional ordinal-valued
+relation on a lower source has a native bound (`ordBound_of_noInacc`). All
+with empty axiom reports. Universes: everything is polymorphic in `u`; at
+`u := 0` the lower sets are in `Type 1`, the upper sets and the interface in
+`Type 2`, and nothing higher is used.
+
+Not formalized: the regularity of `K` against upper set-coded functions
+(pulling an upper function `δ → K` back to a lower ordinal relation), the
+strong-limit argument inside `N`, the internal constructible interpretation
+`N = L^M` and its well-order (a named outstanding dependency: an ordinary ZF
+theorem about a proved class model, not the graph `L`), the syntactic
+statements of cardinal, regular, and strong limit, and the final class-model
+soundness theorem for `ZFC + one inaccessible`. The interface fields
+`cof_small`, `cof_lt_or_reg`, and `cof_powerset` are exactly the ZFC facts
+about `N` the argument consumes; discharging them for `L^M` is that
+dependency.
 
 ## Native bounds
 
