@@ -98,6 +98,7 @@ definability rule (`Reach.lean`); a single model, the sets of hereditarily good 
 | `ConZF/Graph/Faithful.lean`, `Sat.lean`, `Def.lean` | faithful collapse of an extensional stable relation; satisfaction of `Fml` over graph sets; the definable powerset with its exact membership law |
 | `ConZF/Graph/Ord.lean`, `Names.lean`, `Hier.lean`, `Levels.lean` | graph ordinals and normalization; names over an ordinal presentation, the earlier-stage graphs, locality, the solved table; the meaning of a name and the exact recurrence `L a ≈ ⋃_{b<a} Def (L b)`; monotone, transitive, presentation-invariant levels |
 | `ConZF/Graph/Ordinals.lean` | the ordinal formula is correct over transitive graph sets; the ordinals of `L a` are the rank at `a`, hence `Ord ∩ L_α = α`; the canonical names of the ordinal and of the level at each stage |
+| `ConZF/Graph/Hartogs.lean` | relational pullback: the rooted graph of the representatives of a transitive domain is that domain, exactly; the native graph Hartogs ordinal, with no injection relation into its argument |
 | `ConZF/Ideal.lean` | ideal sets (¬¬-sheafification of the setoid of sets, without higher inductive types); unique choice into ideals; the parent constructor is a small-indexed Collection |
 | `ConZF/NativeBound.lean` | unconditional bounds from a small type of certificates; well-founded codes and their heights; `ω` as a test |
 | `ConZF/Sim.lean` | negative upper simulations: certificates that bound a target without presenting it; the enclosing tree of all codes on a carrier; the diagonal fact |

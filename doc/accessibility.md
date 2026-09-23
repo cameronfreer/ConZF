@@ -237,6 +237,29 @@ ordinal at a stage (`ordName`) and the level itself (`levelName`), each born
 at its stage and available at strictly later levels (`ord_mem_L`,
 `L_mem_L`); nothing at stage `a` is claimed as a member of `L a`.
 
+`Hartogs.lean` (conzf9), from the graph layer alone: an *injection relation*
+from the members of `T` to the root predecessors of `X` is stable, respects
+equivalence in both arguments, is total on `T`, and is inverse-unique; a
+graph-set injection as a set of pairs would supply one, and pairs are not yet
+built for graph sets, so this relational form is the current interface. The
+pullback code lives on the subtype of vertices of `X` representing some
+member of `T`, with membership pulled back; its stable well-founded induction
+comes from ambient membership induction with the predicate quantified over
+all representatives, selecting no inverse image (`Pullback.swf_rel`); and
+the rooted graph at a representative *is* the represented member
+(`Pullback.exact`), by membership induction on the member. This is the point
+that distinguishes it from an elementary hull: full predecessor coverage
+makes the collapse exact. So the code's height is `T` for an ordinal `T`,
+every ordinal with an injection relation into `X` lies below the universal
+bound of the carrier of `X` (`mem_univBound_of_injRel`), built before the
+injection is opened, and the Separation cut `hartogs X` is an ordinal with
+the exact membership law (`mem_hartogs`) and no injection relation into `X`
+(`not_injRel_hartogs`). Applied to `ω` this is an ambiently correct witness
+to the uncountability request of the notes, not a hull's internally
+uncountable collapsed ordinal. Not done here: extensionality of `hartogs`
+in `X`, the source-wide menu over a supplied domain, and the constructibility
+of the witness, which waits on successor presentations.
+
 Not yet formalized: finite-name transport and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,
 the whole-class hull with faithful collapse and the local recurrence, and
