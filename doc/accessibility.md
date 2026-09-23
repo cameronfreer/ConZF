@@ -575,8 +575,13 @@ Consing a value shifts the domain by one (`IsCons`, formula `consF`, bridge
 `sat_consF`), the cons of an assignment in the class exists in the class on
 the successor domain (`cons_exists`, by separating the shifted copy from the
 product and adjoining the head), and reading values through a cons behaves
-as `Env.cons` (`IsCons.reads_zero`, `IsCons.reads_succ`). Empty axiom
-reports. The remaining steps of gate 2: the code sets and truth tables as
+as `Env.cons` (`IsCons.reads_zero`, `IsCons.reads_succ`). Native environments
+are packaged by `pack n e`, which is an assignment when its entries lie in
+the domain (`isAssign_pack`), commutes with cons (`isCons_pack`), and lies in
+the class when its entries do (`pack_mem`); conversely every assignment on
+the numeral `n` is, negatively, such a package (`exists_pack`), so legal
+assignments relate to native environments by negative reconstruction inside
+stable goals, with no decoder. Empty axiom reports. The remaining steps of gate 2: the code sets and truth tables as
 one joint ω-recursion using `seqF`, the `SetSat` formula quantifying over
 that sequence, and its uniform correctness over native formulas.
 

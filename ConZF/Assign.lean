@@ -6,9 +6,12 @@ set of all assignments into `A` exists in a `SynZF` class (`assignSet_exists`): 
 separation of the internal powerset of the internal product `ω × A` by `assignF`, and its
 members are exactly the assignments in the class. The value of an assignment at a numeral is
 read by pair membership; consing a new value shifts the domain by one (`IsCons`, formula
-`consF`), and the cons of an assignment in the class exists in the class (`cons_exists`). The
-decoding of an assignment into a native environment (`decode`) satisfies
-`decode (cons x e) ≈ Env.cons x (decode e)` pointwise below the domain (`decode_cons`).
+`consF`), and the cons of an assignment in the class exists in the class (`cons_exists`). Values are read
+relationally (`Reads e i v`: `⟨ofNat i, v⟩ ∈ e`), and reading through a cons behaves as
+`Env.cons`: the value at `0` is the head (`IsCons.reads_zero`) and the value at `i + 1` is the
+value of the tail at `i` (`IsCons.reads_succ`). Native environments are packaged into
+assignments by `pack` (`isAssign_pack`, `isCons_pack`), and every assignment is, negatively, a
+package (`exists_pack`).
 -/
 universe u
 
@@ -172,6 +175,94 @@ theorem IsCons.reads_succ {e' x e v : PSet.{u}} (h : IsCons e' x e) (i : Nat) :
     Reads e' (i+1) v ↔ Reads e i v :=
   ⟨fun hv => h.2.2.1 _ v hv, fun hv => h.2.1 _ v hv⟩
 
+/-! ### Native packaging -/
+
+/-- The assignment packaging the first `n` entries of a native environment. -/
+def pack : Nat → (Nat → PSet.{u}) → PSet.{u}
+  | 0, _ => empty
+  | n+1, e => union (pack n e) (singleton (pair (ofNat n) (e n)))
+
+theorem mem_pack {e : Nat → PSet.{u}} : ∀ {n : Nat} {q : PSet.{u}},
+    q ∈ pack n e ↔ ¬¬∃ i, i < n ∧ q ≈ pair (ofNat i) (e i)
+  | 0, q => ⟨fun h => (not_mem_empty q h).elim, fun h => Stable.of_nn h fun ⟨_, hi, _⟩ =>
+      (Nat.not_lt_zero _ hi).elim⟩
+  | n+1, q => mem_union.trans ⟨fun h => nn_bind h fun
+      | .inl h => nn_map (fun ⟨i, hi, e'⟩ => ⟨i, Nat.lt_succ_of_lt hi, e'⟩) (mem_pack.1 h)
+      | .inr h => nn_intro ⟨n, Nat.lt_succ_self n, mem_singleton.1 h⟩,
+    fun h => nn_bind h fun ⟨i, hi, e'⟩ => by
+      rcases Nat.lt_or_ge i n with h' | h'
+      · exact nn_intro (.inl (mem_pack.2 (nn_intro ⟨i, h', e'⟩)))
+      · cases Nat.le_antisymm (Nat.le_of_lt_succ hi) h'
+        exact nn_intro (.inr (mem_singleton.2 e'))⟩
+
+theorem reads_pack {e : Nat → PSet.{u}} {n i : Nat} {v : PSet.{u}} (hi : i < n) :
+    Reads (pack n e) i v ↔ v ≈ e i :=
+  ⟨fun h => Stable.of_nn (mem_pack.1 h) fun ⟨_, _, e'⟩ =>
+      have ⟨ei, ev⟩ := pair_inj e'
+      ev.trans (ofNat_inj ei ▸ Equiv.refl _),
+   fun ev => mem_pack.2 (nn_intro ⟨i, hi, pair_congr (Equiv.refl _) ev⟩)⟩
+
+/-- Packaging is an assignment into `A` when the packaged entries lie in `A`. -/
+theorem isAssign_pack {A : PSet.{u}} {e : Nat → PSet.{u}} (n : Nat) (he : ∀ i, i < n → e i ∈ A) :
+    IsAssign A (pack n e) (ofNat n) := by
+  refine ⟨ofNat_mem_omega n, fun q hq => ?_, fun i hi => ?_, fun i v v' h1 h2 => ?_⟩
+  · exact nn_map (fun ⟨i, hi, e'⟩ => ⟨ofNat i, e i, mem_ofNat.2 (nn_intro ⟨i, hi, Equiv.refl _⟩), he i hi, e'⟩)
+      (mem_pack.1 hq)
+  · refine Stable.of_nn (mem_ofNat.1 hi) fun ⟨m, hm, em⟩ => ?_
+    exact nn_intro ⟨e m, mem_pack.2 (nn_intro ⟨m, hm, pair_congr em (Equiv.refl _)⟩)⟩
+  · refine Stable.of_nn (mem_pack.1 h1) fun ⟨j, _, e1⟩ => Stable.of_nn (mem_pack.1 h2) fun ⟨j', _, e2⟩ => ?_
+    have ⟨ej, ev⟩ := pair_inj e1
+    have ⟨ej', ev'⟩ := pair_inj e2
+    have : j = j' := ofNat_inj (ej.symm.trans ej')
+    subst this
+    exact ev.trans ev'.symm
+
+/-- Packaging commutes with cons. -/
+theorem isCons_pack {x : PSet.{u}} {e : Nat → PSet.{u}} (n : Nat) :
+    IsCons (pack (n+1) (Env.cons x e)) x (pack n e) := by
+  refine ⟨mem_pack.2 (nn_intro ⟨0, Nat.zero_lt_succ n, Equiv.refl _⟩), fun i v hiv => ?_, fun i v hiv => ?_,
+    fun q hq => ?_⟩
+  · refine nn_bind (mem_pack.1 hiv) fun ⟨j, hj, e'⟩ => ?_
+    have ⟨ei, ev⟩ := pair_inj e'
+    exact mem_pack.2 (nn_intro ⟨j+1, Nat.succ_lt_succ hj, pair_congr (succ_congr ei) ev⟩)
+  · refine nn_bind (mem_pack.1 hiv) fun ⟨j, hj, e'⟩ => ?_
+    have ⟨ei, ev⟩ := pair_inj e'
+    cases j with
+    | zero => exact (not_mem_empty i ((mem_congr_right ei).1 (self_mem_succ i))).elim
+    | succ j => exact mem_pack.2 (nn_intro ⟨j, Nat.lt_of_succ_lt_succ hj, pair_congr (succ_inj ei) ev⟩)
+  · refine nn_bind (mem_pack.1 hq) fun ⟨j, hj, e'⟩ => ?_
+    cases j with
+    | zero => exact nn_intro (.inl e')
+    | succ j => exact nn_intro (.inr (nn_intro ⟨ofNat j, e j,
+        mem_pack.2 (nn_intro ⟨j, Nat.lt_of_succ_lt_succ hj, Equiv.refl _⟩), e'⟩))
+
+/-- **Negative reconstruction.** Every assignment on the numeral `n` is, negatively, a package
+of a native environment, with the first `n` entries in the domain. -/
+theorem exists_pack {A e' : PSet.{u}} {n : Nat} (h : IsAssign A e' (ofNat n)) :
+    ¬¬∃ e : Nat → PSet.{u}, e' ≈ pack n e ∧ ∀ i, i < n → e i ∈ A := by
+  have vals : ∀ k, k ≤ n → ¬¬∃ e : Nat → PSet.{u}, ∀ i, i < k → Reads e' i (e i) := by
+    intro k
+    induction k with
+    | zero => exact fun _ => nn_intro ⟨fun _ => empty, fun i hi => (Nat.not_lt_zero i hi).elim⟩
+    | succ k ih =>
+      intro hk
+      refine nn_bind (ih (Nat.le_of_succ_le hk)) fun ⟨e, he⟩ => ?_
+      refine nn_map (fun ⟨v, hv⟩ => ⟨fun i => if i = k then v else e i, fun i hi => ?_⟩)
+        (h.2.2.1 (ofNat k) (mem_ofNat.2 (nn_intro ⟨k, hk, Equiv.refl _⟩)))
+      show Reads e' i (if i = k then v else e i)
+      split
+      · next hik => subst hik; exact hv
+      · next hik => exact he i (Nat.lt_of_le_of_ne (Nat.le_of_lt_succ hi) hik)
+  refine nn_map (fun ⟨e, he⟩ => ⟨e, ?_, fun i hi => ?_⟩) (vals n (Nat.le_refl n))
+  · refine ext fun q => ⟨fun hq => ?_, fun hq => ?_⟩
+    · refine Stable.of_nn (h.2.1 q hq) fun ⟨i, v, hi, _, e1⟩ => ?_
+      refine Stable.of_nn (mem_ofNat.1 hi) fun ⟨m, hm, em⟩ => ?_
+      have hv : pair (ofNat m) v ∈ e' := (mem_congr_left (e1.trans (pair_congr em (Equiv.refl _)))).1 hq
+      have ev := h.2.2.2 _ v (e m) hv (he m hm)
+      exact mem_pack.2 (nn_intro ⟨m, hm, e1.trans (pair_congr em ev)⟩)
+    · exact Stable.of_nn (mem_pack.1 hq) fun ⟨i, hi, e1⟩ => (mem_congr_left e1).2 (he i hi)
+  · exact Stable.of_nn (h.2.1 _ (he i hi)) fun ⟨_, _, _, hvA, e1⟩ => (mem_congr_left (pair_inj e1).2).2 hvA
+
 /-! ### Existence in the class -/
 
 namespace SynZF
@@ -295,6 +386,17 @@ theorem cons_exists {A e n x : PSet.{u}} (hA : M A) (he : M e) (hx : M x) (h : I
 
 end SynZF
 
+/-- The package of entries in the class is in the class. -/
+theorem SynZF.pack_mem {M : PSet.{u} → Prop} (hM : SynZF M) {e : Nat → PSet.{u}} :
+    ∀ n, (∀ i, i < n → M (e i)) → M (pack n e)
+  | 0, _ => hM.empty
+  | n+1, he => hM.union (hM.pack_mem n fun i hi => he i (Nat.lt_succ_of_lt hi))
+      (hM.single (hM.pair (hM.trans hM.omega (ofNat_mem_omega n)) (he n (Nat.lt_succ_self n))))
+
+/-- info: 'PSet.exists_pack' does not depend on any axioms -/
+#guard_msgs in #print axioms exists_pack
+/-- info: 'PSet.isCons_pack' does not depend on any axioms -/
+#guard_msgs in #print axioms isCons_pack
 /-- info: 'PSet.SynZF.cons_exists' does not depend on any axioms -/
 #guard_msgs in #print axioms SynZF.cons_exists
 /-- info: 'PSet.SynZF.assignSet_exists' does not depend on any axioms -/

@@ -122,7 +122,10 @@ theorem powM {x : PSet.{u}} (hx : M x) :
     Sat.resp _ (Env.cons_resp e fun _ => Equiv.refl _) h
   refine ⟨_, hM.sepM (all (imp (mem 0 1) (mem 0 3))) he, fun y hy => (mem_sep hP).trans ⟨fun ⟨_, h⟩ z hz => h z (hM.trans hy hz) hz, fun h => ⟨hs y hy fun z _ hz => h z hz, fun z _ hz => h z hz⟩⟩⟩
 
-/-- **Collection.** Every functional native relation on a member has a collecting member. -/
+/-- **Collection.** Every relation on a member that is *defined by a native formula* with
+parameters in the class, and functional there, has a collecting member. Arbitrary native
+predicates are not collected: only formula-definable ones, which is the distinction the whole
+internal construction rests on. -/
 theorem replM (ψ : Fml) {e : Nat → PSet.{u}} (he : ∀ i, M (e i))
     (hf : ∀ x y y', x ∈ e 0 → M y → M y' → Sat M ψ (Env.cons x (Env.cons y e)) →
       Sat M ψ (Env.cons x (Env.cons y' e)) → y ≈ y') :
