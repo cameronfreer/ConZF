@@ -18,23 +18,24 @@ universe u
 namespace PSet
 open Fml CardF RecF
 
-/-- The ambient reading: a pure function from `n` into `A`. -/
-def IsAssign (A e n : PSet.{u}) : Prop :=
-  n ∈ omega ∧
+/-- A pure function from `n` into `A`: pure pairs with first component in `n` and value in `A`,
+total on `n`, functional. -/
+def IsPureFun (A e n : PSet.{u}) : Prop :=
   (∀ q, q ∈ e → ¬¬∃ i v, i ∈ n ∧ v ∈ A ∧ q ≈ pair i v) ∧
   (∀ i, i ∈ n → ¬¬∃ v, pair i v ∈ e) ∧
   (∀ i v v', pair i v ∈ e → pair i v' ∈ e → v ≈ v')
 
-instance {A e n : PSet.{u}} : Stable (IsAssign A e n) := inferInstanceAs (Stable (_ ∧ _ ∧ _ ∧ _))
+/-- The ambient reading of an assignment: a pure function from a numeral `n ∈ ω` into `A`. -/
+def IsAssign (A e n : PSet.{u}) : Prop := n ∈ omega ∧ IsPureFun A e n
+
+instance {A e n : PSet.{u}} : Stable (IsPureFun A e n) := inferInstanceAs (Stable (_ ∧ _ ∧ _))
+instance {A e n : PSet.{u}} : Stable (IsAssign A e n) := inferInstanceAs (Stable (_ ∧ _))
 
 namespace AssignF
 
-/-- `e` is an assignment into `A` with domain `n` (variables `e, n, A, ω`). -/
-def assignF (e n A ω : Nat) : Fml :=
-  and (mem n ω)
-    (and (all (imp (mem 0 (e+1)) (ex (and (mem 0 (n+2)) (ex (and (mem 0 (A+3)) (pairF 2 1 0)))))))
-      (and (all (imp (mem 0 (n+1)) (ex (pairMemF (e+2) 1 0))))
-        (all (all (all (imp (pairMemF (e+3) 2 1) (imp (pairMemF (e+3) 2 0) (eq 1 0))))))))
+/-- `e` is an assignment into `A` with domain `n` (variables `e, n, A, ω`): `n ∈ ω` and the pure
+function formula `CardF.funF e n A`. -/
+def assignF (e n A ω : Nat) : Fml := and (mem n ω) (funF e n A)
 
 /-- `e'` is the cons of `x` onto `e`: `⟨∅, x⟩ ∈ e'`, and `⟨i, v⟩ ∈ e ↔ ⟨succ i, v⟩ ∈ e'`, with
 every member of `e'` of one of these forms (variables `e', x, e`). -/
@@ -76,10 +77,9 @@ namespace TransClass
 variable {M : PSet.{u} → Prop} (hN : TransClass M) {E : Nat → PSet.{u}} (hE : ∀ i, M (E i))
 include hN hE
 
-theorem sat_assignF (e n A ω : Nat) (hω : E ω ≈ omega) :
-    Sat M (assignF e n A ω) E ↔ IsAssign (E A) (E e) (E n) := by
-  refine sat_and.trans (and_congr (mem_congr_right hω) (sat_and.trans (and_congr ?_
-    (sat_and.trans (and_congr (hN.sat_totalF hE e n) (hN.sat_funcF hE e))))))
+/-- The pure-function bridge. -/
+theorem sat_funF_iff (e n A : Nat) : Sat M (funF e n A) E ↔ IsPureFun (E A) (E e) (E n) := by
+  refine sat_and.trans (and_congr ?_ (sat_and.trans (and_congr (hN.sat_totalF hE e n) (hN.sat_funcF hE e))))
   constructor
   · intro h q hq
     refine Stable.of_nn (sat_ex.1 (h q (hN.trans (hE e) hq) hq)) fun ⟨i, hi, hs⟩ => ?_
@@ -93,6 +93,10 @@ theorem sat_assignF (e n A ω : Nat) (hω : E ω ≈ omega) :
     have ⟨hi, hv⟩ := hN.of_pair_mem (hE e) ((mem_congr_left e').1 hq')
     exact nn_intro ⟨i, hi, sat_and.2 ⟨hin, sat_ex.2 (nn_intro ⟨v, hv, sat_and.2 ⟨hvA,
       (hN.sat_pairF (Env.cons_mem hv (Env.cons_mem hi (Env.cons_mem hq hE))) 2 1 0).2 e'⟩⟩)⟩⟩
+
+theorem sat_assignF (e n A ω : Nat) (hω : E ω ≈ omega) :
+    Sat M (assignF e n A ω) E ↔ IsAssign (E A) (E e) (E n) :=
+  sat_and.trans (and_congr (mem_congr_right hω) (hN.sat_funF_iff hE e n A))
 
 theorem sat_consF (e' x e : Nat) (hsucc : ∀ {y}, M y → M (succ y)) (h0 : M empty) :
     Sat M (consF e' x e) E ↔ IsCons (E e') (E x) (E e) := by

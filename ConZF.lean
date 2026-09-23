@@ -30,6 +30,9 @@ import ConZF.Codes
 import ConZF.Step
 import ConZF.History
 import ConZF.SetSat
+import ConZF.ScopedCode
+import ConZF.DefAdapter
+import ConZF.Def
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

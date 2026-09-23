@@ -643,6 +643,38 @@ agree (`setSat_absolute`). The empty domain and the empty assignment are
 ordinary cases, and malformed codes never enter the tables. This closes
 gate 2 of conzf15 with empty axiom reports.
 
+Gate 3 (con28, the guarded internal `Def`). `ScopedCode.lean`: the formula
+`scopedCodeF` (code and length, `Bound 2` by decision) reads the scope
+component of the history over the empty structure; exact readback
+(`scopedCode_correct`): for members `q, r`, it holds exactly when,
+negatively, `r ≈ ofNat n`, `q ≈ enc φ`, and `Bound n φ`; both directions
+cover arbitrary codes through the decoding of scoped rows.
+`DefAdapter.lean`: the generic adapter of con28 for any evaluator `S`
+(`Bound 3`) and guard `C` (`Bound 2`): the evaluation is "some cons of `x`
+onto the package satisfies `S`", a definable member is the value of a pure
+function package `p : n → A` with a code scoped at `succ n` (the pure
+`CardF.funF`, not the junk-tolerant `IsFun`, with the `ω` guard dropped as
+con28 shows it redundant), and the family formula says `B` is the family.
+Generic internal existence (`defF_exists`) is the outer Separation of an
+internal powerset, generic uniqueness (`defF_unique`) is extensionality, and
+the model-relative membership law (`mem_of_defF`) describes the family
+through the first-Separation values; none of this uses correctness of
+`S` or `C`, and with `C` always false the family is empty. `Def.lean`: the
+instantiation `defPowF := defF setSatF scopedCodeF` (`Bound 2` by decision);
+the ambient `Definable A z` (negatively `z ≈ {x ∈ A : φ(x, e)}` for a native
+`φ` bounded by `n + 1` and entries in `A`) and the native
+`defPow A := sep (Definable A) (powerset A)` with exact membership; the
+value of a native package is the definable subset (`valueOf_pack`, using
+uniqueness of the cons, the package of the extended environment, and
+`setSat_correct`), packages correspond to definable subsets
+(`package_iff_definable`, using the scoped-code readback and negative
+reconstruction of the package), hence the exact correspondence
+(`sat_defPowF`), internal closure (`defPow_mem`), congruence in the domain,
+absoluteness between classes containing the data (`defPowF_absolute`),
+`defPow ∅ ≈ {∅}`, `A ∈ defPow A`, `∅ ∈ defPow A`, and for transitive `A` both
+`A ⊆ defPow A` and transitivity of `defPow A`. Monotonicity of `defPow` in
+the domain is not claimed. Empty axiom reports throughout.
+
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
 internal `Def` with its membership law, the relational level histories and
