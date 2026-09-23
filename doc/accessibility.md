@@ -281,7 +281,13 @@ argument beneath the matched parent and combining finitely many negative
 choices (`transport`), and corresponding valid names denote equivalent sets
 (`nameVal_equiv_of_nameEquiv`).
 
-`Monotone.lean` (conzf10, items 1, 2, and the benchmark of item 4): a subset
+`Pair.lean`: unordered and Kuratowski ordered pairs (with injectivity), binary
+products, binary unions and unions of a set, all as small ranges with negative
+membership laws; and the reachable support of a graph set, which negatively
+represents every member and is closed under members (`supp_of_mem`,
+`supp_closed`).
+
+`Monotone.lean` (conzf10, items 1 to 4 of the review): a subset
 of a graph set `X` is a stable, extensional predicate on the points of `X`,
 the vertices below the root (`Pt X`), and the operator laws are stated only
 on such predicates. (The first version stated the laws on all vertex
@@ -311,11 +317,27 @@ stationary exactly when it is not below `η` (`stat_predOp`), so the
 stopping cut is `η` itself (`stopCut_predOp`) and the endpoint is all of
 `η`; as a byproduct every ordinal is a member of the relational Hartogs
 bound of its powerset (`mem_relHartogs_powerset`). The operator is the
-semantic update, not a set-coded rule table. Inflation is assumed
-throughout; the convergence half does not use monotonicity and the
-leastness half does, but the interface has not been split. Not done: the
-history packaged as a set of pairs with the uniform envelope (needs graph
-pairing and products), and first-entry ranks.
+semantic update, not a set-coded rule table. The interface is split as
+con20 suggests: `IsInfl` (stable, extensional, inflationary) suffices for
+the history, persistence, convergence, and the stopping cut; monotonicity
+(`Mono`) is a separate hypothesis used only for leastness. The certificate
+is packaged: the state of a stage is a subset vertex of the powerset, the
+history through the stopping cut is the range of the pairs `⟨β, A_β⟩`
+(`histSet`, read back through injectivity of ordered pairs by
+`histSet_row`), and `⟨γ, ⟨σ, C⟩⟩` lies in the envelope
+`κ × (P(κ × P X) × P X)`, which depends only on `X` (`cert_mem_envelope`);
+the reachable support of the envelope represents the certificate and all
+its members (`cert_supp`, `supp_closed`). First-entry ranks (con19 §5,
+con20): the rank of a point is the Separation cut of the stages at which it
+is absent (`entry`), an ordinal, at most `β` exactly when the point is in
+stage `β` (`hist_iff_entry`), at most the stopping cut on the endpoint;
+equivalent points have equal ranks, and the rank graph over the endpoint
+extends the certificate inside `envelope X × P(X × κ)` (`rankedCert_mem`).
+The rank counts the first stage containing the point, so seeds have rank
+zero and the law is `ρ(x) ≤ β`, rather than con19's successor-indexed
+`ρ(x) < β`. Not done: the recurrence `ρ(x) = sup (ρ(z)+1)` for the
+predecessor rule, which needs successor ordinals; the certificate
+conditions as bounded formulas; con20's normalization theorem.
 
 Not yet formalized: shortlex and shortlex minimization across
 presentations (needed only for name selection), coherent origin certificates,

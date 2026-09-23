@@ -1,19 +1,21 @@
 import ConZF.Graph.Hartogs
 import ConZF.Graph.Names
 import ConZF.Graph.Ordinals
+import ConZF.Graph.Pair
 /-!
 Bounded monotone induction. A subset of a graph set `X` is a stable, extensional predicate on
 the points of `X`, the vertices `Pt X` below the root; the operator laws are stated only on
 such predicates, so nothing forces a vertex above or beside the root into a subset (the earlier
 version demanded that on every vertex predicate, which was contradictory).
-For a monotone, inflationary, extensional operator `Φ` on such
-subsets and a seed `S`, the history along an ordinal presentation `κ` is the table
+For a stable, extensional, inflationary operator `Φ` on such
+subsets (`IsInfl`; monotonicity `Mono` is separate and used only for leastness) and a seed `S`,
+the history along an ordinal presentation `κ` is the table
 `hist Φ S κ : κ.A → Pt X → Prop` solving the uniform recurrence
 `A_β = S ∪ ⋃_{ξ<β} Φ(A_ξ)` (`hist_eq`), obtained by predicate recursion on the transitive
 closure of `κ`: the history is constructed first, and its laws are proved afterwards. The stages
 increase, are extensional, respect equivalent stage vertices (`hist_congr`), stay below every
-closed superset of the seed (`hist_sub_closed`), and once a stage is stationary every later
-stage equals it (`persist`).
+closed superset of the seed when `Φ` is monotone (`hist_sub_closed`), and once a stage is
+stationary every later stage equals it (`persist`, without monotonicity).
 
 **Convergence.** With `κ := relHartogs (powerset X)`, if no stage below `κ` were stationary the
 map from stages to their subset states would be an injection relation from `κ` into the
@@ -23,6 +25,17 @@ of `κ` (`stopCut`): it is a member of `κ`, stationary, with every earlier stag
 (`stopCut_spec`). The endpoint `endpoint` is closed under `Φ` and contained in every closed
 superset of the seed (`endpoint_closed`, `endpoint_least`). No stationary witness is extracted;
 its negative existence proves properties of the already defined cut.
+
+**The packaged certificate.** The state of a stage is a subset vertex of the powerset
+(`stateSet`), the history through the stopping cut is the range of the pairs `⟨β, A_β⟩`
+(`histSet`, read back by `histSet_row` through injectivity of ordered pairs), and the
+certificate `⟨γ, ⟨σ, C⟩⟩` (`cert`) lies in the envelope `κ × (P(κ × P X) × P X)`, which depends
+only on `X` (`cert_mem_envelope`); the reachable support of the envelope represents it and all
+its members (`cert_supp`, `supp_closed`). The first-entry rank of a point is the cut of stages
+at which it is absent (`entry`): an ordinal, at most `β` exactly when the point is in stage `β`
+(`hist_iff_entry`), at most the stopping cut on the endpoint (`entry_le_stopCut`), and
+invariant under equivalent points; the rank graph over the endpoint extends the certificate
+inside `envelope X × P(X × κ)` (`rankedCert_mem`).
 
 **Instances.** `addOp C` (adjoin a fixed subset) has endpoint `S ∪ C` (`endpoint_addOp`). The
 transfinite benchmark is `predOp` on an ordinal `η`: a point is admitted once all its
@@ -53,13 +66,21 @@ def toPred (B : Sub X) (a : X.A) : Prop := ∃ h : X.R a X.r, B ⟨a, h⟩
 instance {B : Sub X} [∀ a, Stable (B a)] : Stable (Ext X B) :=
   inferInstanceAs (Stable (∀ a b, _ → B a → B b))
 
-/-- The hypotheses on the operator. -/
-structure IsMono (Φ : Sub X → Sub X) : Prop where
+/-- The hypotheses on the operator used for the history and its convergence: stable,
+extensional in its argument, inflationary, and preserving extensionality. Monotonicity is not
+among them. -/
+structure IsInfl (Φ : Sub X → Sub X) : Prop where
   stable : ∀ B a, Stable (Φ B a)
   ext_iff : ∀ B B', (∀ a, B a ↔ B' a) → ∀ a, Φ B a ↔ Φ B' a
-  mono : ∀ B B', (∀ a, B a → B' a) → ∀ a, Φ B a → Φ B' a
   infl : ∀ B a, B a → Φ B a
   ext : ∀ B, Ext X B → Ext X (Φ B)
+
+/-- Monotonicity, used only for leastness of the endpoint. -/
+def Mono (Φ : Sub X → Sub X) : Prop := ∀ B B', (∀ a, B a → B' a) → ∀ a, Φ B a → Φ B' a
+
+/-- An inflationary monotone operator. -/
+structure IsMono (Φ : Sub X → Sub X) : Prop extends IsInfl X Φ where
+  mono : Mono X Φ
 
 /-- The hypotheses on the seed. -/
 structure IsSeed (S : Sub X) : Prop where
@@ -69,7 +90,7 @@ structure IsSeed (S : Sub X) : Prop where
 end
 
 section
-variable {X : GSet.{u}} {Φ : Sub X → Sub X} {S : Sub X} (hΦ : IsMono X Φ) (hS : IsSeed X S)
+variable {X : GSet.{u}} {Φ : Sub X → Sub X} {S : Sub X} (hΦ : IsInfl X Φ) (hS : IsSeed X S)
   (κ : GSet.{u})
 
 /-- The step of the recurrence: the seed, or the operator applied to an earlier row. -/
@@ -125,14 +146,14 @@ theorem hist_ext : ∀ β : κ.A, Ext X (hist (Φ := Φ) (S := S) κ β) := by
   · exact .inr ⟨ξ, hξ, hΦ.ext _ (ih ξ hξ) a b e h⟩
 
 omit hS in
-/-- Every stage is below every closed superset of the seed. -/
-theorem hist_sub_closed (Z : Sub X) [∀ a, Stable (Z a)] (hSZ : ∀ a, S a → Z a)
+/-- Every stage is below every closed superset of the seed (this uses monotonicity). -/
+theorem hist_sub_closed (hm : Mono X Φ) (Z : Sub X) [∀ a, Stable (Z a)] (hSZ : ∀ a, S a → Z a)
     (hZ : ∀ a, Φ Z a → Z a) : ∀ β : κ.A, ∀ a, hist (Φ := Φ) (S := S) κ β a → Z a := by
   refine swf_tc κ.swf (fun β => ∀ a, hist (Φ := Φ) (S := S) κ β a → Z a) (fun _ => inferInstance) ?_
   intro β ih a ha
   refine Stable.of_nn ((hist_eq hΦ κ β a).1 ha) fun
     | .inl h => hSZ a h
-    | .inr ⟨ξ, hξ, h⟩ => hZ a (hΦ.mono _ _ (ih ξ hξ) a h)
+    | .inr ⟨ξ, hξ, h⟩ => hZ a (hm _ _ (ih ξ hξ) a h)
 
 omit hS in
 /-- Equivalent stage vertices have equal rows: a bisimulation of the rank of `κ` with itself
@@ -183,9 +204,11 @@ theorem persist {β : κ.A} (hst : Stat (Φ := Φ) (S := S) κ β) :
     | .inl h => seed_sub_hist hΦ κ β a h
     | .inr ⟨ξ, hξ, h⟩ => ?_
   refine Stable.of_nn ((isOrd_rank_at' κ ξ).trichotomy (isOrd_rank_at' κ β)) fun
-    | .inl hlt => hst a (hΦ.mono _ _ (hist_mono_sem hΦ κ hlt) a h)
+    | .inl hlt => Stable.of_nn hlt fun ⟨ξ', hξ', e⟩ => (hist_eq hΦ κ β a).2 (nn_intro (.inr ⟨ξ', hξ',
+        (hΦ.ext_iff _ _ (fun a => hist_congr hΦ κ e a) a).1 h⟩))
     | .inr (.inl e) => hst a ((hΦ.ext_iff _ _ (fun a => hist_congr hΦ κ e a) a).1 h)
-    | .inr (.inr hgt) => hst a (hΦ.mono _ _ (ih ξ hξ hgt) a h)
+    | .inr (.inr hgt) => hst a ((hΦ.ext_iff _ _
+        (fun a => ⟨ih ξ hξ hgt a, hist_mono_sem hΦ κ hgt a⟩) a).1 h)
 
 omit hS in
 /-- Stationarity propagates to later stages. -/
@@ -201,7 +224,7 @@ end
 /-! ### Convergence at the relational Hartogs bound of the powerset -/
 
 section
-variable {X : GSet.{u}} {Φ : Sub X → Sub X} {S : Sub X} (hΦ : IsMono X Φ) (hS : IsSeed X S)
+variable {X : GSet.{u}} {Φ : Sub X → Sub X} {S : Sub X} (hΦ : IsInfl X Φ) (hS : IsSeed X S)
 
 /-- The stage presentation: the relational Hartogs bound of the powerset of `X`. -/
 abbrev bound : GSet.{u} := relHartogs (powerset X)
@@ -213,6 +236,12 @@ omit hΦ hS in
 theorem stage_equiv {β : (bound (X := X)).A} (h : (bound (X := X)).R β (bound (X := X)).r) :
     Equiv ((rank (bound (X := X))).at' β) ((bound (X := X)).at' β) :=
   rank_at'_equiv_of_isOrd _ β ((isOrd_relHartogs _).mem (at'_mem h))
+
+omit hΦ hS in
+/-- The ordinal of a stage vertex is a member of the bound. -/
+theorem stage_mem {β : (bound (X := X)).A} (h : Stage (bound (X := X)) β (bound (X := X)).r) :
+    Mem ((rank (bound (X := X))).at' β) (bound (X := X)) :=
+  Mem.congr_right (rank_equiv_of_isOrd (isOrd_relHartogs _)) (at'_mem (G := rank (bound (X := X))) h)
 
 /-- **Convergence.** Some stage below the bound is stationary: otherwise the stages would inject
 into the powerset. -/
@@ -349,14 +378,239 @@ theorem endpoint_closed (a : Pt X) (h : Φ (endpoint (Φ := Φ) (S := S)) a) :
   exact (hΦ.ext_iff _ _ (fun a => endpoint_row hΦ (TC.of_rel hβ) e' a) a).1 h
 
 omit hS in
-/-- The endpoint is contained in every closed superset of the seed. -/
-theorem endpoint_least (Z : Sub X) [∀ a, Stable (Z a)] (hSZ : ∀ a, S a → Z a)
+/-- The endpoint is contained in every closed superset of the seed (this uses monotonicity). -/
+theorem endpoint_least (hm : Mono X Φ) (Z : Sub X) [∀ a, Stable (Z a)] (hSZ : ∀ a, S a → Z a)
     (hZ : ∀ a, Φ Z a → Z a) (a : Pt X) (h : endpoint (Φ := Φ) (S := S) a) : Z a :=
-  Stable.of_nn h fun ⟨β, _, _, ha⟩ => hist_sub_closed hΦ _ Z hSZ hZ β a ha
+  Stable.of_nn h fun ⟨β, _, _, ha⟩ => hist_sub_closed hΦ _ hm Z hSZ hZ β a ha
 
 theorem seed_sub_endpoint (a : Pt X) (h : S a) : endpoint (Φ := Φ) (S := S) a :=
   Stable.of_nn (stopCut_mem hΦ hS) fun ⟨β, hβ, e⟩ =>
     nn_intro ⟨β, TC.of_rel hβ, e.trans (stage_equiv hβ).symm, seed_sub_hist hΦ _ β a h⟩
+
+end
+
+/-! ### The packaged history, its envelope, and first-entry ranks -/
+
+section
+variable {X : GSet.{u}} {Φ : Sub X → Sub X} {S : Sub X} (hΦ : IsInfl X Φ) (hS : IsSeed X S)
+
+/-- The state at a stage, as a graph set: the subset vertex of the powerset. -/
+def stateSet (β : (bound (X := X)).A) : GSet.{u} :=
+  (powerset X).at' (.sub (toPred X (hist (Φ := Φ) (S := S) (bound (X := X)) β)))
+
+theorem stateSet_mem (β : (bound (X := X)).A) : Mem (stateSet (Φ := Φ) (S := S) β) (powerset X) :=
+  at'_mem (PowRel.top _)
+
+theorem mem_stateSet {β : (bound (X := X)).A} {K : GSet.{u}} :
+    Mem K (stateSet (Φ := Φ) (S := S) β) ↔
+      ¬¬∃ a : Pt X, hist (Φ := Φ) (S := S) (bound (X := X)) β a ∧ Equiv K (X.at' a.1) :=
+  (mem_powerset_sub X).trans (nn_congr ⟨fun ⟨a, _, ⟨h, hB⟩, e⟩ => ⟨⟨a, h⟩, hB, e⟩,
+    fun ⟨a, hB, e⟩ => ⟨a.1, a.2, ⟨a.2, hB⟩, e⟩⟩)
+
+include hΦ hS in
+/-- Reading a row off its state set. -/
+theorem pt_mem_stateSet {β : (bound (X := X)).A} (a : Pt X) :
+    Mem (X.at' a.1) (stateSet (Φ := Φ) (S := S) β) ↔ hist (Φ := Φ) (S := S) (bound (X := X)) β a :=
+  ⟨fun h => Stable.of_nn (mem_stateSet.1 h) fun ⟨b, hb, e⟩ => hist_ext hΦ hS _ β b a e.symm hb,
+   fun h => mem_stateSet.2 (nn_intro ⟨a, h, Equiv.refl _⟩)⟩
+
+include hΦ in
+theorem stateSet_congr {β β' : (bound (X := X)).A}
+    (e : Equiv ((rank (bound (X := X))).at' β) ((rank (bound (X := X))).at' β')) :
+    Equiv (stateSet (Φ := Φ) (S := S) β) (stateSet (Φ := Φ) (S := S) β') :=
+  ext fun _ => mem_stateSet.trans ((nn_congr (exists_congr fun a =>
+    and_congr_left fun _ => hist_congr hΦ _ e a)).trans mem_stateSet.symm)
+
+/-- Ordinal comparison `ξ ≤ ζ`, negatively. -/
+abbrev OrdLe (ξ ζ : GSet.{u}) : Prop := ¬¬(Mem ξ ζ ∨ Equiv ξ ζ)
+
+/-- The stage vertices through the stopping cut. -/
+abbrev HistIdx : Type u :=
+  {β : (bound (X := X)).A // Stage (bound (X := X)) β (bound (X := X)).r ∧
+    OrdLe ((rank (bound (X := X))).at' β) (stopCut (Φ := Φ) (S := S))}
+
+/-- **The packaged history**: the pairs `⟨β, A_β⟩` for the stages `β ≤ γ`. -/
+def histSet : GSet.{u} := range fun β : HistIdx (Φ := Φ) (S := S) =>
+  opair ((rank (bound (X := X))).at' β.1) (stateSet (Φ := Φ) (S := S) β.1)
+
+theorem mem_histSet {K : GSet.{u}} : Mem K (histSet (Φ := Φ) (S := S)) ↔
+    ¬¬∃ β : HistIdx (Φ := Φ) (S := S),
+      Equiv K (opair ((rank (bound (X := X))).at' β.1) (stateSet (Φ := Φ) (S := S) β.1)) :=
+  mem_range _
+
+/-- The history is a set of pairs of a stage and a state. -/
+theorem histSet_sub : Subset (histSet (Φ := Φ) (S := S)) (prod (bound (X := X)) (powerset X)) :=
+  fun _ hK => Stable.of_nn (mem_histSet.1 hK) fun ⟨β, e⟩ =>
+    Mem.congr_left e.symm (opair_mem_prod _ _ (stage_mem β.2.1) (stateSet_mem β.1))
+
+theorem row_mem_histSet {β : (bound (X := X)).A} (hβ : Stage (bound (X := X)) β (bound (X := X)).r)
+    (hle : OrdLe ((rank (bound (X := X))).at' β) (stopCut (Φ := Φ) (S := S))) :
+    Mem (opair ((rank (bound (X := X))).at' β) (stateSet (Φ := Φ) (S := S) β))
+      (histSet (Φ := Φ) (S := S)) :=
+  mem_histSet.2 (nn_intro ⟨⟨β, hβ, hle⟩, Equiv.refl _⟩)
+
+include hΦ in
+/-- **Reading the history**: the pair at a stage ordinal carries that stage's state. -/
+theorem histSet_row {β : (bound (X := X)).A} {B Y : GSet.{u}}
+    (h : Mem (opair B Y) (histSet (Φ := Φ) (S := S))) (e : Equiv B ((rank (bound (X := X))).at' β)) :
+    Equiv Y (stateSet (Φ := Φ) (S := S) β) :=
+  Stable.of_nn (mem_histSet.1 h) fun ⟨_, e'⟩ =>
+    have ⟨eB, eY⟩ := opair_inj _ _ e'
+    eY.trans (stateSet_congr hΦ (eB.symm.trans e))
+
+/-- The endpoint as a graph set. -/
+def endpointSet : GSet.{u} := (powerset X).at' (.sub (toPred X (endpoint (Φ := Φ) (S := S))))
+
+theorem endpointSet_mem : Mem (endpointSet (Φ := Φ) (S := S)) (powerset X) := at'_mem (PowRel.top _)
+
+include hΦ hS in
+theorem endpoint_ext : Ext X (endpoint (Φ := Φ) (S := S)) := fun a b e h =>
+  nn_map (fun ⟨β, hβ, e', ha⟩ => ⟨β, hβ, e', hist_ext hΦ hS _ β a b e ha⟩) h
+
+include hΦ hS in
+theorem pt_mem_endpointSet (a : Pt X) :
+    Mem (X.at' a.1) (endpointSet (Φ := Φ) (S := S)) ↔ endpoint (Φ := Φ) (S := S) a :=
+  ⟨fun h => Stable.of_nn ((mem_powerset_sub X).1 h) fun ⟨b, _, ⟨hb, hB⟩, e⟩ =>
+      endpoint_ext hΦ hS ⟨b, hb⟩ a e.symm hB,
+   fun h => (mem_powerset_sub X).2 (nn_intro ⟨a.1, a.2, ⟨a.2, h⟩, Equiv.refl _⟩)⟩
+
+/-- **The certificate** `⟨γ, ⟨σ, C⟩⟩`: stopping ordinal, history through it, endpoint. -/
+def cert : GSet.{u} :=
+  opair (stopCut (Φ := Φ) (S := S)) (opair (histSet (Φ := Φ) (S := S)) (endpointSet (Φ := Φ) (S := S)))
+
+/-- **The envelope** `κ × (P(κ × P X) × P X)`, depending only on `X`. -/
+def envelope (X : GSet.{u}) : GSet.{u} :=
+  prod (bound (X := X)) (prod (powerset (prod (bound (X := X)) (powerset X))) (powerset X))
+
+include hΦ hS in
+/-- **The uniform envelope theorem**: every certificate lies in the envelope of its ground set. -/
+theorem cert_mem_envelope : Mem (cert (Φ := Φ) (S := S)) (envelope X) :=
+  opair_mem_prod _ _ (stopCut_mem hΦ hS)
+    (opair_mem_prod _ _ ((mem_powerset _).2 histSet_sub) endpointSet_mem)
+
+include hΦ hS in
+/-- The certificate is represented by a support vertex of the envelope; members of represented
+sets are represented by lower support vertices (`supp_closed`). -/
+theorem cert_supp : ¬¬∃ j : Supp (envelope X), Equiv (cert (Φ := Φ) (S := S)) ((envelope X).at' j.1) :=
+  supp_of_mem _ (cert_mem_envelope hΦ hS)
+
+/-! First-entry ranks. -/
+
+/-- **The first-entry rank** of a point: the stages at which it is absent, a cut of the bound. -/
+def entry (a : Pt X) : GSet.{u} :=
+  sep (fun ξ => ∀ β, Equiv ξ ((rank (bound (X := X))).at' β) →
+    ¬ hist (Φ := Φ) (S := S) (bound (X := X)) β a) (bound (X := X))
+
+theorem mem_entry {a : Pt X} {ξ : GSet.{u}} : Mem ξ (entry (Φ := Φ) (S := S) a) ↔
+    Mem ξ (bound (X := X)) ∧ ∀ β, Equiv ξ ((rank (bound (X := X))).at' β) →
+      ¬ hist (Φ := Φ) (S := S) (bound (X := X)) β a :=
+  mem_sep _ _ fun _ _ e h β e' => h β (e.trans e')
+
+include hΦ in
+theorem isOrd_entry (a : Pt X) : IsOrd (entry (Φ := Φ) (S := S) a) := by
+  refine ⟨fun ξ hξ ξ' hξ' => ?_, fun ξ hξ => ((isOrd_relHartogs _).mem (mem_entry.1 hξ).1).1⟩
+  have ⟨hξb, hne⟩ := mem_entry.1 hξ
+  refine mem_entry.2 ⟨(isOrd_relHartogs _).1 ξ hξb ξ' hξ', fun β e hβ => ?_⟩
+  refine Stable.of_nn hξb fun ⟨β₀, hβ₀, e₀⟩ => ?_
+  have e₀' : Equiv ξ ((rank (bound (X := X))).at' β₀) := e₀.trans (stage_equiv hβ₀).symm
+  exact hne β₀ e₀' (hist_mono_sem hΦ _ (Mem.congr_left e (Mem.congr_right e₀' hξ')) a hβ)
+
+include hΦ in
+/-- **The first-entry law**: a point is in stage `β` exactly when its rank is at most `β`. -/
+theorem hist_iff_entry {β : (bound (X := X)).A} (hβ : Stage (bound (X := X)) β (bound (X := X)).r)
+    (a : Pt X) : hist (Φ := Φ) (S := S) (bound (X := X)) β a ↔
+      OrdLe (entry (Φ := Φ) (S := S) a) ((rank (bound (X := X))).at' β) := by
+  constructor
+  · intro ha
+    refine (isOrd_entry hΦ a).subset (isOrd_rank_at' _ β) fun ξ hξ => ?_
+    have ⟨hξb, hne⟩ := mem_entry.1 hξ
+    refine Stable.of_nn (((isOrd_relHartogs _).mem hξb).trichotomy (isOrd_rank_at' _ β)) fun
+      | .inl h => h
+      | .inr (.inl e) => (hne β e ha).elim
+      | .inr (.inr h) => ?_
+    refine Stable.of_nn hξb fun ⟨β₀, hβ₀, e₀⟩ => ?_
+    have e₀' : Equiv ξ ((rank (bound (X := X))).at' β₀) := e₀.trans (stage_equiv hβ₀).symm
+    exact (hne β₀ e₀' (hist_mono_sem hΦ _ (Mem.congr_right e₀' h) a ha)).elim
+  · intro h
+    refine Stable.of_nn h fun
+      | .inl h => ?_
+      | .inr e => ?_
+    · refine Stable.of_nn h fun ⟨ξ, hξ, e⟩ => ?_
+      refine Stable.by_cases (hist (Φ := Φ) (S := S) (bound (X := X)) ξ a)
+        (fun h => hist_mono hΦ _ hξ a h) fun hn => ?_
+      have e₁ : Equiv ((rank (bound (X := X))).at' ξ) (entry (Φ := Φ) (S := S) a) := e.symm
+      exact (not_mem_self _ (Mem.congr_left e₁ (mem_entry.2 ⟨stage_mem (hξ.trans hβ),
+        fun β' (e' : Equiv ((rank (bound (X := X))).at' ξ) _) hβ' =>
+          hn ((hist_congr hΦ (bound (X := X)) e' a).2 hβ')⟩))).elim
+    · refine Stable.by_cases (hist (Φ := Φ) (S := S) (bound (X := X)) β a) id fun hn => ?_
+      exact (not_mem_self _ (Mem.congr_left e.symm (mem_entry.2 ⟨stage_mem hβ,
+        fun β' e' hβ' => hn ((hist_congr hΦ _ e' a).2 hβ')⟩))).elim
+
+include hΦ hS in
+/-- Points of the endpoint enter at or before the stopping cut. -/
+theorem entry_le_stopCut {a : Pt X} (h : endpoint (Φ := Φ) (S := S) a) :
+    OrdLe (entry (Φ := Φ) (S := S) a) (stopCut (Φ := Φ) (S := S)) := by
+  refine (isOrd_entry hΦ a).subset (isOrd_stopCut hΦ) fun ξ hξ => ?_
+  have ⟨hξb, hne⟩ := mem_entry.1 hξ
+  refine Stable.of_nn (stopCut_mem hΦ hS) fun ⟨β₀, hβ₀, e₀⟩ => ?_
+  have e₀' : Equiv (stopCut (Φ := Φ) (S := S)) ((rank (bound (X := X))).at' β₀) :=
+    e₀.trans (stage_equiv hβ₀).symm
+  have h₀ : hist (Φ := Φ) (S := S) (bound (X := X)) β₀ a := (endpoint_row hΦ (TC.of_rel hβ₀) e₀' a).1 h
+  refine Stable.of_nn (((isOrd_relHartogs _).mem hξb).trichotomy (isOrd_rank_at' _ β₀)) fun
+    | .inl hlt => Mem.congr_right e₀'.symm hlt
+    | .inr (.inl e) => (hne β₀ e h₀).elim
+    | .inr (.inr hgt) => ?_
+  refine Stable.of_nn hξb fun ⟨β₁, hβ₁, e₁⟩ => ?_
+  have e₁' : Equiv ξ ((rank (bound (X := X))).at' β₁) := e₁.trans (stage_equiv hβ₁).symm
+  exact (hne β₁ e₁' (hist_mono_sem hΦ _ (Mem.congr_right e₁' hgt) a h₀)).elim
+
+include hΦ hS in
+theorem entry_mem_bound {a : Pt X} (h : endpoint (Φ := Φ) (S := S) a) :
+    Mem (entry (Φ := Φ) (S := S) a) (bound (X := X)) :=
+  Stable.of_nn (entry_le_stopCut hΦ hS h) fun
+    | .inl h => (isOrd_relHartogs _).1 _ (stopCut_mem hΦ hS) _ h
+    | .inr e => Mem.congr_left e.symm (stopCut_mem hΦ hS)
+
+include hΦ hS in
+/-- Equivalent points have equal ranks. -/
+theorem entry_congr {a b : Pt X} (e : Equiv (X.at' a.1) (X.at' b.1)) :
+    Equiv (entry (Φ := Φ) (S := S) a) (entry (Φ := Φ) (S := S) b) :=
+  ext fun _ => mem_entry.trans ((and_congr_right fun _ => forall_congr' fun β =>
+    imp_congr_right fun _ => not_congr ⟨hist_ext hΦ hS (bound (X := X)) β a b e,
+      hist_ext hΦ hS (bound (X := X)) β b a e.symm⟩).trans mem_entry.symm)
+
+/-- **The rank graph**: the pairs `⟨x, ρ(x)⟩` over the points of the endpoint. -/
+def rankGraph : GSet.{u} :=
+  range fun a : {a : Pt X // endpoint (Φ := Φ) (S := S) a} => opair (X.at' a.1.1) (entry (Φ := Φ) (S := S) a.1)
+
+include hΦ hS in
+theorem rankGraph_sub : Subset (rankGraph (Φ := Φ) (S := S)) (prod X (bound (X := X))) :=
+  fun _ hK => Stable.of_nn ((mem_range _).1 hK) fun ⟨a, e⟩ =>
+    Mem.congr_left e.symm (opair_mem_prod _ _ (at'_mem a.1.2) (entry_mem_bound hΦ hS a.2))
+
+theorem pair_mem_rankGraph {a : Pt X} (h : endpoint (Φ := Φ) (S := S) a) :
+    Mem (opair (X.at' a.1) (entry (Φ := Φ) (S := S) a)) (rankGraph (Φ := Φ) (S := S)) :=
+  (mem_range _).2 (nn_intro ⟨⟨a, h⟩, Equiv.refl _⟩)
+
+include hΦ hS in
+/-- **Reading the rank graph**: the pair at a point carries that point's rank. -/
+theorem rankGraph_row {a : Pt X} {Y : GSet.{u}}
+    (h : Mem (opair (X.at' a.1) Y) (rankGraph (Φ := Φ) (S := S))) :
+    Equiv Y (entry (Φ := Φ) (S := S) a) :=
+  Stable.of_nn ((mem_range _).1 h) fun ⟨_, e⟩ =>
+    have ⟨ea, eY⟩ := opair_inj _ _ e
+    eY.trans (entry_congr hΦ hS ea.symm)
+
+/-- The ranked certificate `⟨⟨γ, ⟨σ, C⟩⟩, ρ⟩`. -/
+def rankedCert : GSet.{u} := opair (cert (Φ := Φ) (S := S)) (rankGraph (Φ := Φ) (S := S))
+
+/-- The envelope of ranked certificates. -/
+def rankedEnvelope (X : GSet.{u}) : GSet.{u} :=
+  prod (envelope X) (powerset (prod X (bound (X := X))))
+
+include hΦ hS in
+theorem rankedCert_mem : Mem (rankedCert (Φ := Φ) (S := S)) (rankedEnvelope X) :=
+  opair_mem_prod _ _ (cert_mem_envelope hΦ hS) ((mem_powerset _).2 (rankGraph_sub hΦ hS))
 
 end
 
@@ -371,25 +625,26 @@ def addOp (B : Sub X) (a : Pt X) : Prop := ¬¬(B a ∨ C a)
 theorem isMono_addOp (hC : IsSeed X C) : IsMono X (addOp C) where
   stable _ _ := inferInstanceAs (Stable (¬_))
   ext_iff _ _ h a := nn_congr (or_congr (h a) Iff.rfl)
-  mono _ _ h a := nn_map fun
-    | .inl hb => .inl (h a hb)
-    | .inr hc => .inr hc
   infl _ _ h := nn_intro (.inl h)
   ext _ hB a b e := nn_map fun
     | .inl hb => .inl (hB a b e hb)
     | .inr hc => .inr (hC.ext a b e hc)
+  mono _ _ h a := nn_map fun
+    | .inl hb => .inl (h a hb)
+    | .inr hc => .inr hc
 
 /-- The endpoint of `addOp C` from seed `S` is `S ∪ C`. -/
 theorem endpoint_addOp (hC : IsSeed X C) (hS : IsSeed X S) (a : Pt X) :
     endpoint (Φ := addOp C) (S := S) a ↔ ¬¬(S a ∨ C a) := by
   constructor
-  · exact endpoint_least (isMono_addOp C hC) (fun a => ¬¬(S a ∨ C a)) (fun a h => nn_intro (.inl h))
+  · exact endpoint_least (isMono_addOp C hC).toIsInfl (isMono_addOp C hC).mono
+      (fun a => ¬¬(S a ∨ C a)) (fun a h => nn_intro (.inl h))
       (fun a h => nn_bind h fun
         | .inl h => h
         | .inr h => nn_intro (.inr h)) a
   · refine fun h => Stable.of_nn h fun
-      | .inl h => seed_sub_endpoint (isMono_addOp C hC) hS a h
-      | .inr h => endpoint_closed (isMono_addOp C hC) hS a (nn_intro (.inr h))
+      | .inl h => seed_sub_endpoint (isMono_addOp C hC).toIsInfl hS a h
+      | .inr h => endpoint_closed (isMono_addOp C hC).toIsInfl hS a (nn_intro (.inr h))
 
 end
 
@@ -411,13 +666,16 @@ def predOp (B : Sub η) (x : Pt η) : Prop :=
 theorem isMono_predOp : IsMono η (predOp (η := η)) where
   stable _ _ := inferInstanceAs (Stable (¬_))
   ext_iff _ _ h x := nn_congr (or_congr (h x) (forall_congr' fun z => imp_congr_right fun _ => h z))
-  mono _ _ h x := nn_map fun
-    | .inl hb => .inl (h x hb)
-    | .inr hp => .inr fun z hz => h z (hp z hz)
   infl _ _ h := nn_intro (.inl h)
   ext _ hB a b e := nn_map fun
     | .inl hb => .inl (hB a b e hb)
     | .inr hp => .inr fun z hz => hp z (Mem.congr_right e.symm hz)
+  mono _ _ h x := nn_map fun
+    | .inl hb => .inl (h x hb)
+    | .inr hp => .inr fun z hz => h z (hp z hz)
+
+/-- The inflationary part of the benchmark operator. -/
+theorem isInfl_predOp : IsInfl η (predOp (η := η)) := isMono_predOp.toIsInfl
 
 variable (hη : IsOrd η)
 
@@ -437,7 +695,7 @@ theorem hist_predOp : ∀ β : (bound (X := η)).A, ∀ x : Pt η,
   have hx : IsOrd (η.at' x.1) := hη.mem (at'_mem x.2)
   constructor
   · intro ha
-    refine Stable.of_nn ((hist_eq isMono_predOp (bound (X := η)) β x).1 ha) fun
+    refine Stable.of_nn ((hist_eq isInfl_predOp (bound (X := η)) β x).1 ha) fun
       | .inl h => h.elim
       | .inr ⟨ξ, hξ, h⟩ => ?_
     have hξm : Mem ((rank (bound (X := η))).at' ξ) ((rank (bound (X := η))).at' β) := at'_mem (G := (rank (bound (X := η))).at' β) hξ
@@ -452,7 +710,7 @@ theorem hist_predOp : ∀ β : (bound (X := η)).A, ∀ x : Pt η,
     exact (not_mem_self _ (Mem.congr_left e.symm ((ih ξ hξ z).1 (hp z hz)))).elim
   · intro hm
     refine Stable.of_nn hm fun ⟨ξ, hξ, e⟩ => ?_
-    exact (hist_eq isMono_predOp (bound (X := η)) β x).2 (nn_intro (.inr ⟨ξ, hξ,
+    exact (hist_eq isInfl_predOp (bound (X := η)) β x).2 (nn_intro (.inr ⟨ξ, hξ,
       nn_intro (.inr fun z hz => (ih ξ hξ z).2 (Mem.congr_right e hz))⟩))
 
 /-- **Stationarity in the benchmark:** stage `β` is stationary exactly when `β` is not below
@@ -478,14 +736,14 @@ theorem stat_predOp (β : (bound (X := η)).A) :
 /-- **The benchmark:** the first stationary stage is `η` itself. -/
 theorem stopCut_predOp : Equiv (stopCut (Φ := predOp) (S := emptySeed (η := η))) η := by
   have hκ := isOrd_relHartogs (powerset η)
-  have hcut := stopCut_mem isMono_predOp isSeed_emptySeed (X := η)
+  have hcut := stopCut_mem isInfl_predOp isSeed_emptySeed (X := η)
   refine ext fun K => ⟨fun hK => ?_, fun hK => ?_⟩
   · have ⟨hKb, hns⟩ := mem_stopCut.1 hK
     refine Stable.of_nn hKb fun ⟨β, hβ, e⟩ => ?_
     have e' : Equiv K ((rank (bound (X := η))).at' β) := e.trans (stage_equiv hβ).symm
     have hst : ¬ Stat (Φ := predOp (η := η)) (S := emptySeed (η := η)) (bound (X := η)) β :=
       fun hst =>
-      hns fun β' e'' => stat_congr isMono_predOp (bound (X := η)) (e'.symm.trans e'') hst
+      hns fun β' e'' => stat_congr isInfl_predOp (bound (X := η)) (e'.symm.trans e'') hst
     exact Mem.congr_left e'.symm (Stable.dne fun h => hst ((stat_predOp hη β).2 h))
   · have hKo : IsOrd K := hη.mem hK
     -- every member of `η` is a member of the bound: it lies below the stationary stopping cut
@@ -493,7 +751,7 @@ theorem stopCut_predOp : Equiv (stopCut (Φ := predOp) (S := emptySeed (η := η
       refine Stable.of_nn hcut fun ⟨β₀, hβ₀, e₀⟩ => ?_
       have e₀' : Equiv (stopCut (Φ := predOp) (S := emptySeed (η := η)))
           ((rank (bound (X := η))).at' β₀) := e₀.trans (stage_equiv hβ₀).symm
-      have hst := (stat_predOp hη β₀).1 (statSet_stopCut isMono_predOp isSeed_emptySeed β₀ e₀')
+      have hst := (stat_predOp hη β₀).1 (statSet_stopCut isInfl_predOp isSeed_emptySeed β₀ e₀')
       have hβm : Mem ((rank (bound (X := η))).at' β₀) (bound (X := η)) :=
         Mem.congr_left (stage_equiv hβ₀).symm (at'_mem hβ₀)
       refine Stable.of_nn (hKo.trichotomy (isOrd_rank_at' (bound (X := η)) β₀)) fun
@@ -507,11 +765,11 @@ theorem stopCut_predOp : Equiv (stopCut (Φ := predOp) (S := emptySeed (η := η
 
 /-- Every ordinal is a member of the relational Hartogs bound of its powerset. -/
 theorem mem_relHartogs_powerset : Mem η (relHartogs (powerset η)) :=
-  Mem.congr_left (stopCut_predOp hη) (stopCut_mem isMono_predOp isSeed_emptySeed)
+  Mem.congr_left (stopCut_predOp hη) (stopCut_mem isInfl_predOp isSeed_emptySeed)
 
 /-- The endpoint of the benchmark is all of `η`. -/
 theorem endpoint_predOp (x : Pt η) : endpoint (Φ := predOp) (S := emptySeed (η := η)) x :=
-  Stable.of_nn (stopCut_mem isMono_predOp isSeed_emptySeed (X := η)) fun ⟨β, hβ, e⟩ =>
+  Stable.of_nn (stopCut_mem isInfl_predOp isSeed_emptySeed (X := η)) fun ⟨β, hβ, e⟩ =>
     have e' : Equiv (stopCut (Φ := predOp) (S := emptySeed (η := η)))
         ((rank (bound (X := η))).at' β) := e.trans (stage_equiv hβ).symm
     nn_intro ⟨β, TC.of_rel hβ, e', (hist_predOp hη β x).2
@@ -527,6 +785,14 @@ end
 #guard_msgs in #print axioms endpoint_closed
 /-- info: 'GSet.endpoint_least' does not depend on any axioms -/
 #guard_msgs in #print axioms endpoint_least
+/-- info: 'GSet.cert_mem_envelope' does not depend on any axioms -/
+#guard_msgs in #print axioms cert_mem_envelope
+/-- info: 'GSet.histSet_row' does not depend on any axioms -/
+#guard_msgs in #print axioms histSet_row
+/-- info: 'GSet.hist_iff_entry' does not depend on any axioms -/
+#guard_msgs in #print axioms hist_iff_entry
+/-- info: 'GSet.rankedCert_mem' does not depend on any axioms -/
+#guard_msgs in #print axioms rankedCert_mem
 /-- info: 'GSet.endpoint_addOp' does not depend on any axioms -/
 #guard_msgs in #print axioms endpoint_addOp
 /-- info: 'GSet.stopCut_predOp' does not depend on any axioms -/

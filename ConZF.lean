@@ -33,6 +33,7 @@ import ConZF.Graph.Recursion
 import ConZF.Graph.GSet
 import ConZF.Graph.Ops
 import ConZF.Graph.Rank
+import ConZF.Graph.Pair
 import ConZF.Graph.Faithful
 import ConZF.Graph.Sat
 import ConZF.Graph.Def
