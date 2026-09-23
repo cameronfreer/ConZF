@@ -526,6 +526,25 @@ function in the class (`choiceFun_of_ac`), which records that the functional
 choice relation of `ac` is an acceptable formulation of choice. All with
 empty axiom reports.
 
+`OmegaRec.lean` (the reusable internal ω-history theorem, item 3 of the
+conzf16 review): for a native step formula that is functional and total on
+the class and a start `a`, the partial sequences (`partSeqF`: pure set-coded
+functions on a numeral with `p(∅) = a` and consecutive values related by the
+step, so junk cannot break uniqueness) exist for every numeral
+(`partSeq_exists`, by external induction on the numeral, the extension step
+using totality of the step) and agree at every numeral where both are
+defined (`partSeq_agree`, using functionality); collection over `ω` of the
+partial sequences on successors, by the internal Replacement of the class
+applied to the fixed formula `collectF`, gives the sequence specified by the
+single formula `seqF step` (variables: the sequence, the start, `ω`, then
+the step's parameters). The sequence exists in the class (`seq_exists`), is
+unique up to bisimulation (`seq_unique`), and satisfies the recursion
+equations (`seq_spec`: pure pairs on `ω`, functional, total on `ω`, starting
+at `a`, consecutive values related by the step). Every bridge is proved for
+a transitive pair-closed class with the step renamed into position
+(`sat_stepRen`, `sat_partSeqF`, `sat_seqF`). Empty axiom reports; one core
+congruence lemma (`iff_congr`) had to be avoided because it uses `propext`.
+
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
 internal `Def` with its membership law, the relational level histories and
