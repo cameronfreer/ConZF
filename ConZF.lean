@@ -43,3 +43,4 @@ import ConZF.Graph.Levels
 import ConZF.Graph.Ordinals
 import ConZF.Graph.Hartogs
 import ConZF.Graph.Transport
+import ConZF.Graph.Monotone
