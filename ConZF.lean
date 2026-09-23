@@ -21,6 +21,8 @@ import ConZF.MixedHartogs
 import ConZF.Cofinality
 import ConZF.Interval
 import ConZF.Cardinal
+import ConZF.Relativize
+import ConZF.InternalZF
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

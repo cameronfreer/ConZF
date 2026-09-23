@@ -501,13 +501,41 @@ induced lower class to the common class needs functions in the class to
 have lower representatives, which the junk-tolerant `IsFun` does not give
 without Separation in the class.
 
-Not formalized: the instantiation of `UpperModel` by the constructible
-interpretation of the seeded ZF model (the main outstanding dependency: its
-transitivity, the least-partial-cofinal-relation laws from its well-order,
-the identity graphs, `K ∈ N`, the three classification fields, and validity
-of the syntactic ZF axioms and choice in it, with internal powersets), the
-converse bridge from the syntactic sentence to `InaccIn`, and the finite
-scheme of distinct inaccessibles.
+The internal `L` route (conzf15), gate 1. `Relativize.lean` (ported from
+the supplied draft): `restrictClass d φ` restricts every quantifier of a
+native formula to a unary formula `d`, and satisfaction of the relativized
+formula in `M` is satisfaction of the original in the class of members of
+`M` satisfying `d` (`sat_restrictClass`), uniformly over native syntax, so
+validity transfers; no truth predicate for a proper class is encoded.
+`InternalZF.lean`: the interface `SynZF` is a class that is stable,
+respects bisimulation, is transitive, contains `ω`, and validates the
+syntactic `ZF` axioms. Stability is explicit, as review asked: internal
+existence gives double-negated existence, and identifying a witness with a
+native set gives `¬¬M t`. From syntactic validity alone (no ambient closure)
+the class is closed under separation by any native formula with parameters
+in the class (`sepM`), the empty set, unordered pairs, pairs, and unions,
+has internal powersets (`powM`: a member whose members in the class are
+exactly the subsets in the class, not the ambient powerset) and internal
+products (`prodM`), and has a collecting member for every functional native
+relation (`replM`). Graph normalization: the restriction of a member to an
+internal product is a member (`cleanM`), which cleans any junk-bearing
+function or cofinal relation to a pure one in the class with the same
+pair-edges (`normalizeFun`, `normalizeCof`); and in a class validating the
+choice sentence every member of nonempty members has a pure choice
+function in the class (`choiceFun_of_ac`), which records that the functional
+choice relation of `ac` is an acceptable formulation of choice. All with
+empty axiom reports.
+
+Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
+satisfaction as a formula with its uniform correctness theorem, the guarded
+internal `Def` with its membership law, the relational level histories and
+the constructibility formula, the coherent well-order and least partial
+cofinal graphs, finite-fragment reflection for Separation in the defined
+class, and the instantiation of `UpperModel` (transitivity, the
+classification fields, `K` in the class, and the adapters connecting the
+internal cardinal notions to `RegularIn` and `InaccIn`); also the converse
+bridge from the syntactic sentence to `InaccIn`, and the finite scheme of
+distinct inaccessibles.
 
 ## Native bounds
 
