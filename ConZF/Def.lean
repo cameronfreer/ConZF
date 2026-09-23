@@ -37,7 +37,7 @@ instance {A z : PSet.{u}} : Stable (Definable A z) := inferInstanceAs (Stable (�
 theorem Definable.congr {A z z' : PSet.{u}} (e : z ≈ z') (h : Definable A z) : Definable A z' :=
   nn_map (fun ⟨n, φ, en, hb, he, ez⟩ => ⟨n, φ, en, hb, he, e.symm.trans ez⟩) h
 
-theorem Definable.subset {A z : PSet.{u}} (h : Definable A z) : ∀ x, x ∈ z → x ∈ A := fun x hx =>
+theorem Definable.subset {A z : PSet.{u}} (h : Definable A z) : ∀ x, x ∈ z → x ∈ A := fun _x hx =>
   Stable.of_nn h fun ⟨_, _, _, _, _, ez⟩ => (mem_dval.1 ((mem_congr_right ez).1 hx)).1
 
 /-- **The native definable powerset.** -/
@@ -176,7 +176,7 @@ theorem self_mem_defPow (A : PSet.{u}) : A ∈ defPow A :=
 
 /-- `defPow ∅ ≈ {∅}`. -/
 theorem defPow_empty : defPow empty.{u} ≈ singleton empty :=
-  ext fun z => ⟨fun h => mem_singleton.2 (ext fun x => ⟨fun hx => (not_mem_empty x ((mem_defPow.1 h).subset x hx)).elim,
+  ext fun _z => ⟨fun h => mem_singleton.2 (ext fun x => ⟨fun hx => (not_mem_empty x ((mem_defPow.1 h).subset x hx)).elim,
       fun hx => (not_mem_empty x hx).elim⟩),
     fun h => (mem_congr_left (mem_singleton.1 h)).2 (empty_mem_defPow _)⟩
 
@@ -186,7 +186,7 @@ theorem mem_defPow_of_trans {A y : PSet.{u}} (hA : Trans A) (hy : y ∈ A) : y �
     fun _ _ => hy, ext fun x => ⟨fun hx => mem_dval.2 ⟨hA y hy x hx, hx⟩, fun hx => (mem_dval.1 hx).2⟩⟩)
 
 /-- For a transitive `A`, `defPow A` is transitive. -/
-theorem defPow_trans {A : PSet.{u}} (hA : Trans A) : Trans (defPow A) := fun y hy z hz =>
+theorem defPow_trans {A : PSet.{u}} (hA : Trans A) : Trans (defPow A) := fun _y hy z hz =>
   mem_defPow_of_trans hA ((mem_defPow.1 hy).subset z hz)
 
 /-- info: 'PSet.SynZF.sat_defPowF' does not depend on any axioms -/

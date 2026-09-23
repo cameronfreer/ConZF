@@ -127,6 +127,7 @@ theorem sat_emptyStateF {E : Nat → PSet.{u}} (hE : ∀ i, M (E i)) (s : Nat) :
   · exact nn_intro ⟨PSet.empty, hM.empty, sat_and.2 ⟨(hT.sat_emptyF (Env.cons_mem hM.empty hE) 0).2 (Equiv.refl _),
       (hT.sat_pairF (Env.cons_mem hM.empty hE) (s+1) 0 0).2 h⟩⟩
 
+omit hM in
 /-- The renamed sequence formula, at the environment of `setSatF` after four binders, reads
 as the sequence formula at the history environment. -/
 theorem sat_seq_renamed {H s₀ Ea ω' A q e : PSet.{u}} (hω : ω' ≈ PSet.omega) (hs₀ : s₀ ≈ startState) {t : Nat → PSet.{u}} :
@@ -174,7 +175,7 @@ theorem setSat_correct {A : PSet.{u}} (hA : M A) (φ : Fml) (n : Nat) (e : Nat �
     have hs₀ := (hM.sat_emptyStateF hE3 0).1 h3
     refine Stable.of_nn (sat_ex.1 h) fun ⟨H, hH, h⟩ => ?_
     have ⟨h4, h⟩ := sat_and.1 h
-    have hsat := (hM.sat_seq_renamed hω hs₀).1 h4
+    have hsat := (sat_seq_renamed hω hs₀).1 h4
     have hE4 := Env.cons_mem hH hE3
     refine Stable.of_nn (sat_ex.1 h) fun ⟨d, hdM, h⟩ => ?_
     have ⟨h5, h⟩ := sat_and.1 h
@@ -206,7 +207,7 @@ theorem setSat_correct {A : PSet.{u}} (hA : M A) (φ : Fml) (n : Nat) (e : Nat �
     refine sat_ex.2 (nn_intro ⟨startState, hs₀M, sat_and.2 ⟨(hM.sat_emptyStateF hE3 0).2 (Equiv.refl _), ?_⟩⟩)
     refine Stable.of_nn (hM.history_exists hA hEa) fun ⟨H, hH, hsat⟩ => ?_
     have hE4 := Env.cons_mem hH hE3
-    refine sat_ex.2 (nn_intro ⟨H, hH, sat_and.2 ⟨(hM.sat_seq_renamed (Equiv.refl _) (Equiv.refl _)).2 hsat, ?_⟩⟩)
+    refine sat_ex.2 (nn_intro ⟨H, hH, sat_and.2 ⟨(sat_seq_renamed (Equiv.refl _) (Equiv.refl _)).2 hsat, ?_⟩⟩)
     refine Stable.of_nn (hM.invariants hA hEa hH hsat hEam φ.ht) fun ⟨V, T, hV, hT', hr, _, iT⟩ => ?_
     have hdM : M (ofNat φ.ht) := hM.trans hM.omega (ofNat_mem_omega _)
     have hE5 := Env.cons_mem hdM hE4

@@ -58,7 +58,7 @@ theorem scopedCode_correct {q r : PSet.{u}} (hq : M q) (hr : M r) {t : Nat → P
     have hs₀ := (hM.sat_emptyStateF hE4 0).1 h3
     refine Stable.of_nn (sat_ex.1 h) fun ⟨H, hH, h⟩ => ?_
     have ⟨h4, h⟩ := sat_and.1 h
-    have hsat := (hM.sat_seq_renamed hω hs₀).1 h4
+    have hsat := (sat_seq_renamed hω hs₀).1 h4
     have hE5 := Env.cons_mem hH hE4
     refine Stable.of_nn (sat_ex.1 h) fun ⟨d, hdM, h⟩ => ?_
     have ⟨h5, h⟩ := sat_and.1 h
@@ -95,7 +95,7 @@ theorem scopedCode_correct {q r : PSet.{u}} (hq : M q) (hr : M r) {t : Nat → P
     refine sat_ex.2 (nn_intro ⟨startState, hs₀M, sat_and.2 ⟨(hM.sat_emptyStateF hE4 0).2 (Equiv.refl _), ?_⟩⟩)
     refine Stable.of_nn (hM.history_exists hM.empty hEa) fun ⟨H, hH, hsat⟩ => ?_
     have hE5 := Env.cons_mem hH hE4
-    refine sat_ex.2 (nn_intro ⟨H, hH, sat_and.2 ⟨(hM.sat_seq_renamed (Equiv.refl _) (Equiv.refl _)).2 hsat, ?_⟩⟩)
+    refine sat_ex.2 (nn_intro ⟨H, hH, sat_and.2 ⟨(sat_seq_renamed (Equiv.refl _) (Equiv.refl _)).2 hsat, ?_⟩⟩)
     refine Stable.of_nn (hM.invariants hM.empty hEa hH hsat hEam φ.ht) fun ⟨V, T, hV, hT', hr, iV, _⟩ => ?_
     have hdM : M (ofNat φ.ht) := hM.trans hM.omega (ofNat_mem_omega _)
     have hE6 := Env.cons_mem hdM hE5

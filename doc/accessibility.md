@@ -675,10 +675,30 @@ absoluteness between classes containing the data (`defPowF_absolute`),
 `A ⊆ defPow A` and transitivity of `defPow A`. Monotonicity of `defPow` in
 the domain is not claimed. Empty axiom reports throughout.
 
-Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
-satisfaction as a formula with its uniform correctness theorem, the guarded
-internal `Def` with its membership law, the relational level histories and
-the constructibility formula, the coherent well-order and least partial
+Gate 4 (relational level histories). `LHier.lean`: a level history on `α` is
+a pure, total, functional graph `h` on `succ α` (`mapF`) whose rows satisfy
+the uniform recurrence (`recF`): `x ∈ h(β)` exactly when, negatively, some
+`γ ∈ β` and some row `h(γ)` have `x ∈ defPow (h γ)`. The history formula
+`lhistF` has its exact ambient reading (`sat_lhistF`) over a `SynZF` class;
+the level relation `Level M α A` says some history in the class has the row
+`(α, A)`. Overlap compatibility (`lhist_agree`): two histories on internal
+ordinals agree on every common index, by `∈`-induction using congruence of
+`defPow`. Existence (`lhist_exists`) is `∈`-induction: collect the histories
+of the members of `α` by Collection, take their union `U`, form the new row
+by Collection of `defPow` over the rows of `U`, and adjoin it; uniqueness
+(`lhist_unique`, `level_unique`) is agreement at the top row. Restriction
+(`level_of_row`): the rows of a history at indices up to `γ ∈ succ α` form
+a history on `γ`, so every row is a level. Hence the recurrence at levels
+(`level_rec`) and the exact laws: `L_0 = ∅` (`level_zero`),
+`L_{succ β} ≈ defPow L_β` (`level_succ`), and for a nonzero
+successor-closed ordinal `L_λ = ⋃_{β ∈ λ} L_β` (`level_limit`).
+Transitivity and monotonicity of the levels are proved jointly by
+`∈`-induction (`level_trans_mono`) from transitivity of `defPow A` and
+`A ⊆ defPow A` for transitive `A`; no monotonicity of `defPow` in the
+domain is used. Empty axiom reports throughout.
+
+Not formalized (the rest of conzf15 and the assembly): the constructibility
+formula and the class `N(K)`, the coherent well-order and least partial
 cofinal graphs, finite-fragment reflection for Separation in the defined
 class, and the instantiation of `UpperModel` (transitivity, the
 classification fields, `K` in the class, and the adapters connecting the
