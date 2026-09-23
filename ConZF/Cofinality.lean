@@ -45,7 +45,10 @@ theorem Cof.congr_dom {g Q Q' ζ : PSet.{u+1}} (e : Q ≈ Q') (h : Cof g Q ζ) :
   ⟨fun x y hp => ⟨(mem_congr_right e).1 (h.1 x y hp).1, (h.1 x y hp).2⟩, h.2.1, h.2.2⟩
 
 /-- An ordinary set-coded function from `Q` to `ζ`: a functional set of pairs with inputs in
-`Q` and values in `ζ`, total on `Q`. -/
+`Q` and values in `ζ`, total on `Q`. Only the pairs in `f` are constrained: `f` may contain
+members that are not pairs (`IsFun {∅} ∅ ∅` holds), and only the represented relation is ever
+consumed. The syntactic function predicate of `Cardinal.lean` requires every member to be a
+pair, which implies this one. -/
 def IsFun (f Q ζ : PSet.{u}) : Prop :=
   (∀ x y, pair x y ∈ f → x ∈ Q ∧ y ∈ ζ) ∧ (∀ x y y', pair x y ∈ f → pair x y' ∈ f → y ≈ y') ∧
   (∀ x, x ∈ Q → ¬¬∃ y, pair x y ∈ f)

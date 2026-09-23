@@ -20,6 +20,7 @@ import ConZF.Lift
 import ConZF.MixedHartogs
 import ConZF.Cofinality
 import ConZF.Interval
+import ConZF.Cardinal
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

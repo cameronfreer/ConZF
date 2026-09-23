@@ -184,6 +184,14 @@ theorem mem_U_iff_rank {x : PSet.{u+1}} : x ∈ U.{u} ↔ rank x ∈ K.{u} := by
   exact Stable.of_nn (mem_lift.1 ((mem_congr_right (lift_Vl _).symm).1 hx))
     fun ⟨z, _, e'⟩ => nn_intro ⟨z, e'⟩
 
+/-- **Height coherence.** The lift of the lower universe's set of lifts is, by definition, the
+set of doubly lifted sets two universes up, so the lower height lifts to a member of the next
+height: `rank (lift U) ≈ lift K` and `lift K ∈ K`. Successive heights are strictly increasing
+in a common top universe. -/
+theorem rank_lift_U : rank (lift U.{u}) ≈ lift K.{u} := rank_lift U.{u}
+
+theorem lift_K_mem_K : lift K.{u} ∈ K.{u+1} := lift_mem_K isOrd_K
+
 /-- `K` has no lower representative. -/
 theorem K_not_lift : ¬ ∃ z : PSet.{u}, K.{u} ≈ lift z := fun ⟨_, e⟩ =>
   not_mem_self K.{u} ((mem_congr_left isOrd_K.rank_equiv).1 (rank_mem (mem_U.2 (nn_intro ⟨_, e⟩))))

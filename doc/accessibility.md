@@ -471,17 +471,43 @@ for every lower set `b`, `N` has an inaccessible `ρ` with
 above `rank b` is inaccessible in `N`, or the interval hypothesis holds and
 `K` is inaccessible in `N` (ambient inaccessibility against all upper
 functions implies the `N`-relative notion). Its only premise beyond excluded
-middle is the interface `M`. Successive seeds give distinct inaccessibles
-in one class, finitely many at a time.
+middle is the interface `M`. At one fixed height `K` every application may
+return the same inaccessible, namely `K` itself; distinct witnesses need the
+increasing universe heights and disjoint intervals in one common class of
+con23, which are not formalized. Changing the seed alone does not give
+distinctness.
+
+`Cardinal.lean`: the first-order cardinal interface. Formulas with de
+Bruijn variables for singletons, pairs, `⟨x, y⟩ ∈ f`, transitivity and
+ordinals, functions and injections (every member a pair, so these imply the
+ambient `IsFun` and `IsInjRel`, which allow non-pair junk), internal
+powersets, `ω < κ` (a nonempty successor-closed member), regularity,
+initiality, strong limit, strong inaccessibility (`inaccF`), and the axiom
+of choice (`ac`, a choice function on any set of nonempty sets); the theory
+`ZFCI = ZF + ac + ∃ inaccessible`. The bridges are proved for a transitive
+class respecting bisimulation and closed under unordered pairs
+(`TransClass`) with environments in the class: pair and ordinal formulas are
+exact, the function, injection, and powerset predicates imply the ambient
+ones, and the main bridge is `InaccIn N κ → Sat N (inaccF) (κ, e)`; the
+converse is not proved. Conditional consistency (`con_ZFCI`): under
+excluded middle, for an interface `M` whose class is a `TransClass` and
+validates the syntactic ZF axioms and `ac`, `ZFCI` is consistent, by the
+interval theorem at seed `∅` and `Con.of_model`. All premises are explicit.
+Height coherence for two universes (`rank_lift_U`, `lift_K_mem_K`): the lift
+of `U` is by definition the set of doubly lifted sets, so `rank (lift U) ≈
+lift K` and `lift K ∈ K` one level up; a two-witness theorem in one common
+class is not formalized, because transporting inaccessibility from the
+induced lower class to the common class needs functions in the class to
+have lower representatives, which the junk-tolerant `IsFun` does not give
+without Separation in the class.
 
 Not formalized: the instantiation of `UpperModel` by the constructible
 interpretation of the seeded ZF model (the main outstanding dependency: its
-transitivity, the least-cofinal-relation laws from its well-order, the
-identity graphs, `K ∈ N`, and the three classification fields, which are
-ordinary ZFC facts inside it), the syntactic formula for inaccessibility and
-the axiom of choice in `Fml`, and the final class-model soundness theorem
-for `ZFC + one inaccessible`. The interval theorem is semantic, about the
-explicit notions above; no record assumes the conclusion.
+transitivity, the least-partial-cofinal-relation laws from its well-order,
+the identity graphs, `K ∈ N`, the three classification fields, and validity
+of the syntactic ZF axioms and choice in it, with internal powersets), the
+converse bridge from the syntactic sentence to `InaccIn`, and the finite
+scheme of distinct inaccessibles.
 
 ## Native bounds
 
