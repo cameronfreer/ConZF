@@ -564,6 +564,22 @@ request's matrix in the defined class, some such member lies in `B`. The
 internal existence of the next stage and the reflection theorem itself are
 not proved.
 
+`Assign.lean` (gate 2, step A): an assignment into a domain set `A` is a
+pure set-coded function from a numeral `n ∈ ω` into `A` (`IsAssign`, formula
+`assignF`, bridge `sat_assignF`), so the value at a numeral is read by pair
+membership and no arithmetic on indices is needed. The set of all
+assignments into a member of the class exists (`assignSet_exists`: the
+separation of the internal powerset of the internal product `ω × A` by the
+assignment formula, whose members are exactly the assignments in the class).
+Consing a value shifts the domain by one (`IsCons`, formula `consF`, bridge
+`sat_consF`), the cons of an assignment in the class exists in the class on
+the successor domain (`cons_exists`, by separating the shifted copy from the
+product and adjoining the head), and reading values through a cons behaves
+as `Env.cons` (`IsCons.reads_zero`, `IsCons.reads_succ`). Empty axiom
+reports. The remaining steps of gate 2: the code sets and truth tables as
+one joint ω-recursion using `seqF`, the `SetSat` formula quantifying over
+that sequence, and its uniform correctness over native formulas.
+
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
 internal `Def` with its membership law, the relational level histories and
