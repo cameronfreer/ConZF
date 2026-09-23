@@ -697,14 +697,33 @@ Transitivity and monotonicity of the levels are proved jointly by
 `A ⊆ defPow A` for transitive `A`; no monotonicity of `defPow` in the
 domain is used. Empty axiom reports throughout.
 
-Not formalized (the rest of conzf15 and the assembly): the constructibility
-formula and the class `N(K)`, the coherent well-order and least partial
-cofinal graphs, finite-fragment reflection for Separation in the defined
-class, and the instantiation of `UpperModel` (transitivity, the
-classification fields, `K` in the class, and the adapters connecting the
-internal cardinal notions to `RegularIn` and `InaccIn`); also the converse
-bridge from the syntactic sentence to `InaccIn`, and the finite scheme of
-distinct inaccessibles.
+Guarded interface and constructibility. `Constr.lean`: the unguarded
+`lhistF` and `levelF` do not force an ordinal index (with `1 = {∅}` and
+the non-ordinal `a = {1}`, the rows `1 ↦ ∅, a ↦ {∅}` satisfy the recurrence
+on `succ a`), so the exported `ordLhistF` and `ordLevelF` (`Bound 2` by
+decision) conjoin the ordinal formula, and their readings carry `IsOrd`.
+Both components of a level are in the class (`level_mem_class`, by
+stability of the class). The ordinal formula is exact over any transitive
+set structure without pair closure (`sat_ordF_set`), so an ordinal `ξ`
+lies in `L_α` exactly when `ξ ∈ α` (`ord_mem_level`, by `∈`-induction on
+`α`: forward through the recurrence and `ξ ⊆ γ ⇒ ξ ∈ succ γ`; backward
+since `ξ = {x ∈ L_ξ : Ord(x)}` is definable in `L_ξ`); hence
+`α ∈ L_{succ α}` and `L_α ∈ L_{succ α}`. Levels are absolute between
+`SynZF` classes containing the index (`level_absolute`): `IsLHist` is
+class-independent, so a history supplied by the second class agrees with
+the given one. Constructibility (`constrF`, `Bound 1` by decision): `x`
+lies in some ordinal level; the class `Constr M` has exact membership
+(`sat_constrF`), is stable, respects `≈`, is transitive (`Constr.trans`),
+lies inside `M`, and contains every ordinal of `M` (`constr_of_ord`, via
+`ξ ∈ L_{succ ξ}`) and every level. Empty axiom reports throughout.
+
+Not formalized (the rest of conzf15 and the assembly): the coherent
+well-order and least partial cofinal graphs, finite-fragment reflection for
+Separation in the defined class, and the instantiation of `UpperModel`
+(transitivity, the classification fields, `K` in the class, and the
+adapters connecting the internal cardinal notions to `RegularIn` and
+`InaccIn`); also the converse bridge from the syntactic sentence to
+`InaccIn`, and the finite scheme of distinct inaccessibles.
 
 ## Native bounds
 
