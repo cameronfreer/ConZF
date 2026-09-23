@@ -585,6 +585,32 @@ stable goals, with no decoder. Empty axiom reports. The remaining steps of gate 
 one joint ω-recursion using `seqF`, the `SetSat` formula quantifying over
 that sequence, and its uniform correctness over native formulas.
 
+`Codes.lean` and `Step.lean` (gate 2, checkpoint 2): numeral formulas
+read `x ≈ ofNat k`, and the five code-shape formulas read the exact shapes
+of `Fml.enc` (a numeral tag paired with the payload; the `⊥` code requires
+an empty payload), so tag distinctness and pair injectivity give constructor
+disjointness and, with `enc_inj`, unique decoding of represented codes. The
+guarded step follows conzf17: a state is a pair of a scope table (code,
+length) and a truth table (code, assignment); the new scope table admits
+atoms with indices below the length, `⊥`, implications whose children are
+already scoped at the same length, and universals whose body is scoped at
+the successor length (`validBodyF`); the new truth table uses the **new**
+scope table as a guard and the **old** truth table for the children
+(`truthBodyF`), so an implication is only evaluated once both children have
+values and a universal with a malformed body is rejected even over an empty
+domain. The step formula `stepF` (input state, output state, then the
+domain, the assignment set, and `ω`) says both new tables are pure and
+satisfy these membership laws; its ambient reading `IsStep` is proved exact
+(`sat_stepFormula`, through clause-by-clause bridges), the step is
+functional up to bisimulation (`IsStep.unique`), and it is total in the
+class (`step_exists`: the new scope table is separated from the product of
+a code carrier built from the domain of the old table with `ω`, and the new
+truth table from the product of that carrier with the assignment set). Empty
+axiom reports. Next: the joint history through `seqF stepF`, the validity
+and truth invariants at each stage against native height and `Bound`, the
+converse decoding of admitted codes, and `SetSat` with its uniform
+correctness.
+
 Not formalized (gates 2 to 4 of conzf15 and the assembly): set-sized
 satisfaction as a formula with its uniform correctness theorem, the guarded
 internal `Def` with its membership law, the relational level histories and

@@ -26,6 +26,8 @@ import ConZF.InternalZF
 import ConZF.OmegaRec
 import ConZF.Reflection
 import ConZF.Assign
+import ConZF.Codes
+import ConZF.Step
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
