@@ -862,9 +862,14 @@ above the seed being by stability (`inacc_interval_nnacc`). `Cardinal.lean`:
 hereditarily good ordinals of the seeded upper budget gives `NNAccK` (the
 seeded class contains its seed, whose rank is itself) and the syntactic
 class `MU`, hence **`con_ZFCI_of_pointwise`: the consistency of
-`ZFC + ∃ inaccessible` from that single premise**, with corollaries from
-well-foundedness of upper membership, from irrefutable excluded middle
-(`con_ZFCI_of_not_not_em`), and from excluded middle. Universe levels are
+`ZFC + ∃ inaccessible` from that single premise**. Alternatively it suffices
+to supply the two ingredients separately: the syntactic class from the upper
+accessibility hypothesis (`con_ZFCI_of_upper_accHyp`, which already yields
+negative accessibility of `K`) or from a bound producer for the seeded upper
+budget together with `NNAccK` (`con_ZFCI_of_bounds_nnacc`); the reverse
+implication to pointwise accessibility is not established. Corollaries from
+double-negated well-foundedness of upper membership, from irrefutable
+excluded middle (`con_ZFCI_of_not_not_em`), and from excluded middle. Universe levels are
 explicit: the lower universe is `0`, the upper is `1`. Empty axiom reports
 throughout. The remaining question is the pointwise accessibility premise
 itself; this refactor does not establish unconditional consistency.
