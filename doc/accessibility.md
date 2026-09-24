@@ -776,12 +776,40 @@ constructible class of a syntactic model is a syntactic model. Only `SynZF M`
 is assumed; no excluded middle or choice enters. Empty axiom reports
 throughout.
 
-Not formalized (the assembly): the coherent well-order and least partial
-cofinal graphs, choice in `N`, and the instantiation of `UpperModel`
-(transitivity, the classification fields, `K` in the class, and the
-adapters connecting the internal cardinal notions to `RegularIn` and
-`InaccIn`); also the converse bridge from the syntactic sentence to
-`InaccIn`, and the finite scheme of distinct inaccessibles.
+The concrete constructible upper class and the assembly. `UpperN.lean`: a
+stable, bisimulation-respecting model of `ZF` is a syntactic `ZF` class
+(`SynZF.of_zfModel`). At the upper universe, the seeded hereditarily-good
+class with seed `K` is such a model under the accessibility hypothesis of
+that universe (`MU`, `synZF_MU`), and its constructible class `NL` is a
+syntactic `ZF` class (`synZF_NL`) containing `K` (`NL_K`), every lifted
+lower ordinal (`NL_lift_ord`), and the identity graph on each of its
+members (`idGraph_mem`, by Collection and Separation in the class). The
+classification fields hold for any syntactic class, with no choice and no
+canonical order (conzf16 §A5, §A7): regularity implies initiality
+(`initialIn_of_regularIn`: the zero-totalized reverse of a relational
+injection of `κ` into a member is a function of the class covering `κ`,
+which regularity would bound) and limitness (`succ_mem_of_regularIn`: the
+constant function at a predecessor would be bounded); the identity graph on
+a nonzero ordinal at most `ω` is a partial cofinal graph from `ω`
+(`cof_idGraph_le`); failure of regularity supplies negatively an unbounded
+function from a member, cofinal by ordinal comparison
+(`cof_lt_or_reg_of_synZF`); a regular non-inaccessible above `ω` fails
+strong limit, and the reverse of the supplied injection restricted to
+`P × κ` is a partial cofinal graph from `P`, with `succ lam` still below by
+limitness (`cof_powerset_of_synZF`). Specialized to lifted lower ordinals
+through `mem_lift`, these discharge every field of `UpperModel` except the
+least-cofinal-relation interface: `upperModel_of_leastCof` takes only
+`LeastCof` and its four laws, and `con_ZFCI_of_leastCof` states the
+conditional consistency with every outstanding assumption visible: excluded
+middle (which yields the accessibility hypothesis), the least partial
+cofinal relation of `NL` with its laws, and validity of choice in `NL`.
+Empty axiom reports throughout.
+
+Not formalized: the canonical well-order of `NL` (its two consumers are
+choice in `NL` and the uniform least partial cofinal graph), the converse
+bridge from the syntactic sentence to `InaccIn`, the two-height assembly,
+the internal reflection sentence, and the finite scheme of distinct
+inaccessibles.
 
 ## Native bounds
 
