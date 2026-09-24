@@ -805,11 +805,45 @@ middle (which yields the accessibility hypothesis), the least partial
 cofinal relation of `NL` with its laws, and validity of choice in `NL`.
 Empty axiom reports throughout.
 
-Not formalized: the canonical well-order of `NL` (its two consumers are
-choice in `NL` and the uniform least partial cofinal graph), the converse
-bridge from the syntactic sentence to `InaccIn`, the two-height assembly,
-the internal reflection sentence, and the finite scheme of distinct
-inaccessibles.
+Choice and the cofinality selector from finite definition programs (conzf20,
+con31–32). `Words.lean`: ordinal words and shortlex, linear up to
+bisimulation (`oword_trichotomy`); the minimum principle (`minWord`): an
+inhabited stable class of words of the class has a least member, obtained by
+minimizing the successful length below a supplied witness and then
+extending a prefix coordinate by coordinate with the least ordinal still
+permitting success, each minimization by `∈`-minimality below a supplied
+candidate, so no class of all words is collected; the minimum is unique.
+`Programs.lean`: a program is an ordinal word evaluated by a stack machine
+(a token below `9` is an opcode, any other ordinal pushes itself); the
+opcodes build the codes of formulas, `∅`, successors, and packages by cons,
+and the definition instruction pops a stage, a code, and a package and
+pushes the value of the package at the level of the stage (the first
+Separation of the guarded `Def` adapter). Stacks, steps, runs, and
+denotations are pure finite functions with fixed native formulas and exact
+readings (`sat_stepF`, `sat_runF`, `sat_denF`); the denotation is functional
+up to bisimulation (`Den.unique`, by induction along the history with
+determinism of the step); there are no pointers, so programs concatenate
+without shifting (`Ext.append`), and every constructible set of the class
+is the denotation of a program of the class (`coverage`, by hierarchy
+induction: the parameters' programs, the package by cons instructions, the
+code, the stage, and the definition instruction). `ChoiceN.lean`: the
+constructible class is its own constructible universe (`constr_constr`, by
+level absoluteness), so the program minimum is a first-order definable
+selector: the least cofinal graph is the denotation of the shortlex-least
+program denoting a cofinal graph (`LeastCofN`, with existence by coverage
+and `minWord`, uniqueness by uniqueness of the minimum and functionality of
+the denotation, congruence, and the `Cof` property), and the choice graph is
+one Separation of `a × ⋃a` by the selector formula `pickF` (`valid_ac`).
+Hence `upperModel_NL` needs no further input, and **`con_ZFCI_of_em`: the
+consistency of `ZFC + ∃ inaccessible` from excluded middle alone**, with
+empty axiom reports. The seeded ambient model is not claimed to satisfy
+choice; choice is proved in its constructible class, and no extra universe
+enters.
+
+Not formalized: the pointwise-accessibility endpoint (the interval theorem
+still assumes excluded middle; con33's refactor is deferred), the converse
+cardinal bridge, the two-height assembly, the internal reflection sentence,
+and the finite scheme of distinct inaccessibles.
 
 ## Native bounds
 
