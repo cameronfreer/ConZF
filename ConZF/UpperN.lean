@@ -305,45 +305,51 @@ end SynZF
 def MU : PSet.{u+1} → Prop := HG (B := seeded K.{u})
 
 /-- Under the accessibility hypothesis of the upper universe, `MU` is a syntactic `ZF` class. -/
-theorem synZF_MU (hacc : AccHyp.{u+1}) : SynZF MU.{u} :=
+theorem synZF_MU_of_acc (hacc : AccHyp.{u+1}) : SynZF MU.{u} :=
   SynZF.of_zfModel (hg_model (B := seeded K.{u}) hacc) (fun x => inferInstanceAs (Stable (HG (B := seeded K.{u}) x)))
     fun e h => HG.resp (B := seeded K.{u}) e h
 
-theorem MU_K (_hacc : AccHyp.{u+1}) : MU.{u} K.{u} := hg_seed K.{u}
+/-- Under pointwise accessibility of the hereditarily good ordinals of the seeded upper budget,
+`MU` is a syntactic `ZF` class. This is the intended endpoint premise. -/
+theorem synZF_MU_of_pointwise (hacc : @PointwiseHGAcc.{u+1} (seeded K.{u})) : SynZF MU.{u} :=
+  SynZF.of_zfModel (hg_model_of_pointwise (B := seeded K.{u}) hacc)
+    (fun x => inferInstanceAs (Stable (HG (B := seeded K.{u}) x))) fun e h => HG.resp (B := seeded K.{u}) e h
+
+theorem MU_K : MU.{u} K.{u} := hg_seed K.{u}
 
 /-- **The constructible upper class**: the constructible class of `MU`. -/
 def NL : PSet.{u+1} → Prop := Constr MU.{u}
 
-theorem synZF_NL (hacc : AccHyp.{u+1}) : SynZF NL.{u} := (synZF_MU hacc).synZF_constr
+theorem synZF_NL (hMU : SynZF MU.{u}) : SynZF NL.{u} := hMU.synZF_constr
 
-theorem NL_K (hacc : AccHyp.{u+1}) : NL.{u} K.{u} := (synZF_MU hacc).constr_of_ord isOrd_K (MU_K hacc)
+theorem NL_K (hMU : SynZF MU.{u}) : NL.{u} K.{u} := hMU.constr_of_ord isOrd_K MU_K
 
-theorem NL_lift_ord (hacc : AccHyp.{u+1}) (η : PSet.{u}) (hη : IsOrd η) : NL.{u} (lift η) :=
-  (synZF_MU hacc).constr_of_ord (isOrd_lift hη) ((synZF_MU hacc).trans (MU_K hacc) (lift_mem_K hη))
+theorem NL_lift_ord (hMU : SynZF MU.{u}) (η : PSet.{u}) (hη : IsOrd η) : NL.{u} (lift η) :=
+  hMU.constr_of_ord (isOrd_lift hη) (hMU.trans MU_K (lift_mem_K hη))
 
-theorem NL_idGraph (hacc : AccHyp.{u+1}) {X : PSet.{u+1}} (hX : NL.{u} X) : NL.{u} (idGraph X) :=
-  (synZF_NL hacc).idGraph_mem hX
+theorem NL_idGraph (hMU : SynZF MU.{u}) {X : PSet.{u+1}} (hX : NL.{u} X) : NL.{u} (idGraph X) :=
+  (synZF_NL hMU).idGraph_mem hX
 
-theorem NL_resp (hacc : AccHyp.{u+1}) {x y : PSet.{u+1}} (e : x ≈ y) (hx : NL.{u} x) : NL.{u} y :=
-  (synZF_NL hacc).resp e hx
+theorem NL_resp (hMU : SynZF MU.{u}) {x y : PSet.{u+1}} (e : x ≈ y) (hx : NL.{u} x) : NL.{u} y :=
+  (synZF_NL hMU).resp e hx
 
 /-! ### The classification fields at lifted lower ordinals -/
 
-theorem NL_cof_small (hacc : AccHyp.{u+1}) (η : PSet.{u}) (hη : IsOrd η) (hle : η ∈ succ omega) (_hne : ∃ ζ, ζ ∈ η) :
+theorem NL_cof_small (hMU : SynZF MU.{u}) (η : PSet.{u}) (hη : IsOrd η) (hle : η ∈ succ omega) (_hne : ∃ ζ, ζ ∈ η) :
     ¬¬∃ g, NL.{u} g ∧ Cof g (lift omega) (lift η) :=
-  nn_intro ⟨idGraph (lift η), NL_idGraph hacc (NL_lift_ord hacc η hη), cof_idGraph_le isOrd_omega hle⟩
+  nn_intro ⟨idGraph (lift η), NL_idGraph hMU (NL_lift_ord hMU η hη), cof_idGraph_le isOrd_omega hle⟩
 
-theorem NL_cof_lt_or_reg (_hacc : AccHyp.{u+1}) (η : PSet.{u}) (hη : IsOrd η) (_hω : omega ∈ η) :
+theorem NL_cof_lt_or_reg (_hMU : SynZF MU.{u}) (η : PSet.{u}) (hη : IsOrd η) (_hω : omega ∈ η) :
     ¬¬((¬¬∃ d : PSet.{u}, d ∈ η ∧ ¬¬∃ g, NL.{u} g ∧ Cof g (lift d) (lift η)) ∨ RegularIn NL.{u} (lift η)) := by
   refine nn_map (fun h => h.imp (fun k => nn_bind k fun ⟨δ, hδ, k⟩ => ?_) id) (SynZF.cof_lt_or_reg_of_synZF (N := NL.{u}) (isOrd_lift hη))
   refine nn_map (fun ⟨d, hd, ed⟩ => ⟨d, hd, nn_map (fun ⟨g, hg, hc⟩ => ⟨g, hg, hc.congr_dom ed⟩) k⟩) (mem_lift.1 hδ)
 
-theorem NL_cof_powerset (hacc : AccHyp.{u+1}) (η : PSet.{u}) (hη : IsOrd η) (hω : omega ∈ η) (hreg : RegularIn NL.{u} (lift η))
+theorem NL_cof_powerset (hMU : SynZF MU.{u}) (η : PSet.{u}) (hη : IsOrd η) (hω : omega ∈ η) (hreg : RegularIn NL.{u} (lift η))
     (hni : ¬ InaccIn NL.{u} (lift η)) :
     ¬¬∃ (l : PSet.{u}) (P : PSet.{u+1}), succ l ∈ η ∧ NL.{u} P ∧ (∀ w, w ∈ P → w ∈ powerset (lift l)) ∧
       ¬¬∃ g, NL.{u} g ∧ Cof g P (lift η) := by
   have hωl : PSet.omega ∈ lift η := (mem_congr_left lift_omega).1 (lift_mem_of_mem hω)
-  refine nn_bind ((synZF_NL hacc).cof_powerset_of_synZF (NL_lift_ord hacc η hη) (isOrd_lift hη) hωl hreg hni)
+  refine nn_bind ((synZF_NL hMU).cof_powerset_of_synZF (NL_lift_ord hMU η hη) (isOrd_lift hη) hωl hreg hni)
     fun ⟨lam, P, hlam, hslam, hP, hpow, hg⟩ => ?_
   refine nn_map (fun ⟨l, _, el⟩ => ⟨l, P, ?_, hP, fun w hw => ?_, hg⟩) (mem_lift.1 hlam)
   · have : lift (succ l) ∈ lift η :=
@@ -355,7 +361,7 @@ theorem NL_cof_powerset (hacc : AccHyp.{u+1}) (η : PSet.{u}) (hη : IsOrd η) (
 
 /-- **The upper model from a least partial cofinal relation.** Every field of `UpperModel` other
 than the least-cofinal-relation interface is discharged for the constructible upper class. -/
-def upperModel_of_leastCof (hacc : AccHyp.{u+1})
+def upperModel_of_leastCof (hMU : SynZF MU.{u})
     (LeastCof : PSet.{u+1} → PSet.{u+1} → PSet.{u+1} → Prop)
     (leastCof_resp : ∀ {f Q Q' ζ ζ'}, Q ≈ Q' → ζ ≈ ζ' → LeastCof f Q ζ → LeastCof f Q' ζ')
     (leastCof_unique : ∀ {f f' Q ζ}, LeastCof f Q ζ → LeastCof f' Q ζ → f ≈ f')
@@ -363,21 +369,21 @@ def upperModel_of_leastCof (hacc : AccHyp.{u+1})
     (leastCof_exists : ∀ {Q ζ}, NL.{u} Q → NL.{u} ζ → IsOrd ζ → (¬¬∃ g, NL.{u} g ∧ Cof g Q ζ) →
       ¬¬∃ f, NL.{u} f ∧ LeastCof f Q ζ) : UpperModel.{u} where
   N := NL.{u}
-  N_resp := NL_resp hacc
-  N_lift_ord := NL_lift_ord hacc
+  N_resp := NL_resp hMU
+  N_lift_ord := NL_lift_ord hMU
   LeastCof := LeastCof
   leastCof_resp := leastCof_resp
   leastCof_unique := leastCof_unique
   leastCof_cof := leastCof_cof
   leastCof_exists := leastCof_exists
-  N_idGraph := fun η hη => NL_idGraph hacc (NL_lift_ord hacc η hη)
-  N_K := NL_K hacc
-  cof_small := NL_cof_small hacc
-  cof_lt_or_reg := NL_cof_lt_or_reg hacc
-  cof_powerset := NL_cof_powerset hacc
+  N_idGraph := fun η hη => NL_idGraph hMU (NL_lift_ord hMU η hη)
+  N_K := NL_K hMU
+  cof_small := NL_cof_small hMU
+  cof_lt_or_reg := NL_cof_lt_or_reg hMU
+  cof_powerset := NL_cof_powerset hMU
 
 /-- **Conditional consistency of `ZFC + ∃ inaccessible`, with every outstanding assumption
-visible**: excluded middle (which yields the accessibility hypothesis), a least partial cofinal
+visible**: excluded middle (which yields the accessibility hypothesis, hence `SynZF MU`), a least partial cofinal
 relation of the constructible upper class with its four laws, and validity of choice in that
 class. Everything else is discharged. -/
 theorem con_ZFCI_of_leastCof (em : ∀ p : Prop, p ∨ ¬p)
@@ -388,9 +394,9 @@ theorem con_ZFCI_of_leastCof (em : ∀ p : Prop, p ∨ ¬p)
     (leastCof_exists : ∀ {Q ζ}, NL.{u} Q → NL.{u} ζ → IsOrd ζ → (¬¬∃ g, NL.{u} g ∧ Cof g Q ζ) →
       ¬¬∃ f, NL.{u} f ∧ LeastCof f Q ζ)
     (hac : Valid NL.{u} ac) : Con ZFCI :=
-  have hacc : AccHyp.{u+1} := accHyp_of_not_not_em fun k => k em
-  con_ZFCI em (upperModel_of_leastCof hacc LeastCof leastCof_resp leastCof_unique leastCof_cof leastCof_exists)
-    (synZF_NL hacc).toTransClass (synZF_NL hacc).valid hac
+  have hMU : SynZF MU.{u} := synZF_MU_of_acc (accHyp_of_not_not_em fun k => k em)
+  con_ZFCI em (upperModel_of_leastCof hMU LeastCof leastCof_resp leastCof_unique leastCof_cof leastCof_exists)
+    (synZF_NL hMU).toTransClass (synZF_NL hMU).valid hac
 
 /-- info: 'PSet.synZF_NL' does not depend on any axioms -/
 #guard_msgs in #print axioms synZF_NL

@@ -38,6 +38,7 @@ import ConZF.Constr
 import ConZF.ConstrAx
 import ConZF.ReflectN
 import ConZF.UpperN
+import ConZF.Words
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
