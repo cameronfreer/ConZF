@@ -230,9 +230,10 @@ theorem replN (ψ : Fml) {e : Nat → PSet.{u}} (he : ∀ i, Constr M (e i)) {a 
 /-- `ω` is constructible. -/
 theorem omegaN : Constr M PSet.omega := hM.constr_of_ord isOrd_omega hM.omega
 
-/-- **Validity in `N` of every axiom of `ZF` other than the Separation schema.** -/
-theorem valid_nonsep : ∀ φ, ZF φ → (∀ ψ, φ ≠ ZFAx.sep ψ) → Valid (Constr M) φ := by
-  intro φ h hns e he
+/-- The case analysis: every axiom of `ZF` is valid in `N`, given Separation for the instances
+that are Separation. -/
+theorem valid_cases : ∀ φ, ZF φ → (∀ ψ, φ = ZFAx.sep ψ → Valid (Constr M) φ) → Valid (Constr M) φ := by
+  intro φ h hsep e he
   have htr : ∀ {x z : PSet.{u}}, Constr M x → z ∈ x → Constr M z := fun hx hz => SynZF.Constr.trans hM hx hz
   cases h with
   | ext =>
@@ -263,7 +264,7 @@ theorem valid_nonsep : ∀ φ, ZF φ → (∀ ψ, φ ≠ ZFAx.sep ψ) → Valid 
         sat_and.2 ⟨ofNat_mem_omega (n+1), fun z _ => sat_iff.2 ?_⟩⟩)
       refine mem_succ.trans <| .trans (nn_congr ?_) sat_or.symm
       exact or_congr (mem_congr_right e').symm ⟨fun h => h.trans e'.symm, fun h => h.trans e'⟩
-  | sep ψ => exact (hns ψ rfl).elim
+  | sep ψ => exact hsep ψ rfl e he
   | repl ψ =>
     intro hf
     have R2 : ∀ {x y y'}, Sat (Constr M) ψ (Env.cons x (Env.cons y' e)) →
@@ -282,6 +283,14 @@ theorem valid_nonsep : ∀ φ, ZF φ → (∀ ψ, φ ≠ ZFAx.sep ψ) → Valid 
     have ⟨hxa, hs⟩ := sat_and.1 hx
     exact hb' x y hxa hy (Sat.resp ψ (fun i => by rcases i with _ | _ | _ <;> exact Equiv.refl _)
       ((sat_rename ψ ZFAx.r3 _).1 hs))
+
+/-- **Validity in `N` of every axiom of `ZF` other than the Separation schema.** -/
+theorem valid_nonsep : ∀ φ, ZF φ → (∀ ψ, φ ≠ ZFAx.sep ψ) → Valid (Constr M) φ :=
+  fun φ h hns => hM.valid_cases φ h fun ψ e => (hns ψ e).elim
+
+/-- With Separation, every axiom of `ZF` is valid in `N`. -/
+theorem valid_of_sep (hsep : ∀ ψ, Valid (Constr M) (ZFAx.sep ψ)) : ∀ φ, ZF φ → Valid (Constr M) φ :=
+  fun φ h => hM.valid_cases φ h fun ψ e => e ▸ hsep ψ
 
 end SynZF
 

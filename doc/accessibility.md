@@ -738,15 +738,50 @@ witness. `valid_nonsep`: every axiom of `ZF` other than the Separation
 schema is valid in `N`. All constructions use Separation and Collection in
 `M`; the axioms of `N` are conclusions. Empty axiom reports throughout.
 
-Not formalized (the rest of conzf15 and the assembly): Separation in `N`
-(the semantic half of the reflection compiler: existence and uniqueness of
-`Next`, its internal `ω`-history, reflection at the supremum), hence
-`SynZF (Constr M)`; the coherent well-order and least partial cofinal
-graphs; the instantiation of `UpperModel` (transitivity, the
-classification fields, `K` in the class, and the adapters connecting the
-internal cardinal notions to `RegularIn` and `InaccIn`); also the converse
-bridge from the syntactic sentence to `InaccIn`, and the finite scheme of
-distinct inaccessibles.
+Reflection and the constructible model. `ReflectN.lean`: iterated
+quantifiers read as quantification over a finite prefix of the environment
+(`sat_allN_pre`, `sat_exN_pre`), and a formula with its parameters read off
+an assignment package (`withPackF`, exact for packages of native
+environments). The least-witness-stage formula `leastWitF` says the stage is
+the least one whose level contains a constructible witness of the request
+at the packaged parameters; it is functional by ordinal comparison and total
+for active tuples by `∈`-minimality below a supplied stage. Bounded capture
+(`capture_bound`): Collection in `M` over the internal set of assignments
+into `A` collects the least stages, Separation keeps the ordinals, and the
+successor of their union bounds the witnesses of every parameter tuple from
+`A`; the zero-arity case is the empty assignment. The compiled formulas read
+exactly (`sat_capture`, `sat_closes`, `sat_goodF`, `sat_nextF`), and the
+next good stage exists (`next_exists`, by the finite union of the bounds
+and `∈`-minimality among the good stages up to it) and is unique. The step
+`stepN` totalizes `nextF` with the identity on non-ordinals; the history is
+the internal ω-sequence of that step (`hist_exists`, `hist_unique`,
+`hist_spec` from `seq_spec`), a pure graph on `ω` whose orbit from an ordinal
+stays ordinal (`hist_ord`), with consecutive rows related by `NextStage`
+(`hist_next`), hence strictly increasing, and rows included along the index
+order (`hist_le`). The supremum of the rows (`sup_spec`) is a member of `M`,
+a nonzero limit above the start, with the rows cofinal in it; every member
+of its level lies in the level of some row (`sup_fit`), and finitely many
+lie in one row level (`sup_fit_finite`). Reflection at the supremum
+(`reflect_at_sup`) is by induction on the formula: for a universal, a
+failed instance at a constructible value is an active counterexample
+request whose parameters fit into a row level, capture at the next row
+supplies a constructible counterexample already correct in `N`, and that
+counterexample lies in the level at the supremum, contradicting the
+universal there. The reflection theorem (`reflection`) is uniform in the
+native list. Separation in `N` (`sepN`): the finitely many parameters lie in
+one level, reflection above it gives a level `B` reflecting the formula,
+and the separated subset is the definable subset `{z ∈ B : z ∈ a ∧ ψ}` of
+`B`. With `valid_of_sep`, **`synZF_constr : SynZF (Constr M)`**: the
+constructible class of a syntactic model is a syntactic model. Only `SynZF M`
+is assumed; no excluded middle or choice enters. Empty axiom reports
+throughout.
+
+Not formalized (the assembly): the coherent well-order and least partial
+cofinal graphs, choice in `N`, and the instantiation of `UpperModel`
+(transitivity, the classification fields, `K` in the class, and the
+adapters connecting the internal cardinal notions to `RegularIn` and
+`InaccIn`); also the converse bridge from the syntactic sentence to
+`InaccIn`, and the finite scheme of distinct inaccessibles.
 
 ## Native bounds
 

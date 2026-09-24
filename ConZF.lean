@@ -36,6 +36,7 @@ import ConZF.Def
 import ConZF.LHier
 import ConZF.Constr
 import ConZF.ConstrAx
+import ConZF.ReflectN
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
