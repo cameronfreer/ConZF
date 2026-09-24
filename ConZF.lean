@@ -41,6 +41,7 @@ import ConZF.UpperN
 import ConZF.Words
 import ConZF.Programs
 import ConZF.ChoiceN
+import ConZF.Endpoint
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

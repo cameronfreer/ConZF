@@ -1,4 +1,5 @@
 import ConZF.Cofinality
+import ConZF.Acc
 import ConZF.Seeded
 import ConZF.MixedHartogs
 /-!
@@ -170,5 +171,82 @@ theorem inacc_interval (em : ∀ p : Prop, p ∨ ¬p) :
 #guard_msgs in #print axioms cls_interval
 /-- info: 'PSet.K_inacc_of_interval' does not depend on any axioms -/
 #guard_msgs in #print axioms K_inacc_of_interval
+
+/-! ### The interval theorem from negative accessibility of `K` (con33 §3) -/
+
+/-- **The interval bound from lower accessibility**: the exact image supplied by the
+definability rule's Replacement, with its rank as the bound. -/
+theorem ordBound_interval_nn (hni : NoGap M b) (hacc : AccHyp.{u}) (s : PSet.{u})
+    (φ : PSet.{u} → PSet.{u} → Prop)
+    (φ_resp : ∀ {x x' y y' : PSet.{u}}, x ≈ x' → y ≈ y' → φ x y → φ x' y')
+    (φ_func : ∀ {x y y' : PSet.{u}}, x ∈ s → φ x y → φ x y' → y ≈ y')
+    (φ_ord : ∀ {x y : PSet.{u}}, x ∈ s → φ x y → IsOrd y) :
+    ¬¬∃ κ : PSet.{u}, IsOrd κ ∧ ∀ x η, x ∈ s → φ x η → η ∈ κ := by
+  have hrepl := (reach_rule (B := seeded b) (cofI_resp M) s).replacement s rfl φ φ_resp φ_func
+    (fun hx h => cls_interval M b hni _ (φ_ord hx h)) (hacc _)
+  refine nn_map (fun ⟨R, hR⟩ => ⟨rank R, isOrd_rank R, fun x η hx h => ?_⟩) hrepl
+  exact (mem_congr_left (φ_ord hx h).rank_equiv).1 (rank_mem ((hR η).2 (nn_intro ⟨x, hx, h⟩)))
+
+/-- **`K` is regular** against all upper set-coded functions, under the interval hypothesis and
+lower accessibility. -/
+theorem K_regular_of_interval_acc (hni : NoGap M b) (hacc : AccHyp.{u}) : RegularAt K.{u} := by
+  intro δ f hδ hf
+  refine Stable.of_nn (mem_K.1 hδ) fun ⟨d, hd, ed⟩ => ?_
+  let φ : PSet.{u} → PSet.{u} → Prop := fun x η => IsOrd η ∧ ¬¬∃ y, pair (lift x) y ∈ f ∧ y ≈ lift η
+  refine Stable.of_nn (ordBound_interval_nn M b hni hacc d φ
+    (fun ex eη ⟨ho, h⟩ => ⟨ho.resp eη, nn_map (fun ⟨y, hp, ey⟩ =>
+      ⟨y, (mem_congr_left (pair_congr (lift_congr ex) (Equiv.refl _))).1 hp, ey.trans (lift_congr eη)⟩) h⟩)
+    (fun _ ⟨_, h⟩ ⟨_, h'⟩ => Stable.of_nn h fun ⟨y, hp, ey⟩ => Stable.of_nn h' fun ⟨y', hp', ey'⟩ =>
+      lift_equiv.1 ((ey.symm.trans (hf.2.1 _ _ _ hp hp')).trans ey'))
+    (fun _ h => h.1)) fun ⟨κ, hκ, hb⟩ => ?_
+  refine nn_intro ⟨lift κ, lift_mem_K hκ, fun x y hp => ?_⟩
+  have ⟨hx, hy⟩ := hf.1 x y hp
+  refine Stable.of_nn (mem_lift.1 ((mem_congr_right ed).1 hx)) fun ⟨x₀, hx₀, ex⟩ => ?_
+  refine Stable.of_nn (mem_K.1 hy) fun ⟨η, hη, ey⟩ => ?_
+  have hφ : φ x₀ η := ⟨hη, nn_intro ⟨y,
+    (mem_congr_left (pair_congr ex (Equiv.refl _))).1 hp, ey⟩⟩
+  exact (mem_congr_left ey).2 (lift_mem_of_mem (hb x₀ η hx₀ hφ))
+
+theorem K_initialAt_of_nnacc (hK : NNAccK.{u}) : InitialAt K.{u} := fun _ _ hδ hf => K_initial_of_nnacc hK hδ hf
+
+/-- **`K` is a strong limit** from negative accessibility of `K`: an injecting ordinal is below
+`K` by comparison and restriction. -/
+theorem K_strongLimit_of_nnacc (hK : NNAccK.{u}) : StrongLimitAt K.{u} := by
+  intro lam θ P f hlam hθ hP hf
+  refine Stable.of_nn (mem_K.1 hlam) fun ⟨l, hl, e⟩ => ?_
+  have hsub : ∀ w, w ∈ P → w ∈ lift (powerset l) := fun w hw =>
+    (mem_congr_right ((powerset_congr e).trans (lift_powerset l).symm)).1 (hP w hw)
+  exact mem_K_of_injRel hK hθ (hf.mono hsub)
+
+/-- Lower membership accessibility from actual accessibility of `K`, through the rank map. -/
+theorem lower_acc_of_acc_K (hK : Acc (fun a b : PSet.{u+1} => a ∈ b) K.{u}) : ∀ x : PSet.{u}, Acc (· ∈ ·) x := by
+  have pull : ∀ y : PSet.{u+1}, Acc (· ∈ ·) y → ∀ x : PSet.{u}, lift x ≈ y → Acc (· ∈ ·) x := by
+    intro y hy
+    induction hy with
+    | intro y _ ih =>
+      intro x e
+      exact ⟨x, fun z hz => ih (lift z) ((mem_congr_right e).1 (lift_mem_of_mem hz)) z (Equiv.refl _)⟩
+  exact fun x => acc_of_rank (pull _ (hK.inv (lift_mem_K (isOrd_rank x))) _ (Equiv.refl _))
+
+/-- Lower `AccHyp` from negative accessibility of `K`. -/
+theorem accHyp_of_nnAccK (hK : NNAccK.{u}) : AccHyp.{u} :=
+  accHyp_of_mem_wf (nn_map lower_acc_of_acc_K hK)
+
+/-- **The interval theorem from negative accessibility of `K`**, without excluded middle: the
+conclusion is negatively existential, so the split on the existence of a lifted inaccessible
+above `rank b` is by stability. -/
+theorem inacc_interval_nnacc (hK : NNAccK.{u}) :
+    ¬¬∃ ρ, M.N ρ ∧ lift (rank b) ∈ ρ ∧ (ρ ∈ K.{u} ∨ ρ ≈ K.{u}) ∧ InaccIn M.N ρ := by
+  refine Stable.by_cases (∃ η : PSet.{u}, IsOrd η ∧ rank b ∈ η ∧ InaccIn M.N (lift η))
+    (fun ⟨η, hη, hb, hi⟩ => nn_intro ⟨lift η, M.N_lift_ord η hη, lift_mem_of_mem hb, .inl (lift_mem_K hη), hi⟩) fun hn => ?_
+  have hni : NoGap M b := fun η hη hb hi => hn ⟨η, hη, hb, hi⟩
+  refine nn_intro ⟨K, M.N_K, lift_mem_K (isOrd_rank b), .inr (Equiv.refl _), inaccIn_of_ambient isOrd_K
+    ((mem_congr_left lift_omega).1 omega_mem_K) (K_initialAt_of_nnacc hK) (K_regular_of_interval_acc M b hni (accHyp_of_nnAccK hK))
+    (K_strongLimit_of_nnacc hK)⟩
+
+/-- info: 'PSet.inacc_interval_nnacc' does not depend on any axioms -/
+#guard_msgs in #print axioms inacc_interval_nnacc
+/-- info: 'PSet.K_regular_of_interval_acc' does not depend on any axioms -/
+#guard_msgs in #print axioms K_regular_of_interval_acc
 
 end PSet

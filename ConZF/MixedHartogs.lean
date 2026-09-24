@@ -140,4 +140,104 @@ theorem K_initial (em : ∀ p : Prop, p ∨ ¬p) {δ f : PSet.{u+1}} (hδ : δ �
 /-- info: 'PSet.K_initial' does not depend on any axioms -/
 #guard_msgs in #print axioms K_initial
 
+/-! ### The pullback from accessibility of the source ordinal (con33 §2) -/
+
+section
+variable {a : PSet.{u}} {α f : PSet.{u+1}}
+
+/-- The pulled-back order is accessible below any accessible upper ordinal mapped to a point;
+the existential in the carrier's guard is eliminated into the propositional `Acc` goal. -/
+theorem pull_acc_of_acc : ∀ ξ : PSet.{u+1}, Acc (· ∈ ·) ξ → ∀ x : {x : a.Idx // pullS a α f x},
+    pair ξ (lift (a.Func x.1)) ∈ f → Acc (pullR a α f) x := by
+  intro ξ hξ
+  induction hξ with
+  | intro ξ _ ih =>
+    intro x hx
+    refine ⟨x, fun y hy => ?_⟩
+    obtain ⟨ζ, _, hζf⟩ := y.2
+    exact ih ζ (hy ζ ξ hζf hx) y hζf
+
+theorem pull_wf_of_acc (hα : Acc (· ∈ ·) α) : WellFounded (pullR a α f) :=
+  ⟨fun x => x.2.elim fun ξ h => pull_acc_of_acc ξ (hα.inv h.1) x h.2⟩
+
+/-- The pullback as a well-founded certificate, from actual accessibility of the source. -/
+def pullCodeAcc (hα : Acc (· ∈ ·) α) : WFCode a.Idx := ⟨pullS a α f, pullR a α f, pull_wf_of_acc hα⟩
+
+variable (hacc : Acc (· ∈ ·) α) (hα : IsOrd α) (hf : IsInjRel α (lift a) f)
+include hacc hα hf
+
+theorem lift_tree_acc : ∀ ξ : PSet.{u+1}, ∀ x : {x : a.Idx // pullS a α f x},
+    pair ξ (lift (a.Func x.1)) ∈ f → lift ((pullCodeAcc (a := a) (α := α) (f := f) hacc).tree x) ≈ ξ := by
+  refine mem_induction (P := fun ξ => ∀ x : {x : a.Idx // pullS a α f x},
+    pair ξ (lift (a.Func x.1)) ∈ f → lift ((pullCodeAcc (a := a) (α := α) (f := f) hacc).tree x) ≈ ξ)
+    fun ξ ih x hx => ?_
+  have hξα : ξ ∈ α := x.2.elim fun ξ₀ h => (mem_congr_left (hf.inj ξ ξ₀ _ _ hx h.2 (Equiv.refl _))).2 h.1
+  refine ext fun w => ⟨fun hw => ?_, fun hw => ?_⟩
+  · refine Stable.of_nn (mem_lift.1 hw) fun ⟨z, hz, e⟩ => ?_
+    refine Stable.of_nn ((pullCodeAcc hacc).mem_tree.1 hz) fun ⟨⟨y, hy⟩, e'⟩ => ?_
+    obtain ⟨ζ, _, hζf⟩ := y.2
+    have hζ : ζ ∈ ξ := hy ζ ξ hζf hx
+    exact (mem_congr_left ((e.trans (lift_congr e')).trans (ih ζ hζ y hζf))).2 hζ
+  · have hwα : w ∈ α := hα.trans ξ hξα w hw
+    refine Stable.of_nn (hf.total w hwα) fun ⟨v, hv, hp⟩ => ?_
+    refine Stable.of_nn (mem_lift.1 hv) fun ⟨z, hz, ev⟩ => Stable.of_nn hz fun ⟨b, ez⟩ => ?_
+    have hp' : pair w (lift (a.Func b)) ∈ f :=
+      (mem_congr_left (pair_congr (Equiv.refl _) (ev.trans (lift_congr ez)))).1 hp
+    let y : {x : a.Idx // pullS a α f x} := ⟨b, w, hwα, hp'⟩
+    have hR : pullR a α f y x := fun ξ₁ ξ₂ h₁ h₂ =>
+      (mem_congr_left (hf.inj w ξ₁ _ _ hp' h₁ (Equiv.refl _))).1
+        ((mem_congr_right (hf.inj ξ ξ₂ _ _ hx h₂ (Equiv.refl _))).1 hw)
+    exact mem_lift.2 (nn_intro ⟨_, (pullCodeAcc hacc).mem_tree.2 (nn_intro ⟨⟨y, hR⟩, Equiv.refl _⟩),
+      (ih w hw y hp').symm⟩)
+
+/-- **The mixed-universe Hartogs bound from accessibility of the source.** -/
+theorem mem_lift_wfBound_of_acc : α ∈ lift (wfBound a.Idx) := by
+  let c := pullCodeAcc (a := a) (α := α) (f := f) hacc
+  have sub : ∀ ζ, ζ ∈ α → ζ ∈ lift c.height := by
+    intro ζ hζ
+    refine Stable.of_nn (hf.total ζ hζ) fun ⟨v, hv, hp⟩ => ?_
+    refine Stable.of_nn (mem_lift.1 hv) fun ⟨z, hz, ev⟩ => Stable.of_nn hz fun ⟨b, ez⟩ => ?_
+    have hp' : pair ζ (lift (a.Func b)) ∈ f :=
+      (mem_congr_left (pair_congr (Equiv.refl _) (ev.trans (lift_congr ez)))).1 hp
+    let y : {x : a.Idx // pullS a α f x} := ⟨b, ζ, hζ, hp'⟩
+    have e := lift_tree_acc hacc hα hf ζ y hp'
+    have ho : IsOrd (c.tree y) := isOrd_of_lift ((hα.mem hζ).resp e.symm)
+    have hm : c.tree y ∈ c.height :=
+      (mem_congr_left ho.rank_equiv).1 (rank_mem (func_mem (range c.tree) y))
+    exact (mem_congr_left e).1 (lift_mem_of_mem hm)
+  refine Stable.of_nn (hα.subset (isOrd_lift c.isOrd_height) sub) fun
+    | .inl h => (isOrd_lift (isOrd_wfBound _)).trans _ (lift_mem_of_mem (height_mem_wfBound c)) α h
+    | .inr e => (mem_congr_left e.symm).1 (lift_mem_of_mem (height_mem_wfBound c))
+
+end
+
+/-- The bound from negative accessibility, since its conclusion is stable. -/
+theorem mem_lift_wfBound_of_nnacc {a : PSet.{u}} {α f : PSet.{u+1}} (hacc : ¬¬Acc (· ∈ ·) α) (hα : IsOrd α)
+    (hf : IsInjRel α (lift a) f) : α ∈ lift (wfBound a.Idx) :=
+  Stable.of_nn hacc fun h => mem_lift_wfBound_of_acc h hα hf
+
+/-- **The localized height hypothesis**: negative accessibility of `K` in the upper universe. -/
+def NNAccK : Prop := ¬¬Acc (fun a b : PSet.{u+1} => a ∈ b) K.{u}
+
+/-- `K` has no relational injection into the lift of a lower set. -/
+theorem not_injRel_K_lift (hK : NNAccK.{u}) (a : PSet.{u}) {f : PSet.{u+1}} (hf : IsInjRel K.{u} (lift a) f) : False :=
+  not_mem_self K.{u} (isOrd_K.trans _ (lift_mem_K (isOrd_wfBound _)) _ (mem_lift_wfBound_of_nnacc hK isOrd_K hf))
+
+/-- An upper ordinal injecting into the lift of a lower set is below `K`: otherwise `K` would
+inject by restriction. -/
+theorem mem_K_of_injRel (hK : NNAccK.{u}) {a : PSet.{u}} {θ f : PSet.{u+1}} (hθ : IsOrd θ) (hf : IsInjRel θ (lift a) f) : θ ∈ K.{u} := by
+  refine Stable.of_nn (hθ.trichotomy isOrd_K) fun
+    | .inl h => h
+    | .inr (.inl e) => (not_injRel_K_lift hK a ⟨fun ξ hξ => hf.total ξ ((mem_congr_right e).2 hξ), hf.inj⟩).elim
+    | .inr (.inr h) => (not_injRel_K_lift hK a ⟨fun ξ hξ => hf.total ξ (hθ.trans _ h ξ hξ), hf.inj⟩).elim
+
+/-- `K` is initial from negative accessibility of `K`. -/
+theorem K_initial_of_nnacc (hK : NNAccK.{u}) {δ f : PSet.{u+1}} (hδ : δ ∈ K.{u}) (hf : IsInjRel K.{u} δ f) : False :=
+  Stable.of_nn (mem_K.1 hδ) fun ⟨η, _, e⟩ => not_injRel_K_lift hK η (hf.congr_right e)
+
+/-- info: 'PSet.mem_lift_wfBound_of_acc' does not depend on any axioms -/
+#guard_msgs in #print axioms mem_lift_wfBound_of_acc
+/-- info: 'PSet.mem_K_of_injRel' does not depend on any axioms -/
+#guard_msgs in #print axioms mem_K_of_injRel
+
 end PSet

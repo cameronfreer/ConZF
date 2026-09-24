@@ -840,10 +840,38 @@ empty axiom reports. The seeded ambient model is not claimed to satisfy
 choice; choice is proved in its constructible class, and no extra universe
 enters.
 
-Not formalized: the pointwise-accessibility endpoint (the interval theorem
-still assumes excluded middle; con33's refactor is deferred), the converse
-cardinal bridge, the two-height assembly, the internal reflection sentence,
-and the finite scheme of distinct inaccessibles.
+The pointwise endpoint (con33). `MixedHartogs.lean`: the pullback order is
+accessible below any accessible upper ordinal mapped to a point, with the
+existential of the carrier's guard eliminated into the propositional `Acc`
+goal (`pull_acc_of_acc`), so the mixed Hartogs bound holds from actual
+accessibility of the source (`mem_lift_wfBound_of_acc`) and, its conclusion
+being stable, from negative accessibility. With `NNAccK`, negative
+accessibility of `K` in the upper universe, `K` has no relational injection
+into the lift of a lower set, any injecting upper ordinal is below `K` by
+comparison and restriction of the injection (`mem_K_of_injRel`), and `K` is
+initial. `Interval.lean`: `K` is a strong limit from `NNAccK`
+(`K_strongLimit_of_nnacc`); actual accessibility of `K` gives lower
+membership accessibility through the rank map (`lower_acc_of_acc_K`), hence
+lower `AccHyp`; under the interval hypothesis the exact image of the
+definability rule's Replacement bounds every functional ordinal-valued
+relation on a supplied source by its rank (`ordBound_interval_nn`), so `K`
+is regular (`K_regular_of_interval_acc`); and the interval theorem holds
+with a negatively existential conclusion, the split on a lifted inaccessible
+above the seed being by stability (`inacc_interval_nnacc`). `Cardinal.lean`:
+`con_ZFCI_of_nnacc`. `Endpoint.lean`: pointwise accessibility of the
+hereditarily good ordinals of the seeded upper budget gives `NNAccK` (the
+seeded class contains its seed, whose rank is itself) and the syntactic
+class `MU`, hence **`con_ZFCI_of_pointwise`: the consistency of
+`ZFC + ∃ inaccessible` from that single premise**, with corollaries from
+well-foundedness of upper membership, from irrefutable excluded middle
+(`con_ZFCI_of_not_not_em`), and from excluded middle. Universe levels are
+explicit: the lower universe is `0`, the upper is `1`. Empty axiom reports
+throughout. The remaining question is the pointwise accessibility premise
+itself; this refactor does not establish unconditional consistency.
+
+Not formalized: the converse cardinal bridge, the internal reflection
+sentence, the two-height assembly, and the finite scheme of distinct
+inaccessibles.
 
 ## Native bounds
 

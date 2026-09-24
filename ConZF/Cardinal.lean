@@ -289,4 +289,19 @@ theorem con_ZFCI (em : ∀ p : Prop, p ∨ ¬p) (M : UpperModel.{u}) (hT : Trans
 /-- info: 'PSet.TransClass.sat_inaccF_of_inaccIn' does not depend on any axioms -/
 #guard_msgs in #print axioms TransClass.sat_inaccF_of_inaccIn
 
+/-- **Conditional consistency from negative accessibility of `K`**, without excluded middle. -/
+theorem con_ZFCI_of_nnacc (hK : NNAccK.{u}) (M : UpperModel.{u}) (hT : TransClass M.N)
+    (hZF : ∀ φ, ZF φ → Valid M.N φ) (hac : Valid M.N ac) : Con ZFCI := by
+  refine Con.of_model (fun φ h => ?_) K.{u} M.N_K
+  cases h with
+  | zf h => exact hZF _ h
+  | ac => exact hac
+  | inacc =>
+    intro e he
+    refine Stable.of_nn (inacc_interval_nnacc M empty hK) fun ⟨ρ, hρ, _, _, hi⟩ => ?_
+    exact sat_ex.2 (nn_intro ⟨ρ, hρ, hT.sat_inaccF_of_inaccIn (Env.cons_mem hρ he) 0 hi⟩)
+
+/-- info: 'PSet.con_ZFCI_of_nnacc' does not depend on any axioms -/
+#guard_msgs in #print axioms con_ZFCI_of_nnacc
+
 end PSet
