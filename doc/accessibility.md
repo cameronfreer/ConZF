@@ -885,9 +885,73 @@ number and tests whether the coded conclusion is `⊥`. Soundness is
 structural recursion on the code, completeness is induction on the
 derivation using only propositional existence of a code, and the bridge is
 `prf_fls_iff_code : Prf ZF ⊥ ↔ ∃ n, checkZF n = true`, so consistency is the
-`Π⁰₁` sentence `∀ n, checkZF n = false` (`con_iff_checker`). Overlapping
-wildcard patterns were avoided throughout, because their compiled matchers
-carry propositional extensionality; the reports are empty.
+`Π⁰₁` sentence `∀ n, checkZF n = false` (`con_iff_checker`). A narrow
+lesson from this file: the particular definitions first written with
+overlapping wildcard patterns (`| _, _ => none`) compiled, on this
+toolchain, to matchers carrying propositional extensionality, so those
+definitions use exhaustive non-overlapping patterns instead; overlapping
+patterns are not forbidden in general, they are checked case by case by
+the axiom report. The reports are empty.
+
+The decoder-capacity tranche (con46–47). The remaining unconditional
+obligation is one rank bound, and these files locate it exactly for one
+formula. `OrdDecode.lean`: the Σ₁ ordinal decoder `decodeF`, saying that
+a diagram `⟨A, r⟩` is order-isomorphic to the ordinal `α` by an onto pure
+map `f`, with one unbounded existential (over `f`) and every other
+quantifier membership-bounded, certified by the bounded-formula syntax
+`BForm` (absolute between any transitive class and the universe by
+transitivity alone), `Bound 2` by `decide`; its exact reading in any
+transitive class with the class guards on the three witnesses explicit
+(`decode_read`), uniqueness of the decoded ordinal and even of the
+isomorphism graph (stable membership induction; injectivity from order
+reflection), and Σ₁ upward absoluteness. `DecodeSpectrum.lean`: the exact
+ambient spectrum, the ordinals with a pure injection into the base
+(`decoded_spectrum`; the diagram of an injection is its active range and
+the transported order, both by Separation, and the same injection is the
+isomorphism); ambient barriers (`Barrier`: an ordinal admitting no pure
+injection into `U`) as exact strict caps and as exact collecting sets;
+over `HG`, closure of `HG` under subsets, unions, powersets and products
+before its model theorem, the `HG` domain of an `HG` injection, the reading
+of `decodeF` in `HG`, the exact `HG` spectrum, and
+**`barrier_iff_rankBounded`: at an `HG` base, the instancewise rank-bound
+obligation `RankBounded decodeF e (diagrams U)` of the model's Replacement
+clause is exactly negative existence of an `HG`-relative barrier**. This is
+a reduction of the obligation to one ordinal, not a producer of that
+ordinal; a supplied barrier improves to an `HG` barrier through the
+unchanged Replacement consumer. `DecoderCap.lean`: at a successor-closed
+rank stage, `V_η` is closed under the constructions used, so the decoder is
+read exactly there (`sat_decode_at_limit`, downward absoluteness of this one
+formula, not a general principle); every successor is reached from `0` by
+the parameter-free `maxOrdF` on the source `{∅}`, and every successor-closed
+ordinal above `λ U = rank (diagrams U)` embeddable in `U` is reached from
+`λ U` by `decodeF` on `diagrams U`, keeping the original outputs
+(`decoder_reach`); hence **`controller_le`: the least controller of every
+ordinal embeddable in `U` is at most `λ U`**, with no bound on the decoder's
+outputs assumed or negated; one native library `D (succ (λ U))` and a fixed
+small label type cover every available child, and the covered children stay
+cofinal (`cofinal_small_children`); and `HG` saturation, `injectable_hg`:
+every ordinal embeddable in an `HG` base is `HG`, so at `HG` bases the `HG`
+and ambient spectra and barriers of the decoder coincide
+(`rankBounded_iff_ambient_barrier`). `DecodeGraph.lean`: the graph
+checkpoint. Pre-sets embed fully faithfully into graph sets by structural
+recursion on the tree; the rule assignments of the successful outputs glue
+into a coherent assignment whose targets all embed in `U` and whose
+controllers are all below `λ U`; the graph on the fixed small carrier of
+label lists has `SWF` from `Desc` by stable membership induction, not `Acc`,
+and no `Acc` is constructed. The raw pruned graph need not denote the
+original ordinal, since only cofinally many children are kept; its rank does
+(`graphNode_exact`), so every original decoded ordinal, and its rank, is a
+member of the graph ordinal `decoderGraphHeight U`
+(`original_rank_mem_graphHeight`), a graph-valued majorant that is not a
+pre-set. `collecting_of_acc` records exactly what native accessibility of
+the glued relation would add, namely Replacement's collecting set; that
+hypothesis is not discharged. Empty axiom reports throughout.
+
+Explicitly open after this tranche: any common bound on the decoded
+ordinals, including at the base `U = ω`, where a barrier alone would not
+close the route; completeness for arbitrary formulas, since only this one
+formula is read; and the extension of the construction from the specific
+supplied base to arbitrary bases.
 
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct

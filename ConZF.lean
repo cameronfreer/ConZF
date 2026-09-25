@@ -43,6 +43,10 @@ import ConZF.Programs
 import ConZF.ChoiceN
 import ConZF.Endpoint
 import ConZF.ProofCode
+import ConZF.OrdDecode
+import ConZF.DecodeSpectrum
+import ConZF.DecoderCap
+import ConZF.DecodeGraph
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
