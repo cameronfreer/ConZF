@@ -874,6 +874,21 @@ explicit: the lower universe is `0`, the upper is `1`. Empty axiom reports
 throughout. The remaining question is the pointwise accessibility premise
 itself; this refactor does not establish unconditional consistency.
 
+The arithmetic endpoint. `ProofCode.lean`: a Cantor pairing without
+division (`pair`, with the inverse `unpair` computed by a bounded search
+and injectivity by monotonicity of the triangular numbers), codes of
+formulas (`encF`) and of proof trees (`encP`) with fuelled decoders and
+exact round trips, the conclusion of a proof tree by structural recursion
+with explicit schema-instance tags for Separation and Replacement
+(`concl`), and the recursive Boolean checker `checkZF`, which decodes a
+number and tests whether the coded conclusion is `⊥`. Soundness is
+structural recursion on the code, completeness is induction on the
+derivation using only propositional existence of a code, and the bridge is
+`prf_fls_iff_code : Prf ZF ⊥ ↔ ∃ n, checkZF n = true`, so consistency is the
+`Π⁰₁` sentence `∀ n, checkZF n = false` (`con_iff_checker`). Overlapping
+wildcard patterns were avoided throughout, because their compiled matchers
+carry propositional extensionality; the reports are empty.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
