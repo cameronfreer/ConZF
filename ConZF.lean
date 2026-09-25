@@ -47,6 +47,7 @@ import ConZF.OrdDecode
 import ConZF.DecodeSpectrum
 import ConZF.DecoderCap
 import ConZF.DecodeGraph
+import ConZF.Majorant
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

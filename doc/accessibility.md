@@ -953,6 +953,33 @@ close the route; completeness for arbitrary formulas, since only this one
 formula is read; and the extension of the construction from the specific
 supplied base to arbitrary bases.
 
+The native majorant compiler (con42). `Majorant.lean`: a certificate
+language `Plan` whose interpretation is an actual formula in the branch's
+convention (input `0`, output `1`, parameters from `2`): copying the input
+or a parameter, an element or subset of the input, the internal powerset
+formula, the union, relational composition and image, both capturing the
+original input as a parameter, conjunction with an arbitrary native test,
+and disjunction. `Plan.bound` computes by recursion a native envelope of
+all successful outputs from an envelope of the source and envelopes of the
+parameters (`𝒫² (⋃ A)` for the internal powerset, `𝒫 (B_p (A :: P, ⋃ A))`
+for an image, and so on), and `Plan.sound` proves in any transitive class
+that every output lies in it, with no stability, closure, functionality,
+accessibility or model premise; a guard's test is never evaluated. A
+`Certificate ψ` carries the equation `plan.formula = ψ` checked by Lean, so
+the bound is on the original matrix. For the actual interpreter this gives
+a native ordinal bounding all output ranks on a source, uniform in the
+stage (`isat_original_rank_bound`), and over `HG` the instancewise rank
+bound and the collecting set through the unchanged consumers
+(`certifiedRankBounded`, `certifiedReplacement`). The checked nested
+example is `Image (Image (Guard (Compose Power Power) T))` for an arbitrary
+test `T`, which may be unbounded and negative: its envelope is
+`𝒫⁵ (⋃³ s)` up to the identity `⋃ 𝒫 Y ≈ Y` (`stress_envelope`), an image
+formula is functional in any transitive class, and `stress_replacement` is
+its `HG` Replacement instance from `HG` of the source and parameters alone.
+This is an unconditional producer for the certified fragment; the
+ordinal-decoder outputs are not built by these constructors, so it says
+nothing about the barrier.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
