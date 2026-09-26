@@ -62,6 +62,9 @@ import ConZF.NegCore
 import ConZF.Audit.ObjectEnvelope
 import ConZF.DecoderLocal
 import ConZF.Audit.SepBounding
+import ConZF.Audit.Certificate
+import ConZF.ObjMajorant
+import ConZF.Audit.DecoderObstruction
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

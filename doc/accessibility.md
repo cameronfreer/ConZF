@@ -1170,6 +1170,38 @@ semantics: the argument uses only the Kripke clause of the backward
 implication, canonical completeness, and the descriptor readback of the
 forward head; it produces no Separation realizer and refutes nothing.
 
+The reviewer then sharpened that audit, and `Audit/SepBounding.lean` now
+holds the sharpened form with the earlier statements as corollaries. A
+positive-existential Separation realizer yields one descriptor that names a
+valid witness at every successful input, because the forward implication
+returns the same output code everywhere. Against this stands a rank-stage
+invariant: every object operation, including separation by any matrix,
+keeps values inside a successor-closed stage that contains the environment.
+The two together give an explicit failed instance, the request for a
+successor-closed ordinal containing ω: the native witness ω+ω exists, the
+separated subset is ω, the singleton of ω+ω collects, and no code realizes
+the positive Separation instance, since the uniform descriptor would have
+to name an ordinal outside the stage. `Audit/DecoderObstruction.lean` shows
+the same for the decoder itself over the diagrams of ω, after checking that
+ω+ω injects into ω and so is decoded from a diagram there. Both are facts
+about the current grammar at fixed environments; a grammar extension that
+passes them should revise the obstruction and keep a positive replacement
+test.
+
+Two further pieces are independent of forcing. `Audit/Certificate.lean`
+calibrates nc2's bottom clause for any small total readback family: refuting
+the no-barrier condition is negative existence of a described bound holding
+an ordinal without an injection into the base, it makes the rank of the
+readback range an actual barrier, and any injectable stage containing all
+readbacks blocks it regardless of syntax. `ObjMajorant.lean` checks nc2's
+structural majorant: each descriptor at a dominated environment is contained
+in an individually constructed descriptor at the base environment, which
+gives bounded-environment transport and aggregation of negative certificates
+over a bounded universal without naming the union of their values. This
+supplies negative logical support only, not positive witness reconstruction;
+the witness-and-bound step of Avigad's construction uses Collection
+explicitly and is not replaced here.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
