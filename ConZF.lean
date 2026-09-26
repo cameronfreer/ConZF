@@ -50,6 +50,8 @@ import ConZF.DecodeGraph
 import ConZF.Majorant
 import ConZF.Covered
 import ConZF.Witness
+import ConZF.Derived
+import ConZF.RelMachine
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

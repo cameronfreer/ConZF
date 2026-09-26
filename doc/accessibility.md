@@ -1006,6 +1006,44 @@ reach the decoder, universe descent is equivalent to the barrier schema over
 `HG` bases, and the proposed small-code machine still lacks its operations
 and correctness proofs.
 
+The relational small-code machine (con64), a focused prototype.
+`RelMachine.lean`: formulas with positive existentials, conjunction and
+biconditional; codes as a small syntax; a syntactic step relation and its
+reflexive transitive closure; and a fuelled structural semantics whose
+first component is the actual witness readback of an existential head and
+whose second is realizability. The witness of a variable head is the
+environment value pruned to the free variables of the existential, the
+witness of the empty head is `∅`, and the witness of the Separation head is
+the native `sep` at the realizability predicate of the matrix, read from
+the formula. Head menus are subtypes of the code type, small; validity
+asserts only their negative inhabitation. One joint induction on the fuel
+gives fuel irrelevance and agreement up to bisimulation on the mentioned
+variables. From it: readiness with actual payloads, existential elimination
+into stable goals with no head selected, both introductions, and Separation:
+the axiom code realizes every instance whose matrix does not mention the set
+being separated, the forward clause returning every realizing code and the
+backward clause consuming readiness only. Collection is composed from a
+realizer of the premise: the collector is a native range over the literal
+elements of the source, the generalization heads of the realizer, and the
+existential heads of its instances, with the readback as payload, and it
+satisfies both clauses and is a base for further Separation. No menu
+function is supplied anywhere.
+
+Two findings shape the file. First, the pruning of variable witnesses to
+the free variables of the existential is what makes Separation sound: a code
+realizing the matrix could otherwise read the slot of the set being
+separated, and the backward clause would fail on `∃w (w ∈ z)` read at that
+slot. Second, on this toolchain the equation lemmas of well-founded
+recursion carry `Quot.sound` and overlapping constructor patterns carry
+`propext`, so the semantics is fuelled and every shape test is an
+exhaustive Boolean function. Not done: a code realizing the Collection
+axiom formula, which needs a closure over the premise code and a renaming
+lemma for inserting the collector's slot; validity of the logical
+combinators; and adequacy for any translated proof. `Derived.lean` holds the
+Hilbert-system toolkit (deduction theorem, generalization over lifted
+hypotheses, existential rules) prepared for the Replacement-to-Collection
+bridge, which is not yet derived.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
