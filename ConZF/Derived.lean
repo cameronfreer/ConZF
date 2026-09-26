@@ -21,11 +21,13 @@ theorem up_congr {ρ σ : Nat → Nat} (h : ∀ n, ρ n = σ n) : ∀ n, up ρ n
   | n+1 => congrArg (· + 1) (h n)
 
 theorem rename_congr {ρ σ : Nat → Nat} (h : ∀ n, ρ n = σ n) : ∀ φ, rename ρ φ = rename σ φ
-  | .mem i j => by simp only [rename, h]
-  | .eq i j => by simp only [rename, h]
+  | .mem i j => show Fml.mem (ρ i) (ρ j) = Fml.mem (σ i) (σ j) from congr (congrArg Fml.mem (h i)) (h j)
+  | .eq i j => show Fml.eq (ρ i) (ρ j) = Fml.eq (σ i) (σ j) from congr (congrArg Fml.eq (h i)) (h j)
   | .fls => rfl
-  | .imp φ ψ => by simp only [rename, rename_congr h φ, rename_congr h ψ]
-  | .all φ => by simp only [rename, rename_congr (up_congr h) φ]
+  | .imp φ ψ => show Fml.imp (rename ρ φ) (rename ρ ψ) = Fml.imp (rename σ φ) (rename σ ψ) from
+      congr (congrArg Fml.imp (rename_congr h φ)) (rename_congr h ψ)
+  | .all φ => show Fml.all (rename (up ρ) φ) = Fml.all (rename (up σ) φ) from
+      congrArg Fml.all (rename_congr (up_congr h) φ)
 
 theorem up_up (ρ σ : Nat → Nat) : ∀ n, up ρ (up σ n) = up (fun n => ρ (σ n)) n
   | 0 => rfl
@@ -35,8 +37,11 @@ theorem rename_rename (ρ σ : Nat → Nat) : ∀ φ, rename ρ (rename σ φ) =
   | .mem _ _ => rfl
   | .eq _ _ => rfl
   | .fls => rfl
-  | .imp φ ψ => by simp only [rename, rename_rename ρ σ φ, rename_rename ρ σ ψ]
-  | .all φ => by simp only [rename, rename_rename (up ρ) (up σ) φ, rename_congr (up_up ρ σ) φ]
+  | .imp φ ψ => show Fml.imp (rename ρ (rename σ φ)) (rename ρ (rename σ ψ)) =
+      Fml.imp (rename (fun n => ρ (σ n)) φ) (rename (fun n => ρ (σ n)) ψ) from
+      congr (congrArg Fml.imp (rename_rename ρ σ φ)) (rename_rename ρ σ ψ)
+  | .all φ => show Fml.all (rename (up ρ) (rename (up σ) φ)) = Fml.all (rename (up fun n => ρ (σ n)) φ) from
+      congrArg Fml.all ((rename_rename (up ρ) (up σ) φ).trans (rename_congr (up_up ρ σ) φ))
 
 theorem up_id : ∀ n, up (fun n => n) n = n
   | 0 => rfl
@@ -46,8 +51,10 @@ theorem rename_id : ∀ φ, rename (fun n => n) φ = φ
   | .mem _ _ => rfl
   | .eq _ _ => rfl
   | .fls => rfl
-  | .imp φ ψ => by simp only [rename, rename_id φ, rename_id ψ]
-  | .all φ => by simp only [rename, rename_congr up_id φ, rename_id φ]
+  | .imp φ ψ => show Fml.imp (rename (fun n => n) φ) (rename (fun n => n) ψ) = Fml.imp φ ψ from
+      congr (congrArg Fml.imp (rename_id φ)) (rename_id ψ)
+  | .all φ => show Fml.all (rename (up fun n => n) φ) = Fml.all φ from
+      congrArg Fml.all ((rename_congr up_id φ).trans (rename_id φ))
 
 /-- Instantiating a lifted universal at the bound variable gives the formula back. -/
 theorem inst0_up_succ (φ : Fml) : rename (inst 0) (rename (up Nat.succ) φ) = φ :=

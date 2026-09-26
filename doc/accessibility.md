@@ -1079,6 +1079,31 @@ The productive question is which precisely stated restriction makes witness
 reconstruction sound while still allowing the required Separation instances.
 The Collection axiom closure is not attempted before that is answered.
 
+The classical bridge from Replacement to ordinary Collection.
+`Collection.lean`, entirely in the object calculus: the Collection schema
+and the theory `ZFCollection`, the `ZF` axioms with Replacement replaced by
+Collection. Every instance of the branch's Replacement schema, in its
+partial functional form with values bounded by a set, is derivable in it.
+The matrix is totalized with the source set as default output,
+`ψ(x, y) ∨ (y = a ∧ ¬∃z ψ(x, z))`; the totalized relation is total by the
+object calculus's double negation elimination, so no excluded middle of the
+type theory is used; Collection supplies a set with a collected output for
+each element of the source; and whenever an original output exists the
+default branch is impossible, so functionality identifies the collected
+output with the original one, which is the bounding form of Replacement.
+The derivation runs in the hypothetical-derivation toolkit of
+`Derived.lean`, with six renaming identities proved by composition and
+pointwise congruence. Hence every theorem of `ZF` is a theorem of
+`ZFCollection`, consistency of `ZFCollection` gives consistency of `ZF`,
+and an accepted checker code is a proof of falsity from Collection. This is
+classical syntactic preprocessing; it is not an intuitionistic translation
+and proves no consistency. One toolchain fact from this file: the renaming
+lemmas had been closed by `simp only`, which discharges an equality through
+`propext`; they are now explicit congruence terms. The reviewer's
+cumulative-fuel audit, `Audit/CumulativeFuel.lean`, is incorporated with its
+stated assumptions: it checks a natural specialization of conzf26's
+proposal, not every step-indexed semantics.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.

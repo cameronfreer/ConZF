@@ -56,6 +56,8 @@ import ConZF.RelMachineTests
 import ConZF.Audit.SupportedCore
 import ConZF.Audit.RawCollector
 import ConZF.Audit.WitnessErasure
+import ConZF.Audit.CumulativeFuel
+import ConZF.Collection
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
