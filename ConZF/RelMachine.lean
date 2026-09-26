@@ -39,16 +39,19 @@ slot); with it, realizability is invariant under unmentioned slots, and the sepa
 **Known failures of the logical rules**, checked in `RelMachineTests.lean` (reviewer, 2026-09-26):
 pruning blocks existential introduction with a witness variable absent from the conclusion, and the
 semantic pair entries supplied by the forward Separation code are not consumable by `snd`. The
-prototype therefore does not yet validate ordinary intuitionistic inference. The obstruction, as
-far as the prover could determine: unpruned witness reads restore introduction but let a matrix
-realizer read the slot of the set being separated, and then the backward Separation clause demands
-the separating predicate at an environment containing the set itself, an impredicative fixed point
-that `sep` cannot express; a code universe restricted to not read that slot is not preserved by
-compilation, since a derivation may legitimately use the eigenvariable of a Separation instance as
-a witness inside its own matrix. Consuming semantic menus by eliminators needs a code whose heads are
-those of every realizing code of the same formula, which is a query at the same size, and the fuel
-slack such a query needs grows with its nesting depth, so fuel irrelevance fails for it. Not done:
-a code for the Collection axiom formula, adequacy for any translated proof.
+prototype therefore does not yet validate ordinary intuitionistic inference. What the prover found
+when trying to repair it, stated with its scope: for *this* Separation interpretation, dropping
+pruning lets a matrix realizer read the slot of the set being separated, so the backward clause
+would need the separating predicate at an environment already containing the set, and no
+fixed-point construction for that has been supplied; restricting codes not to read that slot is
+not preserved by compilation, since a derivation may use the eigenvariable of a Separation
+instance as a witness inside its own matrix; and the one repair tried for the eliminators, a code
+whose heads are those of every realizer of the same formula, is a same-size query whose fuel slack
+grows with nesting depth, so it breaks fuel irrelevance. None of this rules out a contextual or
+certified interpretation with explicitly composed menus; see `Audit/SupportedCore.lean` for a
+checked context interface with unrestricted introduction and joint renaming, and
+`Audit/RawCollector.lean`, `Audit/WitnessErasure.lean` for two constraints any such design must
+respect. Not done: a code for the Collection axiom formula, adequacy for any translated proof.
 -/
 universe u
 

@@ -13,7 +13,9 @@ rules*, not of the theorems proved in `RelMachine.lean`.
    `x = x ∧ ∃y (y = y)` through the semantic pair entries of `AndHeads`, but `snd (app sepFwd tok)`
    does not realize `∃y (y = y)`, since `snd` only follows syntactic reduction to pairs.
 
-Any revised semantics must pass both.
+These two theorems describe the current defects; they are not success criteria. A repaired
+semantics should invalidate both and replace them by positive tests of unrestricted introduction
+and of the consumption of Separation-generated menus.
 -/
 namespace PSet.RelM
 

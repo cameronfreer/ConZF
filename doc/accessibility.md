@@ -1051,25 +1051,33 @@ and `a = {{∅}}` no code realizes `x ∈ a → ∃y (y ∈ a)`, because pruning
 forbids the witness variable `x`, which is absent from the conclusion; and
 the code realizing a conjunction through Separation's semantic pair entries
 has a right projection that does not realize the right conjunct, because
-projection follows only syntactic reduction. Determinism of one-step
+projection follows only syntactic reduction. They describe the current
+defects; a repair should invalidate them. Determinism of one-step
 reduction, normality of heads, reduction expansion and the validity of the
 two combinators were added as infrastructure; they do not bear on either
-failure. The obstruction as the prover understands it: unpruned witness
-reads restore introduction but let a matrix realizer read the slot of the
-set being separated, so the backward clause of Separation demands the
-separating predicate at an environment that already contains the set, an
-impredicative fixed point that native `sep` cannot express; a restriction
-on codes not to read that slot is not preserved by compilation, since a
-derivation may use the eigenvariable of a Separation instance as a witness
-inside its own matrix; and consuming the semantic menus by eliminators
-needs a code whose heads are those of every realizing code of the same
-formula, a query at the same formula size whose fuel slack grows with its
-nesting depth, so fuel irrelevance fails for it. This is the same tension
-that keeps the type-theoretic interpretation of set theory with computable
-existential witnesses at CZF rather than IZF. No revised semantics passing
-the four tests (unrestricted existential introduction, renaming,
-conjunction elimination including the semantic menus, and Separation) has
-been found; the Collection axiom closure is not attempted before one is.
+failure. The one repair the prover attempted ran into the following, all
+scoped to this interpretation: without pruning a matrix realizer may read
+the slot of the set being separated, so the backward clause of Separation
+would need the separating predicate at an environment already containing
+the set, and no fixed-point construction for that has been supplied; a
+restriction on codes not to read that slot is not preserved by compilation,
+since a derivation may use the eigenvariable of a Separation instance as a
+witness inside its own matrix; and repairing the eliminators by a code
+whose heads are those of every realizer of the same formula is a same-size
+query whose fuel slack grows with nesting depth, so it breaks fuel
+irrelevance. This does not establish a general limitation of the type
+theory or an impossibility of interpreting IZF, and it does not rule out
+explicit menu composition with scoped closures and traces; the comparison
+with the CZF-strength Σ-interpretation is motivation only. The reviewer's
+audit probes, incorporated in `ConZF/Audit`, add a checked context
+interface with unrestricted introduction and joint renaming, and two
+constraints on any certified design: an unrestricted raw collector meets a
+one-step self-application whose total readback would contain itself, with
+no fuel threshold stabilizing it, and arbitrary captured native witnesses
+cannot be erased into one fixed small menu family preserving their values.
+The productive question is which precisely stated restriction makes witness
+reconstruction sound while still allowing the required Separation instances.
+The Collection axiom closure is not attempted before that is answered.
 
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
