@@ -59,6 +59,7 @@ import ConZF.Audit.WitnessErasure
 import ConZF.Audit.CumulativeFuel
 import ConZF.Collection
 import ConZF.NegCore
+import ConZF.Audit.ObjectEnvelope
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

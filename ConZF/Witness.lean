@@ -226,6 +226,78 @@ theorem merge_valid : ∀ (a : Form) (e : Nat → PSet.{u}) (m : Menu.{u, u+1} (
 end
 end Typed
 
+/-! ### Certificate menus and native consolidation (conzf29)
+
+The reviewer's correction of con71 §6: if possible witnesses already range over a supplied small
+dependent carrier `C i`, then the family of *all* certified witnesses is an actual family of menus
+(`certificates`), and pointwise negative existence proves readiness without selecting anything.
+With a total readback into `PSet.{u}`, stable requested conclusions, and a condition predicate
+antitone under inclusion, the union of all decoded valid certificates is one common condition bound
+(`common_condition_bound`). What this does **not** supply: the small carrier and its readback, a
+descriptor for the union in any fixed grammar (see `Audit/ObjectEnvelope.lean`), or any level
+safety. -/
+
+namespace Certified
+variable {I : Type u} {C : I → Type u}
+
+/-- All certified witnesses at `i`, as a menu: the index type is the certificate subtype. -/
+def certificates (P : ∀ i, C i → Prop) (i : I) : Menu.{u, u} (C i) :=
+  ⟨{c : C i // P i c}, fun c => c.1⟩
+
+/-- Readiness from pointwise negative existence; no witness is selected. -/
+theorem certificates_ready (P : ∀ i, C i → Prop) (h : ∀ i, ¬¬∃ c, P i c) (i : I) :
+    (certificates P i).Ready :=
+  nn_map (fun ⟨c, hc⟩ => ⟨⟨c, hc⟩⟩) (h i)
+
+theorem certificates_valid (P : ∀ i, C i → Prop) (i : I) (t : (certificates P i).I) :
+    P i ((certificates P i).val t) := t.2
+
+/-- The native set of all decoded certified witnesses, over the small sum of the carriers. -/
+def collected (P : ∀ i, C i → Prop) (read : ∀ i, C i → PSet.{u}) : PSet.{u} :=
+  range fun t : Σ i, {c : C i // P i c} => read t.1 t.2.1
+
+/-- Its union. -/
+def combined (P : ∀ i, C i → Prop) (read : ∀ i, C i → PSet.{u}) : PSet.{u} :=
+  sUnion (collected P read)
+
+theorem read_subset_combined (P : ∀ i, C i → Prop) (read : ∀ i, C i → PSet.{u}) (i : I) (c : C i)
+    (hc : P i c) (x : PSet.{u}) (hx : x ∈ read i c) : x ∈ combined P read :=
+  mem_sUnion.2 (nn_intro ⟨read i c, func_mem (collected P read) ⟨i, ⟨c, hc⟩⟩, hx⟩)
+
+/-- A concrete same-universe bound; defining it needs no existence premise. -/
+def conditionBound (Tr : PSet.{u} → Prop) (Q : I → Prop) (read : ∀ i, C i → PSet.{u}) : PSet.{u} :=
+  combined (fun i c => Tr (read i c) → Q i) read
+
+/-- Native bound consolidation: with small dependent carriers, total readback, stable conclusions
+and `Tr` antitone under inclusion, one bound serves every request. -/
+theorem common_condition_bound (Tr : PSet.{u} → Prop) (Q : I → Prop) [∀ i, Stable (Q i)]
+    (read : ∀ i, C i → PSet.{u})
+    (antitone : ∀ U V : PSet.{u}, (∀ x, x ∈ U → x ∈ V) → Tr V → Tr U)
+    (h : ∀ i, ¬¬∃ c : C i, Tr (read i c) → Q i) :
+    Tr (conditionBound Tr Q read) → ∀ i, Q i := by
+  intro hTr i
+  exact Stable.of_nn (h i) fun ⟨c, hc⟩ => hc (antitone _ _ (read_subset_combined _ read i c hc) hTr)
+
+/-- A large family of requests can share one bound when all candidate values come from one fixed
+small decoder independent of the request. Readback of a small syntax at environments extended by
+arbitrary native sets is not such a decoder. -/
+theorem common_bound_of_fixed_decoder {J : Sort v} {D : Type u} (Tr : PSet.{u} → Prop) (Q : J → Prop)
+    [∀ j, Stable (Q j)] (read : D → PSet.{u})
+    (antitone : ∀ U V : PSet.{u}, (∀ x, x ∈ U → x ∈ V) → Tr V → Tr U)
+    (h : ∀ j, ¬¬∃ d : D, Tr (read d) → Q j) :
+    Tr (sUnion (range read)) → ∀ j, Q j := by
+  intro hTr j
+  exact Stable.of_nn (h j) fun ⟨d, hd⟩ => hd (antitone _ _
+    (fun x hx => mem_sUnion.2 (nn_intro ⟨read d, func_mem (range read) d, hx⟩)) hTr)
+
+end Certified
+
+/-- info: 'PSet.Witness.Certified.certificates_ready' does not depend on any axioms -/
+#guard_msgs in #print axioms Certified.certificates_ready
+/-- info: 'PSet.Witness.Certified.common_condition_bound' does not depend on any axioms -/
+#guard_msgs in #print axioms Certified.common_condition_bound
+/-- info: 'PSet.Witness.Certified.common_bound_of_fixed_decoder' does not depend on any axioms -/
+#guard_msgs in #print axioms Certified.common_bound_of_fixed_decoder
 /-- info: 'PSet.Witness.collection_spec' does not depend on any axioms -/
 #guard_msgs in #print axioms collection_spec
 /-- info: 'PSet.Witness.contract_spec' does not depend on any axioms -/

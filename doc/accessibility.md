@@ -1126,6 +1126,24 @@ fragment, negative existence of a realizer is native truth, the same scoped
 fact as the reviewer's audit of the prototype. No Collection constructor
 and no source-adequacy claim.
 
+After conzf29 two reviewer results are integrated, unchanged in substance.
+`Witness.Certified` corrects con71's claim that negative existence over a
+small witness carrier does not give menu families: under con71's own
+Prop-subtype convention the certified witnesses at each request already form
+an actual menu, ready from pointwise negative existence without selecting
+anything, and with total readback, stable conclusions and an inclusion-antitone
+condition predicate their decoded values consolidate into one native common
+bound. `Audit/ObjectEnvelope.lean` then separates native bound construction
+from descriptor reconstruction: at a fixed environment the union of all
+`NegCore` descriptor values contains every descriptor value, so no descriptor
+of the same grammar denotes it or even bounds all values by inclusion.
+Returning a native bound as a descriptor therefore needs a larger grammar or
+an environment parameter, with preservation theorems still to be proved. This
+is a fixed-grammar, fixed-environment fact, not a general impossibility of
+candidate forcing, and con72's example is likewise read narrowly: it defeats
+one logger that returns observed universal-query arguments and checks no full
+operational countermodel.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
