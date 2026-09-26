@@ -1104,6 +1104,28 @@ cumulative-fuel audit, `Audit/CumulativeFuel.lean`, is incorporated with its
 stated assumptions: it checks a natural specialization of conzf26's
 proposal, not every step-indexed semantics.
 
+`NegCore.lean` is the restricted core the reviewer asked for after conzf27,
+kept apart from the prototype. Witnesses are syntactic objects read back
+structurally, with negative-matrix separation read as the native `sep` at
+truth, so no code ever becomes an object. Codes carry a closure `letObj q c`
+produced by both β-rules; reduction never pushes it, the head readers see
+through it, and an application to a closure pulls its argument inside. The
+realizability judgment `Realizes φ σ e c` is structural on the formula and
+reads implication in the Kripke way over environment renamings, which is
+what makes weakening, object substitution by closures, and the two
+quantifier eliminators go through by induction on the formula. Checked:
+determinism and renaming compatibility of reduction, invariance under
+reduction, monotonicity, substitution, application preserving certification,
+`I`/`K`/`S`, double negation introduction, projections through actual pair
+heads, existential introduction at any object or variable, universal
+elimination at a variable and at an object, code-producing existential
+elimination, negative soundness with canonical completeness, and negative
+Separation with a reconstructible witness, plus positive tests including an
+existential conclusion whose witness variable is absent. On the negative
+fragment, negative existence of a realizer is native truth, the same scoped
+fact as the reviewer's audit of the prototype. No Collection constructor
+and no source-adequacy claim.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
