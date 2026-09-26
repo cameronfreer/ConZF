@@ -52,6 +52,7 @@ import ConZF.Covered
 import ConZF.Witness
 import ConZF.Derived
 import ConZF.RelMachine
+import ConZF.RelMachineTests
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

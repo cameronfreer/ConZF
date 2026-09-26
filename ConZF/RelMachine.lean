@@ -32,12 +32,23 @@ being separated, and the backward clause of the axiom would fail (`χ = ∃w (w 
 slot); with it, realizability is invariant under unmentioned slots, and the separating set is
 `sep (fun z => ¬¬∃ c, Realizes χ (cons z (cons ∅ e)) c) a`.
 
-Not done here: a code realizing the Collection *axiom formula* (its head would need a
-closure carrying the premise code and a renaming lemma for inserting the slot of the
-collector), the validity of the logical combinators `k`, `s`, and adequacy for any translated
-proof. Two toolchain facts shaped the file: equation lemmas of well-founded recursion carry
-`Quot.sound`, and overlapping constructor patterns carry `propext`, so the semantics is fuelled and
-every shape test is an exhaustive Boolean function.
+* `step_det`, `realizes_of_reduces`, `k_realizes`, `s_realizes`: one-step reduction is
+  deterministic, heads are normal, so a code and its reducts have the same normal heads and the same
+  realizability; the two combinators follow. **Infrastructure only.**
+
+**Known failures of the logical rules**, checked in `RelMachineTests.lean` (reviewer, 2026-09-26):
+pruning blocks existential introduction with a witness variable absent from the conclusion, and the
+semantic pair entries supplied by the forward Separation code are not consumable by `snd`. The
+prototype therefore does not yet validate ordinary intuitionistic inference. The obstruction, as
+far as the prover could determine: unpruned witness reads restore introduction but let a matrix
+realizer read the slot of the set being separated, and then the backward Separation clause demands
+the separating predicate at an environment containing the set itself, an impredicative fixed point
+that `sep` cannot express; a code universe restricted to not read that slot is not preserved by
+compilation, since a derivation may legitimately use the eigenvariable of a Separation instance as
+a witness inside its own matrix. Consuming semantic menus by eliminators needs a code whose heads are
+those of every realizing code of the same formula, which is a query at the same size, and the fuel
+slack such a query needs grows with its nesting depth, so fuel irrelevance fails for it. Not done:
+a code for the Collection axiom formula, adequacy for any translated proof.
 -/
 universe u
 
@@ -1011,7 +1022,7 @@ def collPrem (k : Nat) (θ : IFml) : IFml := .all (.imp (.mem 0 (k+1)) (.ex θ))
 `d`, and each existential head of its instance applied to the membership token, the witness read
 back. A native `range` over a small index type; nothing is supplied. -/
 def collect (k : Nat) (θ : IFml) (d : RCode) (e : Env.{u}) : PSet.{u} :=
-  range (ι := Σ (i : (e k).Idx) (g : Heads d isGen), Heads (.app (genBody g.1) .tok) isExHead)
+  range (ι := Σ (_ : (e k).Idx) (g : Heads d isGen), Heads (.app (genBody g.1) .tok) isExHead)
     fun t => witness θ (Env.cons ((e k).Func t.1) e) t.2.2.1
 
 section
@@ -1037,18 +1048,18 @@ theorem collPrem_inst (hd : Realizes (collPrem k θ) e d) (i : (e k).Idx) (g : H
 the matrix realized there. -/
 theorem collect_forward (hd : Realizes (collPrem k θ) e d) {x : PSet.{u}} (hx : x ∈ e k) :
     ¬¬∃ y, y ∈ collect k θ d e ∧ ¬¬∃ c', Realizes θ (Env.cons y (Env.cons x e)) c' := by
-  refine nn_bind hx fun ⟨i, hi⟩ => ?_
-  refine nn_bind (realizes_all.1 hd ((e k).Func i)).1 fun ⟨g⟩ => ?_
-  refine nn_map (fun ⟨h⟩ => ?_) (realizes_ex.1 (collPrem_inst hd i g)).1
-  refine ⟨_, func_mem (collect k θ d e) ⟨i, g, h⟩, nn_intro ⟨exBody h.1, ?_⟩⟩
-  exact (realizes_resp (agree_swap_x hi.symm)).1 ((realizes_ex.1 (collPrem_inst hd i g)).2 h)
+  refine nn_bind hx fun ⟨_i, hi⟩ => ?_
+  refine nn_bind (realizes_all.1 hd ((e k).Func _i)).1 fun ⟨g⟩ => ?_
+  refine nn_map (fun ⟨h⟩ => ?_) (realizes_ex.1 (collPrem_inst hd _i g)).1
+  refine ⟨_, func_mem (collect k θ d e) ⟨_i, g, h⟩, nn_intro ⟨exBody h.1, ?_⟩⟩
+  exact (realizes_resp (agree_swap_x hi.symm)).1 ((realizes_ex.1 (collPrem_inst hd _i g)).2 h)
 
 /-- **Backward clause.** Every element of the collector is, negatively, a witness at some element
 of `a`, with the matrix realized. -/
 theorem collect_backward (hd : Realizes (collPrem k θ) e d) {y : PSet.{u}} (hy : y ∈ collect k θ d e) :
     ¬¬∃ x, x ∈ e k ∧ ¬¬∃ c', Realizes θ (Env.cons y (Env.cons x e)) c' := by
-  refine nn_map (fun ⟨⟨i, g, h⟩, hyw⟩ => ⟨(e k).Func i, func_mem _ _, nn_intro ⟨exBody h.1, ?_⟩⟩) hy
-  exact (realizes_resp (agree_swap_y hyw.symm)).1 ((realizes_ex.1 (collPrem_inst hd i g)).2 h)
+  refine nn_map (fun ⟨⟨_i, g, h⟩, hyw⟩ => ⟨(e k).Func _i, func_mem _ _i, nn_intro ⟨exBody h.1, ?_⟩⟩) hy
+  exact (realizes_resp (agree_swap_y hyw.symm)).1 ((realizes_ex.1 (collPrem_inst hd _i g)).2 h)
 
 /-- **Reuse of the collector**: it is a base for Separation, at the slot `0` of the extended
 environment. -/
@@ -1057,6 +1068,144 @@ theorem collect_sep (χ : IFml) (hχ : IFml.mentions χ 1 = false) :
   sep_realizes 0 χ hχ _
 
 end
+
+/-! ### Determinism, normal heads, and reduction expansion -/
+
+theorem step_k {r : RCode} (h : Step .k r) : False := by cases h
+theorem step_s {r : RCode} (h : Step .s r) : False := by cases h
+
+/-- One-step reduction is deterministic. -/
+theorem step_det {c r r' : RCode} (h : Step c r) (h' : Step c r') : r = r' := by
+  induction h generalizing r' with
+  | k =>
+    cases h' with
+    | k => rfl
+    | appL h2 => cases h2 with | appL h3 => exact (step_k h3).elim
+  | s =>
+    cases h' with
+    | s => rfl
+    | appL h2 => cases h2 with | appL h3 => cases h3 with | appL h4 => exact (step_s h4).elim
+  | fst =>
+    cases h' with
+    | fst => rfl
+    | fstC h2 => exact (step_pair h2).elim
+  | snd =>
+    cases h' with
+    | snd => rfl
+    | sndC h2 => exact (step_pair h2).elim
+  | appL h ih =>
+    cases h' with
+    | k => cases h with | appL h3 => exact (step_k h3).elim
+    | s => cases h with | appL h3 => cases h3 with | appL h4 => exact (step_s h4).elim
+    | appL h2 => rw [ih h2]
+    | sepBwd => exact (step_sepBwd h).elim
+  | fstC h ih =>
+    cases h' with
+    | fst => exact (step_pair h).elim
+    | fstC h2 => rw [ih h2]
+  | sndC h ih =>
+    cases h' with
+    | snd => exact (step_pair h).elim
+    | sndC h2 => rw [ih h2]
+  | sepBody => cases h'; rfl
+  | sepIff => cases h'; rfl
+  | sepBwd =>
+    cases h' with
+    | appL h2 => exact (step_sepBwd h2).elim
+    | sepBwd => rfl
+
+/-- Heads are normal. -/
+theorem pair_normal {r r' : RCode} (hp : isPair r = true) (h : Step r r') : False := by
+  cases r <;> first | exact Bool.noConfusion hp | exact step_pair h
+theorem gen_normal {r r' : RCode} (hp : isGen r = true) (h : Step r r') : False := by
+  cases r <;> first | exact Bool.noConfusion hp | exact step_gen h
+theorem exHead_normal {r r' : RCode} (hp : isExHead r = true) (h : Step r r') : False := by
+  cases r <;> (first
+    | exact Bool.noConfusion hp
+    | exact step_exIntro h
+    | exact step_exIntroE h
+    | exact step_sepAx h)
+theorem app_sepFwd_normal {d r : RCode} (h : Step (.app .sepFwd d) r) : False := by
+  cases h with | appL h' => exact step_sepFwd h'
+
+/-- A normal reduct of `c` is a reduct of every reduct of `c`. -/
+theorem reduces_normal_of_reduces {c c' h : RCode} (h1 : Reduces c c') (h2 : Reduces c h)
+    (hn : ∀ r, Step h r → False) : Reduces c' h := by
+  induction h1 with
+  | refl => exact h2
+  | step s _ ih =>
+    cases h2 with
+    | refl => exact (hn _ s).elim
+    | step s' h2' => cases step_det s s'; exact ih h2'
+
+def heads_of_reduces {c c' : RCode} (h1 : Reduces c c') {p : RCode → Bool}
+    (hn : ∀ r r', p r = true → Step r r' → False) (r : Heads c p) : Heads c' p :=
+  ⟨r.1, reduces_normal_of_reduces h1 r.2.1 (fun _ hs => hn _ _ r.2.2 hs), r.2.2⟩
+
+def heads_of_reduces_back {c c' : RCode} (h1 : Reduces c c') {p : RCode → Bool} (r : Heads c' p) :
+    Heads c p :=
+  ⟨r.1, h1.trans r.2.1, r.2.2⟩
+
+def andHeads_of_reduces {SB : RCode → Prop} {c c' : RCode} (h1 : Reduces c c') (r : AndHeads SB c) :
+    AndHeads SB c' :=
+  ⟨r.1, r.2.elim (fun ⟨hr, hp⟩ => Or.inl ⟨reduces_normal_of_reduces h1 hr (fun _ hs => pair_normal hp hs), hp⟩)
+    fun ⟨hp, hf, ⟨d, hd⟩, hs⟩ =>
+      Or.inr ⟨hp, hf, ⟨d, reduces_normal_of_reduces h1 hd (fun _ => app_sepFwd_normal)⟩, hs⟩⟩
+
+def andHeads_of_reduces_back {SB : RCode → Prop} {c c' : RCode} (h1 : Reduces c c')
+    (r : AndHeads SB c') : AndHeads SB c :=
+  ⟨r.1, r.2.elim (fun ⟨hr, hp⟩ => Or.inl ⟨h1.trans hr, hp⟩)
+    fun ⟨hp, hf, ⟨d, hd⟩, hs⟩ => Or.inr ⟨hp, hf, ⟨d, h1.trans hd⟩, hs⟩⟩
+
+/-- **Reduction expansion**, in both directions, at every fuel: realizability is determined by the
+normal heads, and by determinism a code and its reducts have the same normal heads. -/
+theorem semN_of_reduces : ∀ (n : Nat) (φ : IFml) (e : Env.{u}) {c c' : RCode}, Reduces c c' →
+    ((SemN n φ e c).2 ↔ (SemN n φ e c').2)
+  | 0, _, _, _, _, _ => Iff.rfl
+  | _+1, .mem _ _, _, _, _, _ => Iff.rfl
+  | _+1, .eq _ _, _, _, _, _ => Iff.rfl
+  | _+1, .fls, _, _, _, _ => Iff.rfl
+  | n+1, .imp _ b, e, _, _, h =>
+    ⟨fun H d hd => (semN_of_reduces n b e (Reduces.appL h)).1 (H d hd),
+     fun H d hd => (semN_of_reduces n b e (Reduces.appL h)).2 (H d hd)⟩
+  | _+1, .and _ _, _, _, _, h =>
+    ⟨fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨andHeads_of_reduces h r⟩) hr,
+        fun r => H (andHeads_of_reduces_back h r)⟩,
+     fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨andHeads_of_reduces_back h r⟩) hr,
+        fun r => H (andHeads_of_reduces h r)⟩⟩
+  | _+1, .iff _ _, _, _, _, h =>
+    ⟨fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces h (fun _ _ => pair_normal) r⟩) hr,
+        fun r => H (heads_of_reduces_back h r)⟩,
+     fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces_back h r⟩) hr,
+        fun r => H (heads_of_reduces h (fun _ _ => pair_normal) r)⟩⟩
+  | _+1, .all _, _, _, _, h =>
+    ⟨fun H x => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces h (fun _ _ => gen_normal) r⟩) (H x).1,
+        fun r => (H x).2 (heads_of_reduces_back h r)⟩,
+     fun H x => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces_back h r⟩) (H x).1,
+        fun r => (H x).2 (heads_of_reduces h (fun _ _ => gen_normal) r)⟩⟩
+  | _+1, .ex _, _, _, _, h =>
+    ⟨fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces h (fun _ _ => exHead_normal) r⟩) hr,
+        fun r => H (heads_of_reduces_back h r)⟩,
+     fun ⟨hr, H⟩ => ⟨nn_map (fun ⟨r⟩ => ⟨heads_of_reduces_back h r⟩) hr,
+        fun r => H (heads_of_reduces h (fun _ _ => exHead_normal) r)⟩⟩
+
+theorem realizes_of_reduces {φ : IFml} {e : Env.{u}} {c c' : RCode} (h : Reduces c c') :
+    Realizes φ e c ↔ Realizes φ e c' :=
+  semN_of_reduces _ φ e h
+
+/-! ### The combinators. Infrastructure only: these say nothing about the counterexamples in
+`RelMachineTests.lean`, which concern existential introduction and the consumption of semantic
+menus, not reduction. -/
+
+theorem k_realizes (a b : IFml) (e : Env.{u}) : Realizes (.imp a (.imp b a)) e .k :=
+  realizes_imp.2 fun _ hd => realizes_imp.2 fun _ _ =>
+    (realizes_of_reduces (Reduces.single .k)).2 hd
+
+theorem s_realizes (a b c : IFml) (e : Env.{u}) :
+    Realizes (.imp (.imp a (.imp b c)) (.imp (.imp a b) (.imp a c))) e .s :=
+  realizes_imp.2 fun _ hf => realizes_imp.2 fun g hg => realizes_imp.2 fun x hx =>
+    (realizes_of_reduces (Reduces.single .s)).2
+      (realizes_imp.1 (realizes_imp.1 hf x hx) (.app g x) (realizes_imp.1 hg x hx))
 
 /-- info: 'PSet.RelM.realizes_resp' does not depend on any axioms -/
 #guard_msgs in #print axioms realizes_resp
@@ -1072,5 +1221,9 @@ end
 #guard_msgs in #print axioms collect_backward
 /-- info: 'PSet.RelM.collect_sep' does not depend on any axioms -/
 #guard_msgs in #print axioms collect_sep
+/-- info: 'PSet.RelM.realizes_of_reduces' does not depend on any axioms -/
+#guard_msgs in #print axioms realizes_of_reduces
+/-- info: 'PSet.RelM.s_realizes' does not depend on any axioms -/
+#guard_msgs in #print axioms s_realizes
 
 end PSet.RelM

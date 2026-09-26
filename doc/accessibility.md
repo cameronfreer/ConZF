@@ -1044,6 +1044,33 @@ Hilbert-system toolkit (deduction theorem, generalization over lifted
 hypotheses, existential rules) prepared for the Replacement-to-Collection
 bridge, which is not yet derived.
 
+Status of the machine after review (2026-09-26). Two counterexamples,
+checked against the prototype with empty axiom reports and kept in
+`RelMachineTests.lean`, show that its logical rules fail: with `x = {∅}`
+and `a = {{∅}}` no code realizes `x ∈ a → ∃y (y ∈ a)`, because pruning
+forbids the witness variable `x`, which is absent from the conclusion; and
+the code realizing a conjunction through Separation's semantic pair entries
+has a right projection that does not realize the right conjunct, because
+projection follows only syntactic reduction. Determinism of one-step
+reduction, normality of heads, reduction expansion and the validity of the
+two combinators were added as infrastructure; they do not bear on either
+failure. The obstruction as the prover understands it: unpruned witness
+reads restore introduction but let a matrix realizer read the slot of the
+set being separated, so the backward clause of Separation demands the
+separating predicate at an environment that already contains the set, an
+impredicative fixed point that native `sep` cannot express; a restriction
+on codes not to read that slot is not preserved by compilation, since a
+derivation may use the eigenvariable of a Separation instance as a witness
+inside its own matrix; and consuming the semantic menus by eliminators
+needs a code whose heads are those of every realizing code of the same
+formula, a query at the same formula size whose fuel slack grows with its
+nesting depth, so fuel irrelevance fails for it. This is the same tension
+that keeps the type-theoretic interpretation of set theory with computable
+existential witnesses at CZF rather than IZF. No revised semantics passing
+the four tests (unrestricted existential introduction, renaming,
+conjunction elimination including the semantic menus, and Separation) has
+been found; the Collection axiom closure is not attempted before one is.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
