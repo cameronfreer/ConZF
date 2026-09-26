@@ -60,6 +60,8 @@ import ConZF.Audit.CumulativeFuel
 import ConZF.Collection
 import ConZF.NegCore
 import ConZF.Audit.ObjectEnvelope
+import ConZF.DecoderLocal
+import ConZF.Audit.SepBounding
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

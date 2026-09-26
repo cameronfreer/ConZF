@@ -1144,6 +1144,32 @@ candidate forcing, and con72's example is likewise read narrowly: it defeats
 one logger that returns observed universal-query arguments and checks no full
 operational countermodel.
 
+`DecoderLocal.lean` carries out newcon1's localization natively, without
+touching `NegCore`. The isomorphism graph of the ordinal decoder lies in an
+explicit powerset box over the ordinal and the double union of the diagram,
+and the box has an existing object descriptor with an exact readback law, so
+the decoder is a genuine bounded matrix once the box is supplied in an
+environment slot by an explicit adapter. Bounds in that syntax are variable
+slots, so the box is never written as a term, and the free-variable bound on
+the literal decoder is kept distinct from a bounded-quantifier certificate.
+Pure injections have the same kind of box, giving a bounded injection matrix
+with the exact reading and a bounded no-barrier condition. The literal
+totalized decoder normalizes to a conjunction whose only unbounded universal
+is positive with a bounded antecedent, its Collection premise is negatively
+provable, and the Collection instance used by the classical bridge reads
+exactly as "some set contains the source and every decoded output". The
+audit lemma equates absence of outputs within a candidate set implying
+global absence with coverage of every output, which is the obligation a
+bounded-search replacement must meet. Any source reduces to a barrier for
+its triple union, and for diagram sources the collecting bound is exactly a
+barrier. These are native equivalences, not forcing equivalences, and they
+prove no source adequacy. `Audit/SepBounding.lean` checks the reviewer's
+conjecture that a realizer of Separation by a positive existential with a
+negative matrix already bounds the native witnesses in the current
+semantics: the argument uses only the Kripke clause of the backward
+implication, canonical completeness, and the descriptor readback of the
+forward head; it produces no Separation realizer and refutes nothing.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
