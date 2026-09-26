@@ -48,6 +48,8 @@ import ConZF.DecodeSpectrum
 import ConZF.DecoderCap
 import ConZF.DecodeGraph
 import ConZF.Majorant
+import ConZF.Covered
+import ConZF.Witness
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

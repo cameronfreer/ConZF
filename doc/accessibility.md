@@ -980,6 +980,32 @@ This is an unconditional producer for the certified fragment; the
 ordinal-decoder outputs are not built by these constructors, so it says
 nothing about the barrier.
 
+Two additions from conzf23. `Covered.lean`: a supplied native set `Y`
+whose members are `HG` outputs of one partial functional relation on an
+`HG` source, with negative source names, is `HG`
+(`hg_of_definably_covered`): its own rank is the cap, the cofinal cut is
+hereditarily good at every cap, and each member's rank lies in the cut. `Y`
+is data; the lemma does not turn `∀ x, ¬¬∃ y, R x y` into a family. The
+range of an actual family of outputs is the special case. For the certified
+fragment the envelope itself is `HG` on `HG` data, so the exact relational
+image `outputSet` of a certified matrix is an `HG` set with the exact
+membership law, with no functionality or totality premise. `Witness.lean`:
+witness menus, small index types with payloads of any size and negative
+inhabitation `Ready`. From an actual family of ready menus of witnesses
+with evidence, one per literal index of the source, the native `range` over
+the sum of the indices is a collecting set satisfying both clauses of Strong
+Collection with the evidence retained (`collection_spec`); this interprets
+Collection from a realizer of its premise and does not produce that
+realizer. For a stable functional specification, a ready menu of correct
+witnesses contracts to a correct witness (`contract_spec`): for the
+decoder, menus are no weaker than witnesses. Typed fusion of large semantic
+realizers on an auxiliary positive syntax (`merge_valid`) is included as
+labelled: it is not a translation of proofs and establishes nothing about
+small codes. The notes' own audits stand: nested bounded histories cannot
+reach the decoder, universe descent is equivalent to the barrier schema over
+`HG` bases, and the proposed small-code machine still lacks its operations
+and correctness proofs.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
