@@ -1307,6 +1307,26 @@ implication from countable shift to the barrier is sufficient, not
 necessary. The unconditional barrier and unrestricted graph Collection
 remain open.
 
+`Audit/UpgradeBridge.lean` calibrates the strongest of these conditional
+principles. Taking as an explicit, universe-indexed premise that stable
+well-founded induction implies ordinary well-foundedness for every relation
+on a small carrier, every graph set collapses to an actual native tree
+through the accessible recursor, the native barrier and the refutation of
+the injection of the fixed bound into ω follow, and, since native
+membership already satisfies stable induction, the premise one universe up
+gives well-founded membership, the branch's accessibility hypothesis, the
+base-universe Markov statement, and the existing consistency endpoint for
+ZF with choice and an inaccessible, with no excluded-middle premise. The
+published realizability theorem of Hofmann, van Oosten and Streicher, which
+promotes induction for double-negation-closed predicates to full induction
+over a Boolean base, is recorded as an external result: subject to a
+faithful interpretation of the relevant rules and universes, ordinary full
+realizability validates this premise and therefore the whole accessibility
+route, so such models are unsuitable for refuting it. Its fixed-point
+realizer and its Boolean-base identification of the topology with double
+negation do not make the premise a theorem of Lean, and no effective topos
+is formalized. Nothing unconditional is added.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
