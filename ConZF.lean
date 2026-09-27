@@ -69,6 +69,7 @@ import ConZF.GraphConsumer
 import ConZF.RankEnvelope
 import ConZF.NativeBridge
 import ConZF.Audit.SWFPullback
+import ConZF.Audit.CountableDNS
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

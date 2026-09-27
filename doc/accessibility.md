@@ -1287,6 +1287,26 @@ native barrier forces a specific stable but not well-founded relation
 built from the injection. This is a necessary test for a countermodel, not
 a countermodel, and one such relation refutes no barrier.
 
+`Audit/CountableDNS.lean` adds the reviewer's shift result on top of that
+pullback, with double-negation shift kept as an explicit premise. Shift
+over a type follows from irrefutable excluded middle, and shift over
+propositions is exactly irrefutable excluded middle, so only the countable
+instance is a genuinely localized hypothesis. Countable shift turns the
+stable but not well-founded pullback into a contradiction, so the fixed
+native bound on well-founded codes over the naturals becomes a particular
+native barrier at ω, and through the bridge the graph envelope at the
+relational Hartogs ordinal follows; conversely, absence of a native barrier
+refutes countable shift. The reviewer's external audit of nc7, recorded in
+the module docstring and not formalized, shows that the chain presheaf
+model validates the barrier for that very bound while refuting both
+excluded middle and countable shift, and that a counting of world and
+numeral pairs excludes countable branching frames and frames small
+relative to the native universe as well. Failure of either logical
+principle is therefore not evidence for a countermodel, and the checked
+implication from countable shift to the barrier is sufficient, not
+necessary. The unconditional barrier and unrestricted graph Collection
+remain open.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
