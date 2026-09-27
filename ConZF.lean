@@ -65,6 +65,7 @@ import ConZF.Audit.SepBounding
 import ConZF.Audit.Certificate
 import ConZF.ObjMajorant
 import ConZF.Audit.DecoderObstruction
+import ConZF.GraphConsumer
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov

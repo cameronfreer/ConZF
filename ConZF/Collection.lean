@@ -113,57 +113,57 @@ theorem idQ (ψ : Fml) :
 /-! ### The derivation -/
 
 section
-variable (ψ : Fml)
+variable {T : Fml → Prop} (ψ : Fml)
 
 /-- The premise of Collection for the totalization is provable outright, classically. -/
-theorem totalize_total : Prf ZFCollection (all (imp (mem 0 1) (ex (rename cA (totalize ψ))))) := by
+theorem totalize_total : Prf T (all (imp (mem 0 1) (ex (rename cA (totalize ψ))))) := by
   refine Prf.gen (weaken ?_)
   -- context `[x, a, …]`; `ex θA = neg (all (neg θA))`
   refine ND.toPrf (Γ := []) (intro ?_)
   -- hypothesis `H = all (neg θA)`
-  have hall : ND ZFCollection [all (neg (rename cA (totalize ψ)))] (all (neg (rename cA ψ))) :=
+  have hall : ND T [all (neg (rename cA (totalize ψ)))] (all (neg (rename cA ψ))) :=
     ND.gen (neg_or_left (inst_lift (hyp (.head _))))
-  have hinst := ND.inst 1 (hyp (.head _) : ND ZFCollection [all (neg (rename cA (totalize ψ)))] _)
+  have hinst := ND.inst 1 (hyp (.head _) : ND T [all (neg (rename cA (totalize ψ)))] _)
   -- `¬(or ψA (and (eq 1 1) (neg (ex ψE1))))` with `ψE1 = ψA`
-  have hnB : ND ZFCollection [all (neg (rename cA (totalize ψ)))]
+  have hnB : ND T [all (neg (rename cA (totalize ψ)))]
       (neg (and (eq 1 1) (neg (ex (rename (up (inst 1)) (rename (up cA) (rename cB ψ))))))) :=
     neg_or_right hinst
   rw [idE2] at hnB
   exact mp hnB (and_intro (thm (Prf.refl 1)) (mp (thm dn_intro) hall))
 
 /-- The instance of the collected relation at the source. -/
-theorem collected : Prf ZFCollection
+theorem collected_of (hc : Prf T (coll (totalize ψ))) : Prf T
     (ex (all (imp (mem 0 2) (ex (and (mem 0 2) (rename cB (totalize ψ))))))) :=
-  Prf.mp (Prf.ax (ZFCollection.coll (totalize ψ))) (totalize_total ψ)
+  Prf.mp hc (totalize_total ψ)
 
-/-- **Replacement from Collection.** -/
-theorem repl_of_collection : Prf ZFCollection (repl ψ) := by
+/-- **Replacement from Collection**, in any theory proving the one Collection instance. -/
+theorem repl_of_collection_of (hc : Prf T (coll (totalize ψ))) : Prf T (repl ψ) := by
   let F := all (imp (mem 0 1) (all (all (imp (rename r1 ψ) (imp (rename r2 ψ) (eq 1 0))))))
   let bodyC := imp (mem 0 2) (ex (and (mem 0 2) (rename cB (totalize ψ))))
   let Concl := all bodyC
   let E := ex (and (mem 0 3) (rename r3 ψ))
   let G := all (imp E (mem 0 1))
-  suffices h : Prf ZFCollection (imp F (imp (ex Concl) (ex G))) from
-    Prf.mp (Prf.mp swapC h) (collected ψ)
+  suffices h : Prf T (imp F (imp (ex Concl) (ex G))) from
+    Prf.mp (Prf.mp swapC h) (collected_of ψ hc)
   refine ND.toPrf (Γ := [F, ex Concl]) (intro ?_)
   refine ex_elim (Γ := [all (neg G), F, ex Concl]) (hyp (.tail _ (.tail _ (.head _)))) ?_
   -- context `[b, a, …]`
   let Γ1 : List Fml := [Concl, lift (all (neg G)), lift F, lift (ex Concl)]
-  show ND ZFCollection Γ1 fls
-  refine mp (inst_lift (hyp (.tail _ (.head _)) : ND ZFCollection Γ1 (lift (all (neg G))))) ?_
-  show ND ZFCollection Γ1 G
+  show ND T Γ1 fls
+  refine mp (inst_lift (hyp (.tail _ (.head _)) : ND T Γ1 (lift (all (neg G))))) ?_
+  show ND T Γ1 G
   refine ND.gen (intro (by_contra ?_))
   -- context `[y, b, a, …]`
   let Γ2 : List Fml := [neg (mem 0 1), E, lift Concl, lift (lift (all (neg G))), lift (lift F),
     lift (lift (ex Concl))]
-  show ND ZFCollection Γ2 fls
-  refine ex_elim (hyp (.tail _ (.head _)) : ND ZFCollection Γ2 E) ?_
+  show ND T Γ2 fls
+  refine ex_elim (hyp (.tail _ (.head _)) : ND T Γ2 E) ?_
   -- context `[x, y, b, a, …]`
   let Γ3 : List Fml := [and (mem 0 3) (rename r3 ψ), neg (mem 1 2), lift E, lift (lift Concl),
     lift (lift (lift (all (neg G)))), lift (lift (lift F)), lift (lift (lift (ex Concl)))]
-  show ND ZFCollection Γ3 fls
-  have hxa : ND ZFCollection Γ3 (mem 0 3) := and_left (hyp (.head _))
-  have hC : ND ZFCollection Γ3 (rename (inst 0) (rename (up Nat.succ) (rename (up Nat.succ) bodyC))) :=
+  show ND T Γ3 fls
+  have hxa : ND T Γ3 (mem 0 3) := and_left (hyp (.head _))
+  have hC : ND T Γ3 (rename (inst 0) (rename (up Nat.succ) (rename (up Nat.succ) bodyC))) :=
     ND.inst 0 (hyp (.tail _ (.tail _ (.tail _ (.head _)))))
   rw [inst_lift2] at hC
   refine ex_elim (mp hC hxa) ?_
@@ -172,41 +172,50 @@ theorem repl_of_collection : Prf ZFCollection (repl ψ) := by
     and (mem 1 4) (rename Nat.succ (rename r3 ψ)), neg (mem 2 3), lift (lift E),
     lift (lift (lift Concl)), lift (lift (lift (lift (all (neg G))))), lift (lift (lift (lift F))),
     lift (lift (lift (lift (ex Concl))))]
-  show ND ZFCollection Γ4 fls
-  have hC2 : ND ZFCollection Γ4 (and (mem 0 3) (rename (up ins1) (rename cB (totalize ψ)))) := hyp (.head _)
+  show ND T Γ4 fls
+  have hC2 : ND T Γ4 (and (mem 0 3) (rename (up ins1) (rename cB (totalize ψ)))) := hyp (.head _)
   have hyb := and_left hC2
   have hθ := and_right hC2
-  have hC1 : ND ZFCollection Γ4 (and (mem 1 4) (rename Nat.succ (rename r3 ψ))) := hyp (.tail _ (.head _))
+  have hC1 : ND T Γ4 (and (mem 1 4) (rename Nat.succ (rename r3 ψ))) := hyp (.tail _ (.head _))
   have hψ3 := and_right hC1
-  have hny : ND ZFCollection Γ4 (neg (mem 2 3)) := hyp (.tail _ (.tail _ (.head _)))
+  have hny : ND T Γ4 (neg (mem 2 3)) := hyp (.tail _ (.tail _ (.head _)))
   refine or_elim hθ ?_ ?_
   · -- case `ψ(x, y')`: functionality gives `y = y'`, so `y ∈ b`
     let P := rename (up ins1) (rename cB ψ)
-    have hF : ND ZFCollection (P :: Γ4) (rename (inst 1) (rename (up Nat.succ) (rename (up Nat.succ)
+    have hF : ND T (P :: Γ4) (rename (inst 1) (rename (up Nat.succ) (rename (up Nat.succ)
         (rename (up Nat.succ) (rename (up Nat.succ)
           (imp (mem 0 1) (all (all (imp (rename r1 ψ) (imp (rename r2 ψ) (eq 1 0))))))))))) :=
       ND.inst 1 (hyp (.tail _ (.tail _ (.tail _ (.tail _ (.tail _ (.tail _ (.tail _ (.head _)))))))))
     rw [inst_lift4] at hF
-    have hF' : ND ZFCollection (P :: Γ4)
+    have hF' : ND T (P :: Γ4)
         (imp (rename (inst 0) (rename (up (inst 2)) (rename (up (up ins4)) (rename r1 ψ))))
           (imp (rename (inst 0) (rename (up (inst 2)) (rename (up (up ins4)) (rename r2 ψ)))) (eq 2 0))) :=
       ND.inst 0 (ND.inst 2 (mp hF (and_left (wk hC1))))
     rw [idF1, idF2] at hF'
-    have heq : ND ZFCollection (P :: Γ4) (eq 2 0) := mp (mp hF' (wk hψ3)) (hyp (.head _))
+    have heq : ND T (P :: Γ4) (eq 2 0) := mp (mp hF' (wk hψ3)) (hyp (.head _))
     exact mp (wk hny) (mp (mp (thm (Prf.eq_mem_l 0 2 3)) (eq_symm 2 0 heq)) (wk hyb))
   · -- case default: `¬∃z ψ(x, z)` contradicts `ψ(x, y)`
     let D := rename (up ins1) (rename cB (and (eq 1 2) (neg (ex (rename cB ψ)))))
-    have hne : ND ZFCollection (D :: Γ4)
+    have hne : ND T (D :: Γ4)
         (neg (ex (rename (up (up ins1)) (rename (up cB) (rename cB ψ))))) :=
-      and_right (hyp (.head _) : ND ZFCollection (D :: Γ4)
+      and_right (hyp (.head _) : ND T (D :: Γ4)
         (and (eq 0 4) (neg (ex (rename (up (up ins1)) (rename (up cB) (rename cB ψ)))))))
-    have hex : ND ZFCollection (D :: Γ4) (ex (rename (up (up ins1)) (rename (up cB) (rename cB ψ)))) :=
+    have hex : ND T (D :: Γ4) (ex (rename (up (up ins1)) (rename (up cB) (rename cB ψ)))) :=
       ND.ex_intro 2 (by rw [idQ]; exact wk hψ3)
     exact mp hne hex
 
 end
 
+theorem collected (ψ : Fml) : Prf ZFCollection
+    (ex (all (imp (mem 0 2) (ex (and (mem 0 2) (rename cB (totalize ψ))))))) :=
+  collected_of ψ (Prf.ax (ZFCollection.coll (totalize ψ)))
+
+/-- **Replacement from Collection.** -/
+theorem repl_of_collection (ψ : Fml) : Prf ZFCollection (repl ψ) :=
+  repl_of_collection_of ψ (Prf.ax (ZFCollection.coll (totalize ψ)))
+
 end ZFAx
+
 
 /-- Every theorem of `ZF` is a theorem of `ZFCollection`. -/
 theorem prf_collection_of_zf {φ : Fml} (h : Prf ZF φ) : Prf ZFCollection φ := by

@@ -1202,6 +1202,31 @@ supplies negative logical support only, not positive witness reconstruction;
 the witness-and-bound step of Avigad's construction uses Collection
 explicitly and is not replaced here.
 
+`GraphConsumer.lean` changes the semantic domain rather than the syntax.
+The original source formulas and the original proof calculus are
+interpreted over graph sets through the existing graph satisfaction, with
+source existentials still read negatively, so nothing asks a membership
+fact to return a witness descriptor and the NegCore counterexamples stay
+valid. Soundness is proved constructor by constructor for the actual proof
+calculus, and every axiom of ZF except Replacement is validated, including
+every Separation instance, by the exact graph Separation law at the
+satisfaction predicate. The decoder is read through its existing bounded
+body: a successful decoding of a diagram in a source yields an ordinal with
+an injection relation into the triple union of the source, the images of
+the isomorphism graph lying there and inverse uniqueness following from the
+order clause and ordinal trichotomy, so the output lies in the relational
+Hartogs bound of the triple union. Adjoining the source for the default
+output gives an explicit collector that validates the literal totalized
+Collection instance at every environment, its conclusion outright, with no
+decoder uniqueness and no Collection premise. The theory with the base
+axioms, all Separation, and this one Collection formula is therefore
+consistent, and it proves the decoder's Replacement instance, since the
+Replacement-from-Collection derivation is now factored through an arbitrary
+theory proving that single instance. This is not consistency of ZF, not
+validity of unrestricted Collection, and not a native barrier; the exact
+remaining theorem for full source adequacy is graph Collection for an
+arbitrary matrix.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
