@@ -28,6 +28,18 @@ Their Theorem 2.1 shows the general principle entails Markov's principle, and it
 partial-combinatory-algebra fixed point: none of this makes `Upgrade` an axiom-free theorem of Lean.
 All targets stay distinct: `Upgrade` is much stronger than the barrier; the barrier suffices for the
 graph envelope; neither converse nor unrestricted graph Collection is supplied.
+
+Further external observation (nc9, reviewed at e19c092; not formalized): internal realizability over
+the full natural-number-chain presheaf base does not escape either. Density of the canonical
+inclusion lets the closed-subobject correspondence preserve negation, so the stable active-label
+subtype and its stable pulled-back relation transfer to the base, where the chain model supplies full
+induction; the published reflection theorem, which needs no Boolean base, brings full induction back,
+in arbitrary contexts. That yields only the **restricted** upgrade, for stable relations on stable
+natural-number subtypes, which suffices to refute an injection of `bStar` into `ω` through the
+checked pullback; it does not establish the unrestricted `Upgrade` parameter above, nor its
+`Con ZFCI` corollary. The next countermodel test stays negative: even `SWF R → ¬¬WellFounded R`
+contradicts the pullback, so failing to force full well-foundedness, or refuting Markov or the
+unrestricted upgrade, does not pass it.
 -/
 universe u
 

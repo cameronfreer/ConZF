@@ -1327,6 +1327,25 @@ realizer and its Boolean-base identification of the topology with double
 negation do not make the premise a theorem of Lean, and no effective topos
 is formalized. Nothing unconditional is added.
 
+A further external review, of nc9, closes the obvious escape through a
+non-Boolean base. Internal realizability over the full natural-number-chain
+presheaf model transfers the stable active-label subtype and its stable
+pulled-back relation to the base, because density of the canonical
+inclusion makes the closed-subobject correspondence preserve negation, and
+the chain model supplies full induction there; the published reflection
+theorem, which needs no Boolean base, brings full induction back in
+arbitrary contexts. This yields only the restricted upgrade for stable
+relations on stable natural-number subtypes, which is exactly enough to
+refute the injection of the fixed bound into ω through the checked
+pullback, and it is kept distinct from the unrestricted premise of the
+upgrade bridge and its consistency corollary. The next countermodel test
+therefore remains negative: even a double-negated well-foundedness
+conclusion for the injection-derived relation contradicts the pullback, so
+failing to force full well-foundedness, or refuting Markov's principle or
+the unrestricted upgrade, does not pass it. A proposed counting extension
+to universe-small presheaf frames, hinging on a smallness hypothesis for
+the carrier of the transferred well-order, is with the oracle for audit.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
