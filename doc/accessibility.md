@@ -1250,6 +1250,26 @@ history through an index" over the lower cone, stated semantically only.
 What remains open, and is not assumed, is a graph envelope at the relational
 Hartogs ordinal of embedded ω.
 
+`NativeBridge.lean` sharpens the boundary between native and graph sets at
+ω without constructing either an envelope or a barrier. The embedding
+commutes with rank, so a graph set is negatively native exactly when its
+rank is, and an exact rank row at a graph ordinal has that ordinal as its
+rank and is native exactly when the ordinal is. For a native domain, an
+injection relation into embedded ω is equivalent to a native pure injection
+into ω: each input keeps its membership-least successful label, found by
+the native minimal-element lemma on a separated set of labels and unique by
+ordinal trichotomy, and the native graph is a Separation inside the product
+with ω, with every witness negative. It follows that a native barrier at ω
+exists exactly when the relational Hartogs ordinal of embedded ω is native,
+exactly when it has a native rank envelope, and each of these gives the
+arbitrary graph envelope. Given such an envelope, a native bound on the
+native representatives of its pointed subgraphs of bounded rank is exactly
+a native barrier, the barrier being the native rank of the bound; the
+canonical cut of the envelope is native exactly when a barrier exists. The
+direction from an arbitrary graph envelope back to a native barrier is
+open and not assumed, and no strictness between the two envelope notions
+is claimed.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.

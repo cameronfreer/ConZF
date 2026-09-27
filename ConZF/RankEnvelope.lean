@@ -13,7 +13,8 @@ ambient `GSet.{u}`; nothing here changes `NegCore`, and no unrestricted Collecti
   recursion `W` satisfies `W t ≈ embed (Vl t)` (`W_equiv_embed_Vl`), so its members are negatively
   native (`W_native_members`); and a **native** envelope for a graph ordinal already gives that
   ordinal a native representative (`native_envelope_collapses`). The general target `RankCover κ E`
-  asks for an arbitrary graph envelope; the native-envelope premise is strictly stronger.
+  asks for an arbitrary graph envelope; the native-envelope premise implies it, and the converse is
+  not established.
 * **Rank identities.** `rank X ⊆ γ ↔ ∀ Y ∈ X, rank Y ∈ γ` (`rank_subset_iff`) and
   `rank X ∈ β ↔ ¬¬∃ γ ∈ β, ∀ Y ∈ X, rank Y ∈ γ` (`rank_mem_iff`); the exact full-ambient reading
   `X ∈ W t ↔ rank X ∈ rank (embed t)` (`mem_W_iff`), giving actual rank envelopes at native tree
