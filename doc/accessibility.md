@@ -1270,6 +1270,23 @@ direction from an arbitrary graph envelope back to a native barrier is
 open and not assumed, and no strictness between the two envelope notions
 is claimed.
 
+`Audit/SWFPullback.lean` records two checks that any proposed semantics for
+the no-barrier scenario has to pass. First, accessibility of a graph root
+builds an explicit native tree equivalent to the graph, and under excluded
+middle stable well-founded induction is ordinary well-foundedness, so
+irrefutable excluded middle, taken as a theorem parameter and never as an
+axiom, already gives the native barrier at ω; a model of the no-barrier
+scenario must therefore fail irrefutable excluded middle, and being
+non-Boolean is not enough. Second, fixing the native ordinal that bounds
+all well-founded codes on the naturals before any assumption, a pure
+injection of it into ω pulls membership back to a relation on active
+labels that satisfies stable well-founded induction but cannot be
+well-founded in the ordinary sense, since a well-foundedness proof would
+make it a code whose decoded height dominates the bound. So absence of a
+native barrier forces a specific stable but not well-founded relation
+built from the injection. This is a necessary test for a countermodel, not
+a countermodel, and one such relation refutes no barrier.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
