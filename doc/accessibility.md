@@ -1342,9 +1342,31 @@ upgrade bridge and its consistency corollary. The next countermodel test
 therefore remains negative: even a double-negated well-foundedness
 conclusion for the injection-derived relation contradicts the pullback, so
 failing to force full well-foundedness, or refuting Markov's principle or
-the unrestricted upgrade, does not pass it. A proposed counting extension
-to universe-small presheaf frames, hinging on a smallness hypothesis for
-the carrier of the transferred well-order, is with the oracle for audit.
+the unrestricted upgrade, does not pass it.
+
+The review of nc10 resolves the smallness question that extension left
+open and replaces it with two scoped exclusions, both external and neither
+formalized. For a full presheaf base on a frame small relative to the
+native universe, with ordinary internal realizability over it and the
+standard cardinal-small display-map structure, the constant well-order of
+the successor cardinal of the frame's size transfers to a small carrier,
+reflected well-foundedness makes it a certificate, the existing native
+decoder yields a native ordinal with that many pairwise inequivalent
+global members, and counting world and numeral pairs in the context of any
+hypothetical injection shows this ordinal cannot inject into ω, so it is an
+internal native barrier and these models satisfy the graph-envelope
+benchmark through the checked bridge. For countable frames the smallness
+of the carrier is forced without choosing a display universe: the
+transferred uncountable ordinal embeds into the type of predicates on the
+naturals, using an external family of uncountably many distinct subsets in
+the full base, and that type is small whenever full Prop and the naturals
+are small and small types are closed under function types and
+proposition-defined subtypes. So changing only the universe within that
+setting cannot evade the argument; an escape must change an actual
+semantic assumption. Three things stay distinct: the barrier obtained is
+not asserted to be the branch's fixed bound, no unrestricted upgrade or
+unrestricted graph Collection follows, and a global native element of a
+semantic model is not a closed Lean term.
 
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct

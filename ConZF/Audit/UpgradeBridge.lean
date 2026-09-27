@@ -40,6 +40,22 @@ checked pullback; it does not establish the unrestricted `Upgrade` parameter abo
 `Con ZFCI` corollary. The next countermodel test stays negative: even `SWF R → ¬¬WellFounded R`
 contradicts the pullback, so failing to force full well-foundedness, or refuting Markov or the
 unrestricted upgrade, does not pass it.
+
+Further external exclusion (nc10, reviewed at c420fd1; not formalized), replacing the earlier
+pending smallness audit. For a full presheaf base on a universe-small frame with ordinary internal
+realizability over it, under the standard cardinal-small display-map structure (the assembly
+criterion of van den Berg–Moerdijk, Definition 2.5) and faithful native rules, the constant
+well-order of `λ = (max(|W|, ℵ₀))⁺` transfers to a small carrier, reflected well-foundedness makes it
+a certificate, the existing native decoder produces a native ordinal `b_λ` with `λ` many pairwise
+inequivalent global members, and a world/numeral counting argument in the context of any hypothetical
+injection makes `b_λ` an internal native barrier at `ω`; through the checked bridge these models also
+satisfy the graph-envelope benchmark. For **countable** frames the smallness of the carrier is forced
+without a chosen display universe: `∇(Δω₁)` embeds monically into `∇(𝒫(ΔNat)) ≅ (Ω_j)^N` using an
+external family of `ω₁` distinct subsets of `Nat` in the full base, and that type is small whenever
+full `Prop` and `Nat` are small and small types are closed under function types and `Prop`-defined
+subtypes. Kept distinct: `b_λ` is not asserted to be `bStar`; no unrestricted `Upgrade`, unrestricted
+graph Collection, or unconditional Lean barrier results; and a global native element of a semantic
+model is not a closed Lean term.
 -/
 universe u
 
