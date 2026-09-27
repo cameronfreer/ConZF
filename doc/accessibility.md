@@ -1227,6 +1227,29 @@ validity of unrestricted Collection, and not a native barrier; the exact
 remaining theorem for full source adequacy is graph Collection for an
 arbitrary matrix.
 
+`RankEnvelope.lean` takes the transfinite test one step further without
+settling it. The reviewer's checked interface between native trees and graph
+sets is integrated: graph subsets of an embedded native set have explicit
+native representatives, the embedding preserves the full ambient graph
+powerset, and the structural level of a native tree is the embedding of the
+native level, so its members are negatively native; a native envelope for a
+graph ordinal already collapses that ordinal to a native representative,
+which is why the general target asks for an arbitrary graph envelope. The
+rank identities show that membership of a rank in an ordinal is negative
+existence of a smaller ordinal bounding the ranks of all members, and give
+the exact full-ambient reading of the level: a graph set lies in the level
+of a native tree exactly when its rank is below the rank of the embedded
+tree. The powerset history is a pure total functional graph on the successor
+of an index whose rows satisfy a membership recurrence; every correct row is
+exactly the strict rank class, histories agree on overlaps, one envelope
+builds the whole history by Separation and a range over literal
+predecessors, and so a history exists negatively exactly when an envelope
+does, with the positive case at every native tree index. The same existence
+is equivalent to ordinary Collection for the one fixed matrix "correct
+history through an index" over the lower cone, stated semantically only.
+What remains open, and is not assumed, is a graph envelope at the relational
+Hartogs ordinal of embedded ω.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
