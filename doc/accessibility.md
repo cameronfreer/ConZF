@@ -1349,7 +1349,8 @@ open and replaces it with two scoped exclusions, both external and neither
 formalized. For a full presheaf base on a frame small relative to the
 native universe, with ordinary internal realizability over it and the
 standard cardinal-small display-map structure, the constant well-order of
-the successor cardinal of the frame's size transfers to a small carrier,
+λ = (max(|W|, ℵ₀))⁺, which exceeds both the frame's size and ℵ₀ as the
+counting requires, transfers to a small carrier,
 reflected well-foundedness makes it a certificate, the existing native
 decoder yields a native ordinal with that many pairwise inequivalent
 global members, and counting world and numeral pairs in the context of any
