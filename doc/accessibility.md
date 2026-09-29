@@ -1405,6 +1405,23 @@ Collection. The theory extended by these instances is consistent and
 proves the corresponding Replacement instances; their validity is not a
 derivation in the smaller theory.
 
+The third stage generalizes the decoder. Replacing ordinalhood by
+transitivity in the decoder body, and keeping every other clause, inverse
+uniqueness of the isomorphism graph follows from Extensionality and order
+reflection instead of trichotomy, so a decoded transitive set has an
+injection relation into the triple union of the source and is a subset of
+the raw envelope there; its Collection instance is valid and its
+Replacement instance is provable in the extended theory. The combined
+theory, given by an explicit axiom predicate, has the base axioms with
+every Separation instance, the ordinal decoder's Collection instance,
+transitive containment, both forms of Axiom H, every support-guarded
+Collection instance and the transitive decoder's Collection instance, and
+it is consistent. The work stops there: no rank calibration, no
+generalized guards, no source derivation of the equivalence between the
+two forms of Axiom H, and the unrestricted Collection and rank-envelope
+problems remain open. What is still missing in general is a common support
+bound for the required witnesses that is produced and not assumed.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.

@@ -76,6 +76,7 @@ import ConZF.HRel.Syntax
 import ConZF.HRel.Consumer
 import ConZF.HRel.Support
 import ConZF.HRel.Guarded
+import ConZF.HRel.TransDecoder
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
