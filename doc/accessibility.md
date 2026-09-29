@@ -1389,6 +1389,22 @@ set. No strict increase in consistency strength over the base is
 established, and bounding transitive support does not bound every set
 below a given ordinal rank, so the rank envelope stays open.
 
+The second stage turns the envelope into a Collection schema. A set has
+weak support in U when, negatively, it is a subset of some transitive set
+with a relational injection into U; this is a root-free convention, a
+subset and not a member, and it is kept apart from the usual hereditary
+cardinality class. Guarding a matrix by the condition that the output has
+weak support in the input gives, for every source formula, a Collection
+instance that is valid in the graph interpretation: each input of a source
+is included in the union of the source, support is monotone in the base,
+and a supported set is a subset of the raw envelope, so the powerset of
+the envelope of that union, with the source adjoined for the default,
+collects every guarded output. The test may be arbitrary because the guard
+alone supplies the bound, which is exactly why this is not unrestricted
+Collection. The theory extended by these instances is consistent and
+proves the corresponding Replacement instances; their validity is not a
+derivation in the smaller theory.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.
