@@ -1369,6 +1369,26 @@ not asserted to be the branch's fixed bound, no unrestricted upgrade or
 unrestricted graph Collection follows, and a global native element of a
 semantic model is not a closed Lean term.
 
+The modules under `HRel/` add a positive result in the graph
+interpretation. For a graph set U, take every pointed non-top node of
+every stably well-founded code on the literal carrier of U. This is a
+small family with a total graph-valued readback, and its range is
+transitive, since a member of a pointed node is another pointed node of
+the same code. The checked pullback exactness, which needs transitivity
+and not ordinalhood, shows that every transitive set with an injection
+relation into U is included in that range. So Axiom H, in the form "for
+every U there is a transitive H including every transitive T that
+injects into U", is valid in the graph interpretation, both for relational
+injections and for ordinary ones, the latter by forgetting forward
+functionality; transitive containment is valid by the range of all pointed
+vertices of a graph. The source theory with the base axioms, every
+Separation instance, the decoder's Collection instance, transitive
+containment and Axiom H is therefore consistent. The envelope uses the
+literal carrier and is not identified with an exact hereditary-support
+set. No strict increase in consistency strength over the base is
+established, and bounding transitive support does not bound every set
+below a given ordinal rank, so the rank envelope stays open.
+
 Not formalized: the converse cardinal bridge, the internal reflection
 sentence, the two-height assembly, and the finite scheme of distinct
 inaccessibles.

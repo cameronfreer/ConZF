@@ -71,6 +71,9 @@ import ConZF.NativeBridge
 import ConZF.Audit.SWFPullback
 import ConZF.Audit.CountableDNS
 import ConZF.Audit.UpgradeBridge
+import ConZF.HRel.Core
+import ConZF.HRel.Syntax
+import ConZF.HRel.Consumer
 import ConZF.Acc
 import ConZF.CanonicalAcc
 import ConZF.Markov
